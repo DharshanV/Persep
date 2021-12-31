@@ -7,7 +7,7 @@ import androidx.lifecycle.Lifecycle;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 
 import com.example.persep.fragments.Home_Fragment_1;
-import com.example.persep.fragments.Home_Fragment_2;
+import com.example.persep.fragments.VR_Fragment;
 import com.example.persep.fragments.Home_Fragment_3;
 
 
@@ -33,7 +33,7 @@ public class SlidePagerAdapter extends FragmentStateAdapter
             case 0:
                 return new Home_Fragment_1();
             case 1:
-                return new Home_Fragment_2();
+                return new VR_Fragment();
         }
         return new Home_Fragment_3();
     }

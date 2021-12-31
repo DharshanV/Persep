@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".fragments.Home_Fragment_2">
+    tools:context=".fragments.VR_Fragment">
 
     <TextView
         android:layout_width="match_parent"
@@ -12,5 +12,5 @@
         android:background="@color/teal_200"
         android:textColor="@color/white"
         android:textSize="32sp"
-        android:text="Fragment 2" />
+        android:text="VR Fragment" />
 </FrameLayout>
