@@ -11,27 +11,36 @@ import com.example.persep.fragments.Home_Fragment_2;
 import com.example.persep.fragments.Home_Fragment_3;
 
 
-public class SlidePagerAdapter extends FragmentStateAdapter {
+public class SlidePagerAdapter extends FragmentStateAdapter
+{
+    //Public
+    public static final int MIDDLE_PAGE_INDEX = 1;
 
+    //Private
     private static final int NUM_PAGES = 3;
 
-    public SlidePagerAdapter(@NonNull FragmentManager fragmentManager, @NonNull Lifecycle lifecycle) {
+    public SlidePagerAdapter(@NonNull FragmentManager fragmentManager, @NonNull Lifecycle lifecycle)
+    {
         super(fragmentManager, lifecycle);
     }
 
     @NonNull
     @Override
-    public Fragment createFragment(int position) {
+    public Fragment createFragment(int position)
+    {
         switch (position)
         {
-            case 1: return new Home_Fragment_1();
-            case 2: return new Home_Fragment_2();
+            case 0:
+                return new Home_Fragment_1();
+            case 1:
+                return new Home_Fragment_2();
         }
         return new Home_Fragment_3();
     }
 
     @Override
-    public int getItemCount() {
+    public int getItemCount()
+    {
         return NUM_PAGES;
     }
 }
