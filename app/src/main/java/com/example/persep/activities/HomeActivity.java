@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentManager;
 import androidx.viewpager2.widget.ViewPager2;
 
+import android.annotation.SuppressLint;
 import android.os.Bundle;
 
 import com.example.persep.R;
@@ -15,6 +16,7 @@ public class HomeActivity extends AppCompatActivity
     ViewPager2 viewPager;
     SlidePagerAdapter slidePagerAdapter;
 
+    @SuppressLint("WrongConstant")
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
@@ -22,7 +24,7 @@ public class HomeActivity extends AppCompatActivity
         setContentView(R.layout.activity_home);
 
         viewPager = findViewById(R.id.ViewPager);
-        viewPager.setOffscreenPageLimit(3);
+        viewPager.setOffscreenPageLimit(SlidePagerAdapter.NUM_PAGES);
 
         FragmentManager fragmentManager = getSupportFragmentManager();
         slidePagerAdapter = new SlidePagerAdapter(fragmentManager, getLifecycle());

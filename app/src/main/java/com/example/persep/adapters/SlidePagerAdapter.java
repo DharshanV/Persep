@@ -15,9 +15,7 @@ public class SlidePagerAdapter extends FragmentStateAdapter
 {
     //Public
     public static final int MIDDLE_PAGE_INDEX = 1;
-
-    //Private
-    private static final int NUM_PAGES = 3;
+    public static final int NUM_PAGES = 3;
 
     public SlidePagerAdapter(@NonNull FragmentManager fragmentManager, @NonNull Lifecycle lifecycle)
     {
