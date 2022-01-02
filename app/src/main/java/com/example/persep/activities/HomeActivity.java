@@ -22,11 +22,12 @@ public class HomeActivity extends AppCompatActivity
         setContentView(R.layout.activity_home);
 
         viewPager = findViewById(R.id.ViewPager);
+        viewPager.setOffscreenPageLimit(3);
 
         FragmentManager fragmentManager = getSupportFragmentManager();
         slidePagerAdapter = new SlidePagerAdapter(fragmentManager, getLifecycle());
         viewPager.setAdapter(slidePagerAdapter);
-        viewPager.setCurrentItem(SlidePagerAdapter.MIDDLE_PAGE_INDEX, false);
+        viewPager.setCurrentItem(SlidePagerAdapter.MIDDLE_PAGE_INDEX);
     }
 
     @Override
