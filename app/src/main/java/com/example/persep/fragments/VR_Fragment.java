@@ -28,7 +28,6 @@ public class VR_Fragment extends Fragment
     {
         Log.d(TAG, "Created");
         super.onCreate(savedInstanceState);
-
     }
 
     @Override
