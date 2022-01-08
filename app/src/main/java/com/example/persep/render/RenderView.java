@@ -1,56 +1,77 @@
 package com.example.persep.render;
 
 import android.content.Context;
-import android.opengl.GLSurfaceView;
+import android.graphics.SurfaceTexture;
 import android.util.Log;
-import android.view.SurfaceHolder;
+import android.view.TextureView;
 
-public class RenderView extends GLSurfaceView
+import androidx.annotation.NonNull;
+
+import java.util.concurrent.atomic.AtomicBoolean;
+
+//https://programmer.group/writing-opengl-program-based-on-textureview.html
+public class RenderView extends TextureView implements TextureView.SurfaceTextureListener
 {
     private static final String TAG = "RenderView";
-
-    OpenGLRenderer m_Renderer;
+    private GLProducerThread m_ProducerThread = null;
+    private OpenGLRenderer m_Renderer;
 
     public RenderView(Context context)
     {
         super(context);
-        m_Renderer = new OpenGLRenderer();
-        setEGLContextClientVersion(2);
-        setRenderer(m_Renderer);
-        setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
-    }
-
-    public void surfaceCreated(SurfaceHolder holder)
-    {
-        Log.d(TAG, "OpenGL surface created");
-        super.surfaceCreated(holder);
-    }
-
-    public void surfaceDestroyed(SurfaceHolder holder)
-    {
-        Log.d(TAG, "OpenGL surface destroyed");
-        super.surfaceDestroyed(holder);
-    }
-
-    public void surfaceChanged(SurfaceHolder holder, int format, int w, int h)
-    {
-        Log.d(TAG, "OpenGL surface changed");
-        super.surfaceChanged(holder, format, w, h);
+        m_Renderer = new OpenGLRenderer(context);
+        setSurfaceTextureListener(this);
     }
 
     @Override
-    public void onResume()
+    public void onSurfaceTextureAvailable(@NonNull SurfaceTexture surface, int width, int height)
     {
-        Log.d(TAG, "Resumed");
-        super.onResume();
-        m_Renderer.onResume();
+        m_ProducerThread = new GLProducerThread(surface, m_Renderer, new AtomicBoolean(true));
+        m_ProducerThread.SetShouldRender(true);
+        m_ProducerThread.start();
     }
 
     @Override
+    public void onSurfaceTextureSizeChanged(@NonNull SurfaceTexture surface, int width, int height)
+    {
+        m_Renderer.resize(width, height);
+    }
+
+    @Override
+    public boolean onSurfaceTextureDestroyed(@NonNull SurfaceTexture surface)
+    {
+        Log.d(TAG, "Texture view destroyed");
+        m_ProducerThread.SetShouldRender(false);
+        m_ProducerThread.SetRunningFlag(false);
+        try
+        {
+            m_ProducerThread.join();
+        } catch (InterruptedException e)
+        {
+            e.printStackTrace();
+        }
+        m_ProducerThread = null;
+        return true;
+    }
+
+    @Override
+    public void onSurfaceTextureUpdated(@NonNull SurfaceTexture surface)
+    {
+    }
+
     public void onPause()
     {
-        Log.d(TAG, "Paused");
-        super.onPause();
-        m_Renderer.onPause();
+        if(m_ProducerThread != null)
+        {
+            m_ProducerThread.SetShouldRender(false);
+        }
+    }
+
+    public void onResume()
+    {
+        if(m_ProducerThread != null)
+        {
+            m_ProducerThread.SetShouldRender(true);
+        }
     }
 }

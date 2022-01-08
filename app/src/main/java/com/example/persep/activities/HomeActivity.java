@@ -29,7 +29,7 @@ public class HomeActivity extends AppCompatActivity
         FragmentManager fragmentManager = getSupportFragmentManager();
         slidePagerAdapter = new SlidePagerAdapter(fragmentManager, getLifecycle());
         viewPager.setAdapter(slidePagerAdapter);
-        viewPager.setCurrentItem(SlidePagerAdapter.MIDDLE_PAGE_INDEX);
+        viewPager.setCurrentItem(SlidePagerAdapter.MIDDLE_PAGE_INDEX, false);
     }
 
     @Override

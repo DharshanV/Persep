@@ -15,6 +15,7 @@ import com.example.persep.render.RenderView;
 //https://github.com/google/grafika/blob/b1df331e89cffeab621f02b102d4c2c25eb6088a/app/src/main/java/com/android/grafika/ContinuousCaptureActivity.java#L482
 //https://www.maninara.com/2015/03/render-camera-preview-using-opengl-es.html
 //https://www.freecodecamp.org/news/android-camera2-api-take-photos-and-videos/
+//https://programmer.group/writing-opengl-program-based-on-textureview.html
 
 public class VR_Fragment extends Fragment
 {
