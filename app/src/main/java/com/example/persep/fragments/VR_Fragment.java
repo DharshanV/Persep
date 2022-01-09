@@ -36,6 +36,7 @@ public class VR_Fragment extends Fragment
     {
         Log.d(TAG, "Started");
         super.onStart();
+        m_RenderView.onStart();
     }
 
     @Override
@@ -43,6 +44,7 @@ public class VR_Fragment extends Fragment
     {
         Log.d(TAG, "Stopped");
         super.onStop();
+        m_RenderView.onStop();
     }
 
     @Override

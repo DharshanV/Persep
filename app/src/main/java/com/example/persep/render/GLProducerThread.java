@@ -2,7 +2,7 @@ package com.example.persep.render;
 
 import android.graphics.SurfaceTexture;
 import android.opengl.GLUtils;
-import android.os.SystemClock;
+import android.os.Trace;
 import android.util.Log;
 
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -35,6 +35,7 @@ public class GLProducerThread extends Thread
     private long m_EndTime;
     private long m_DeltaTime;
     private static final int MAX_FPS = 30;
+    private static final long TARGET_DELAY = 1000/MAX_FPS;
 
     public GLProducerThread(SurfaceTexture surfaceTexture, OpenGLRenderer renderer, AtomicBoolean runningFlag)
     {
@@ -42,7 +43,7 @@ public class GLProducerThread extends Thread
         m_Renderer = renderer;
         m_RunningFlag = runningFlag;
         m_ShouldRender = new AtomicBoolean();
-//        startTime = System.currentTimeMillis();
+        m_StartTime = System.currentTimeMillis();
     }
 
     private void initGLContext()
@@ -115,32 +116,27 @@ public class GLProducerThread extends Thread
     @Override
     public void run()
     {
+        Trace.beginSection("GL_Thread_Running");
         initGLContext();
 
         if (m_Renderer != null) {  m_Renderer.initGL();  }
 
         while (m_RunningFlag != null && m_RunningFlag.get()) {
-            m_StartTime = SystemClock.uptimeMillis() % 1000;
-
             if(m_ShouldRender != null && m_ShouldRender.get())
             {
+                Trace.beginSection("GL_Thread_Render");
                 if (m_Renderer != null)
                 {
                     m_Renderer.drawFrame();
                 }
                 mEgl.eglSwapBuffers(mEglDisplay, mEglSurface);
+                Trace.endSection();
             }
-
-            m_EndTime = SystemClock.uptimeMillis() % 1000;
-            m_DeltaTime = m_EndTime - m_StartTime;
-
-            if (m_DeltaTime < MAX_FPS) {
-                try {  sleep(MAX_FPS - m_DeltaTime);
-                } catch (InterruptedException ignored) { }
-            }
+            Sleep();
         }
 
         destroyGLContext();
+        Trace.endSection();
     }
 
     public void SetShouldRender(boolean shouldRender)
@@ -156,6 +152,17 @@ public class GLProducerThread extends Thread
         if(m_RunningFlag != null)
         {
             m_RunningFlag.set(runningFlag);
+        }
+    }
+
+    public void Sleep()
+    {
+        m_EndTime = System.currentTimeMillis();
+        m_DeltaTime = m_EndTime - m_StartTime;
+        if(m_DeltaTime < TARGET_DELAY)
+        {
+            try { sleep(TARGET_DELAY - m_DeltaTime); } catch (InterruptedException ignored) {}
+            m_StartTime = System.currentTimeMillis();
         }
     }
 }

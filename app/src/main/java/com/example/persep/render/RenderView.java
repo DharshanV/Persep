@@ -9,11 +9,13 @@ import androidx.annotation.NonNull;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
-//https://programmer.group/writing-opengl-program-based-on-textureview.html
+//https://riptutorial.com/android/example/2021/preview-the-main-camera-in-a-textureview
 public class RenderView extends TextureView implements TextureView.SurfaceTextureListener
 {
     private static final String TAG = "RenderView";
-    private GLProducerThread m_ProducerThread = null;
+
+    //OpenGL
+    private GLProducerThread m_GLThread = null;
     private OpenGLRenderer m_Renderer;
 
     public RenderView(Context context)
@@ -26,9 +28,9 @@ public class RenderView extends TextureView implements TextureView.SurfaceTextur
     @Override
     public void onSurfaceTextureAvailable(@NonNull SurfaceTexture surface, int width, int height)
     {
-        m_ProducerThread = new GLProducerThread(surface, m_Renderer, new AtomicBoolean(true));
-        m_ProducerThread.SetShouldRender(true);
-        m_ProducerThread.start();
+        m_GLThread = new GLProducerThread(surface, m_Renderer, new AtomicBoolean(true));
+        m_GLThread.SetShouldRender(true);
+        m_GLThread.start();
     }
 
     @Override
@@ -41,16 +43,21 @@ public class RenderView extends TextureView implements TextureView.SurfaceTextur
     public boolean onSurfaceTextureDestroyed(@NonNull SurfaceTexture surface)
     {
         Log.d(TAG, "Texture view destroyed");
-        m_ProducerThread.SetShouldRender(false);
-        m_ProducerThread.SetRunningFlag(false);
+
+        //Clean up running threads
+        //GLThread
+        m_GLThread.SetShouldRender(false);
+        m_GLThread.SetRunningFlag(false);
         try
         {
-            m_ProducerThread.join();
+            m_GLThread.join();
         } catch (InterruptedException e)
         {
             e.printStackTrace();
         }
-        m_ProducerThread = null;
+        m_GLThread = null;
+
+        System.gc();
         return true;
     }
 
@@ -61,17 +68,27 @@ public class RenderView extends TextureView implements TextureView.SurfaceTextur
 
     public void onPause()
     {
-        if(m_ProducerThread != null)
+        if(m_GLThread != null)
         {
-            m_ProducerThread.SetShouldRender(false);
+            m_GLThread.SetShouldRender(false);
         }
     }
 
     public void onResume()
     {
-        if(m_ProducerThread != null)
+        if(m_GLThread != null)
         {
-            m_ProducerThread.SetShouldRender(true);
+            m_GLThread.SetShouldRender(true);
         }
+    }
+
+    public void onStart()
+    {
+
+    }
+
+    public void onStop()
+    {
+
     }
 }

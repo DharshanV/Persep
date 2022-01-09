@@ -2,6 +2,7 @@ package com.example.persep.render;
 
 import android.content.Context;
 import android.opengl.GLES20;
+import android.os.Trace;
 import android.util.Log;
 
 import java.nio.ByteBuffer;
@@ -48,6 +49,7 @@ public class OpenGLRenderer
 
     public void drawFrame()
     {
+        Trace.beginSection("gl_draw_frame");
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
 
         GLES20.glUseProgram(m_ProgramObject);
@@ -56,6 +58,7 @@ public class OpenGLRenderer
         GLES20.glVertexAttribPointer(mPositionHandle, COORDS_PER_VERTEX, GLES20.GL_FLOAT, false, vertexStride, m_Vertices);
         GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, vertexCount);
         GLES20.glDisableVertexAttribArray(mPositionHandle);
+        Trace.endSection();
     }
 
     public void resize(int width, int height)
