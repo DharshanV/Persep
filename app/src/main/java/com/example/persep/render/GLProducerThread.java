@@ -5,6 +5,8 @@ import android.opengl.GLUtils;
 import android.os.Trace;
 import android.util.Log;
 
+import com.example.persep.activities.HomeActivity;
+
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.microedition.khronos.egl.EGL10;
@@ -34,8 +36,8 @@ public class GLProducerThread extends Thread
     private long m_StartTime;
     private long m_EndTime;
     private long m_DeltaTime;
-    private static final int MAX_FPS = 30;
-    private static final long TARGET_DELAY = 1000/MAX_FPS;
+    private float m_TargetFPS;
+    private long m_TargetDelay;
 
     public GLProducerThread(SurfaceTexture surfaceTexture, OpenGLRenderer renderer, AtomicBoolean runningFlag)
     {
@@ -44,6 +46,9 @@ public class GLProducerThread extends Thread
         m_RunningFlag = runningFlag;
         m_ShouldRender = new AtomicBoolean();
         m_StartTime = System.currentTimeMillis();
+
+        m_TargetFPS = HomeActivity.DEFAULT_DISPLAY_REFRESH_RATE;
+        m_TargetDelay = (long) (1.0f / m_TargetFPS * 1000.0f);
     }
 
     private void initGLContext()
@@ -127,12 +132,12 @@ public class GLProducerThread extends Thread
                 Trace.beginSection("GL_Thread_Render");
                 if (m_Renderer != null)
                 {
-                    m_Renderer.drawFrame();
+                    m_Renderer.drawFrame(m_DeltaTime);
+                    mEgl.eglSwapBuffers(mEglDisplay, mEglSurface);
                 }
-                mEgl.eglSwapBuffers(mEglDisplay, mEglSurface);
                 Trace.endSection();
             }
-            Sleep();
+            try {  Thread.sleep(m_TargetDelay); } catch (InterruptedException ignored)  { }
         }
 
         destroyGLContext();
@@ -152,17 +157,6 @@ public class GLProducerThread extends Thread
         if(m_RunningFlag != null)
         {
             m_RunningFlag.set(runningFlag);
-        }
-    }
-
-    public void Sleep()
-    {
-        m_EndTime = System.currentTimeMillis();
-        m_DeltaTime = m_EndTime - m_StartTime;
-        if(m_DeltaTime < TARGET_DELAY)
-        {
-            try { sleep(TARGET_DELAY - m_DeltaTime); } catch (InterruptedException ignored) {}
-            m_StartTime = System.currentTimeMillis();
         }
     }
 }

@@ -14,26 +14,38 @@ public class OpenGLRenderer
     private static final String TAG = "Renderer";
 
     private int m_ProgramObject;
-    private FloatBuffer m_Vertices;
+    private FloatBuffer m_VertexPosition;
+    private int m_PositionIndex;
+    private FloatBuffer m_VertexColor;
+    private int m_ColorIndex;
 
     private Context m_Context;
     private int m_Width;
     private int m_Height;
 
-    static final int COORDS_PER_VERTEX = 3;
-    static float triangleCoords[] = {
+    static float[] triangleCoords = {
             -0.5f, -0.5f, 0.0f, // left
             0.5f, -0.5f, 0.0f, // right
             0.0f,  0.5f, 0.0f  // top
     };
-    private final int vertexCount = triangleCoords.length / COORDS_PER_VERTEX;
-    private final int vertexStride = COORDS_PER_VERTEX * 4;
+    static float[] triangleColor = {
+            1.0f, 0.0f, 0.0f,
+            0.0f, 1.0f, 0.0f,
+            0.0f,  0.0f, 1.0f
+    };
+
+    private float dimmingFactorVelocity = 0.01f;
+    private float dimmingFactor = 0.0f;
 
     OpenGLRenderer(Context context)
     {
-        m_Vertices = ByteBuffer.allocateDirect(triangleCoords.length * 4)
+        m_VertexPosition = ByteBuffer.allocateDirect(triangleCoords.length * 4)
                 .order(ByteOrder.nativeOrder()).asFloatBuffer();
-        m_Vertices.put(triangleCoords).position(0);
+        m_VertexPosition.put(triangleCoords).position(0);
+
+        m_VertexColor = ByteBuffer.allocateDirect(triangleColor.length * 4)
+                .order(ByteOrder.nativeOrder()).asFloatBuffer();
+        m_VertexColor.put(triangleColor).position(0);
 
         m_Context = context;
     }
@@ -44,20 +56,31 @@ public class OpenGLRenderer
 
         comipleAndLinkProgram();
 
+        m_PositionIndex = GLES20.glGetAttribLocation(m_ProgramObject, "inPosition");
+        GLES20.glVertexAttribPointer(m_PositionIndex, 3, GLES20.GL_FLOAT, false, 3 * 4, m_VertexPosition);
+        m_ColorIndex = GLES20.glGetAttribLocation(m_ProgramObject, "inColor");
+        GLES20.glVertexAttribPointer(m_ColorIndex, 3, GLES20.GL_FLOAT, false, 3 * 4, m_VertexColor);
+
+        GLES20.glEnableVertexAttribArray(m_PositionIndex);
+        GLES20.glEnableVertexAttribArray(m_ColorIndex);
+
         GLES20.glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
     }
 
-    public void drawFrame()
+    public void drawFrame(long deltaTime)
     {
         Trace.beginSection("gl_draw_frame");
+
+        if (dimmingFactor > 1 || dimmingFactor < 0) dimmingFactorVelocity *= -1;
+        dimmingFactor += dimmingFactorVelocity;
+
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
 
         GLES20.glUseProgram(m_ProgramObject);
-        int mPositionHandle = GLES20.glGetAttribLocation(m_ProgramObject, "vPosition");
-        GLES20.glEnableVertexAttribArray(mPositionHandle);
-        GLES20.glVertexAttribPointer(mPositionHandle, COORDS_PER_VERTEX, GLES20.GL_FLOAT, false, vertexStride, m_Vertices);
-        GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, vertexCount);
-        GLES20.glDisableVertexAttribArray(mPositionHandle);
+        int dimmingFactorIndex = GLES20.glGetUniformLocation(m_ProgramObject, "dimmingFactor");
+        GLES20.glUniform1f(dimmingFactorIndex, dimmingFactor);
+        GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, 3);
+
         Trace.endSection();
     }
 
@@ -98,15 +121,20 @@ public class OpenGLRenderer
 
     private void comipleAndLinkProgram() {
         String vertexShaderCode =
-                "attribute vec4 vPosition;" +
+                "attribute vec4 inPosition;" +
+                "attribute vec3 inColor;"+
+                "varying vec3 outColor;"+
                 "void main() {" +
-                "  gl_Position = vPosition;" +
+                "  outColor = inColor;"+
+                "  gl_Position = inPosition;" +
                 "}";
 
         final String fragmentShaderCode =
                 "precision mediump float;" +
+                "uniform float dimmingFactor;"+
+                "varying vec3 outColor;"+
                 "void main() {" +
-                "  gl_FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);" +
+                "  gl_FragColor = dimmingFactor * vec4(outColor, 1.0);" +
                 "}";
 
         int vertexShader;
