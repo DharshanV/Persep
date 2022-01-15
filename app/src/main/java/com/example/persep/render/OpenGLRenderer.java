@@ -50,11 +50,11 @@ public class OpenGLRenderer
         m_Context = context;
     }
 
-    public void initGL()
+    public void InitGL()
     {
         Log.d(TAG, "Initialized renderer");
 
-        comipleAndLinkProgram();
+        ComipleAndLinkProgram();
 
         m_PositionIndex = GLES20.glGetAttribLocation(m_ProgramObject, "inPosition");
         GLES20.glVertexAttribPointer(m_PositionIndex, 3, GLES20.GL_FLOAT, false, 3 * 4, m_VertexPosition);
@@ -69,7 +69,7 @@ public class OpenGLRenderer
         GLES20.glBlendFunc( GLES20.GL_SRC_ALPHA, GLES20.GL_ONE_MINUS_SRC_ALPHA );
     }
 
-    public void drawFrame(long deltaTime)
+    public void DrawFrame(long deltaTime)
     {
         Trace.beginSection("gl_draw_frame");
 
@@ -86,7 +86,7 @@ public class OpenGLRenderer
         Trace.endSection();
     }
 
-    public void resize(int width, int height)
+    public void Resize(int width, int height)
     {
         Log.d(TAG, "Resized | width: " + width + " height: " + height);
         m_Width = width;
@@ -94,26 +94,20 @@ public class OpenGLRenderer
         GLES20.glViewport(0, 0, m_Width, m_Height);
     }
 
-    private int loadShader(int shaderType, String shaderSource) {
+    private int LoadShader(int shaderType, String shaderSource) {
         int shader;
         int[] compiled = new int[1];
 
-        // Create the shader object
         shader = GLES20.glCreateShader(shaderType);
 
-        if (shader == 0)
-            return 0;
+        if (shader == 0) return 0;
 
-        // Load the shader source
         GLES20.glShaderSource(shader, shaderSource);
-
-        // Compile the shader
         GLES20.glCompileShader(shader);
-
-        // Check the compile status
         GLES20.glGetShaderiv(shader, GLES20.GL_COMPILE_STATUS, compiled, 0);
 
-        if (compiled[0] == 0) {
+        if (compiled[0] == 0)
+        {
             Log.e(TAG, GLES20.glGetShaderInfoLog(shader));
             GLES20.glDeleteShader(shader);
             return 0;
@@ -121,7 +115,7 @@ public class OpenGLRenderer
         return shader;
     }
 
-    private void comipleAndLinkProgram() {
+    private void ComipleAndLinkProgram() {
         String vertexShaderCode =
                 "attribute vec4 inPosition;" +
                 "attribute vec3 inColor;"+
@@ -143,11 +137,9 @@ public class OpenGLRenderer
         int fragmentShader;
         int programObject;
 
-        // Load the vertex/fragment shaders
-        vertexShader = loadShader(GLES20.GL_VERTEX_SHADER, vertexShaderCode);
-        fragmentShader = loadShader(GLES20.GL_FRAGMENT_SHADER, fragmentShaderCode);
+        vertexShader = LoadShader(GLES20.GL_VERTEX_SHADER, vertexShaderCode);
+        fragmentShader = LoadShader(GLES20.GL_FRAGMENT_SHADER, fragmentShaderCode);
 
-        // Create the program object
         programObject = GLES20.glCreateProgram();
         GLES20.glAttachShader(programObject, vertexShader);
         GLES20.glAttachShader(programObject, fragmentShader);

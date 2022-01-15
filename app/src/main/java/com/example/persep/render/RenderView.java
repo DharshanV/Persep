@@ -34,7 +34,7 @@ public class RenderView extends TextureView implements TextureView.SurfaceTextur
     @Override
     public void onSurfaceTextureSizeChanged(@NonNull SurfaceTexture surface, int width, int height)
     {
-        m_Renderer.resize(width, height);
+        m_Renderer.Resize(width, height);
     }
 
     @Override
@@ -45,14 +45,9 @@ public class RenderView extends TextureView implements TextureView.SurfaceTextur
         //Clean up running threads
         m_GLThread.SetShouldRender(false);
         m_GLThread.SetRunningFlag(false);
-        try
-        {
-            m_GLThread.join();
-        } catch (InterruptedException e)
-        {
-            e.printStackTrace();
-        }
+        try {  m_GLThread.join(); } catch (InterruptedException e) { e.printStackTrace(); }
         m_GLThread = null;
+
         System.gc();
         return true;
     }

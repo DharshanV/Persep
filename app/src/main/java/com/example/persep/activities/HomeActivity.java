@@ -18,8 +18,8 @@ import com.example.persep.adapters.SlidePagerAdapter;
 public class HomeActivity extends AppCompatActivity
 {
 
-    ViewPager2 viewPager;
-    SlidePagerAdapter slidePagerAdapter;
+    ViewPager2 m_ViewPager;
+    SlidePagerAdapter m_SlidePagerAdapter;
 
     public static float DEFAULT_DISPLAY_REFRESH_RATE = 0.0f;
     private static final int REQUEST_CAMERA_PERMISSION = 1;
@@ -36,24 +36,24 @@ public class HomeActivity extends AppCompatActivity
         Display display = ((WindowManager) getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
         DEFAULT_DISPLAY_REFRESH_RATE = display.getRefreshRate();
 
-        viewPager = findViewById(R.id.ViewPager);
-        viewPager.setOffscreenPageLimit(SlidePagerAdapter.NUM_PAGES);
+        m_ViewPager = findViewById(R.id.ViewPager);
+        m_ViewPager.setOffscreenPageLimit(SlidePagerAdapter.NUM_PAGES);
 
         FragmentManager fragmentManager = getSupportFragmentManager();
-        slidePagerAdapter = new SlidePagerAdapter(fragmentManager, getLifecycle());
-        viewPager.setAdapter(slidePagerAdapter);
-        viewPager.setCurrentItem(SlidePagerAdapter.MIDDLE_PAGE_INDEX, false);
+        m_SlidePagerAdapter = new SlidePagerAdapter(fragmentManager, getLifecycle());
+        m_ViewPager.setAdapter(m_SlidePagerAdapter);
+        m_ViewPager.setCurrentItem(SlidePagerAdapter.MIDDLE_PAGE_INDEX, false);
     }
 
     @Override
     public void onBackPressed()
     {
-        int currentPageIndex = viewPager.getCurrentItem();
+        int currentPageIndex = m_ViewPager.getCurrentItem();
         if (currentPageIndex == SlidePagerAdapter.MIDDLE_PAGE_INDEX)
         {
             super.onBackPressed();
             return;
         }
-        viewPager.setCurrentItem(currentPageIndex + (currentPageIndex < SlidePagerAdapter.MIDDLE_PAGE_INDEX ? 1 : -1));
+        m_ViewPager.setCurrentItem(currentPageIndex + (currentPageIndex < SlidePagerAdapter.MIDDLE_PAGE_INDEX ? 1 : -1));
     }
 }

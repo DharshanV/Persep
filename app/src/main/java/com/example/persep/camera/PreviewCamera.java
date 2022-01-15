@@ -33,41 +33,45 @@ public class PreviewCamera
     private Context m_Context;
     private SurfaceTexture m_SurfaceTexture;
     private Handler m_BackgroundHandler;
-    private Size mPreviewSize;
-    private String mCameraId;
+    private Size m_PreviewSize;
+    private String m_CameraId;
 
-    private Semaphore mCameraOpenCloseLock = new Semaphore(1);
-    private CameraDevice mCameraDevice;
+    private Semaphore m_CameraOpenCloseLock = new Semaphore(1);
+    private CameraDevice m_CameraDevice;
 
-    private CaptureRequest.Builder mPreviewRequestBuilder;
-    private CaptureRequest mPreviewRequest;
+    private CaptureRequest.Builder m_PreviewRequestBuilder;
+    private CaptureRequest m_PreviewRequest;
 
-    private CameraCaptureSession mCaptureSession;
+    private CameraCaptureSession m_CaptureSession;
 
-    private final CameraDevice.StateCallback mStateCallback = new CameraDevice.StateCallback() {
+    private final CameraDevice.StateCallback m_StateCallback = new CameraDevice.StateCallback()
+    {
 
         @Override
-        public void onOpened(@NonNull CameraDevice cameraDevice) {
+        public void onOpened(@NonNull CameraDevice cameraDevice)
+        {
             Log.d(TAG, "Camera opened");
-            mCameraOpenCloseLock.release();
-            mCameraDevice = cameraDevice;
+            m_CameraOpenCloseLock.release();
+            m_CameraDevice = cameraDevice;
             CreateCameraPreviewSession();
         }
 
         @Override
-        public void onDisconnected(@NonNull CameraDevice cameraDevice) {
+        public void onDisconnected(@NonNull CameraDevice cameraDevice)
+        {
             Log.d(TAG, "Camera disconnected");
-            mCameraOpenCloseLock.release();
+            m_CameraOpenCloseLock.release();
             cameraDevice.close();
-            mCameraDevice = null;
+            m_CameraDevice = null;
         }
 
         @Override
-        public void onError(@NonNull CameraDevice cameraDevice, int error) {
+        public void onError(@NonNull CameraDevice cameraDevice, int error)
+        {
             Log.d(TAG, "Camera error");
-            mCameraOpenCloseLock.release();
+            m_CameraOpenCloseLock.release();
             cameraDevice.close();
-            mCameraDevice = null;
+            m_CameraDevice = null;
         }
     };
 
@@ -95,8 +99,8 @@ public class PreviewCamera
                 }
 
                 StreamConfigurationMap map = characteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP);
-                mPreviewSize = GetPreferredPreviewSize(map.getOutputSizes(SurfaceTexture.class), width, height);
-                mCameraId = cameraId;
+                m_PreviewSize = GetPreferredPreviewSize(map.getOutputSizes(SurfaceTexture.class), width, height);
+                m_CameraId = cameraId;
                 return;
             }
         } catch (CameraAccessException e) {  e.printStackTrace(); }
@@ -139,13 +143,13 @@ public class PreviewCamera
 
         try
         {
-            if (!mCameraOpenCloseLock.tryAcquire(2500, TimeUnit.MILLISECONDS))
+            if (!m_CameraOpenCloseLock.tryAcquire(2500, TimeUnit.MILLISECONDS))
             {
                 throw new RuntimeException("Time out waiting to lock camera opening.");
             }
 
             CameraManager manager = (CameraManager) m_Context.getSystemService(Context.CAMERA_SERVICE);
-            manager.openCamera(mCameraId, mStateCallback, m_BackgroundHandler);
+            manager.openCamera(m_CameraId, m_StateCallback, m_BackgroundHandler);
         } catch (CameraAccessException | InterruptedException e) { e.printStackTrace(); }
     }
 
@@ -153,47 +157,47 @@ public class PreviewCamera
     {
         try
         {
-            mCameraOpenCloseLock.acquire();
-            if (mCaptureSession != null)
+            m_CameraOpenCloseLock.acquire();
+            if (m_CaptureSession != null)
             {
-                mCaptureSession.close();
-                mCaptureSession = null;
+                m_CaptureSession.close();
+                m_CaptureSession = null;
             }
-            if (mCameraDevice != null)
+            if (m_CameraDevice != null)
             {
-                mCameraDevice.close();
-                mCameraDevice = null;
+                m_CameraDevice.close();
+                m_CameraDevice = null;
             }
         }
         catch (InterruptedException e)
         {
             throw new RuntimeException("Interrupted while trying to lock camera closing.", e);
         }
-        mCameraOpenCloseLock.release();
+        m_CameraOpenCloseLock.release();
     }
 
     public void CreateCameraPreviewSession()
     {
         try
         {
-            m_SurfaceTexture.setDefaultBufferSize(mPreviewSize.getWidth(), mPreviewSize.getHeight());
+            m_SurfaceTexture.setDefaultBufferSize(m_PreviewSize.getWidth(), m_PreviewSize.getHeight());
             Surface previewSurface = new Surface(m_SurfaceTexture);
 
-            mPreviewRequestBuilder = mCameraDevice.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW);
-            mPreviewRequestBuilder.addTarget(previewSurface);
-            mCameraDevice.createCaptureSession(Arrays.asList(previewSurface),
+            m_PreviewRequestBuilder = m_CameraDevice.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW);
+            m_PreviewRequestBuilder.addTarget(previewSurface);
+            m_CameraDevice.createCaptureSession(Arrays.asList(previewSurface),
                     new CameraCaptureSession.StateCallback()
                     {
                         @Override
                         public void onConfigured(@NonNull CameraCaptureSession cameraCaptureSession)
                         {
-                            if (mCameraDevice != null)
+                            if (m_CameraDevice != null)
                             {
                                 try
                                 {
-                                    mPreviewRequest = mPreviewRequestBuilder.build();
-                                    mCaptureSession = cameraCaptureSession;
-                                    mCaptureSession.setRepeatingRequest(mPreviewRequest, null, m_BackgroundHandler);
+                                    m_PreviewRequest = m_PreviewRequestBuilder.build();
+                                    m_CaptureSession = cameraCaptureSession;
+                                    m_CaptureSession.setRepeatingRequest(m_PreviewRequest, null, m_BackgroundHandler);
                                 } catch (CameraAccessException e) { e.printStackTrace(); }
                             }
                         }

@@ -10,7 +10,7 @@ import androidx.annotation.NonNull;
 
 public class CameraView extends TextureView implements TextureView.SurfaceTextureListener
 {
-    private HandlerThread mBackgroundThread;
+    private HandlerThread m_BackgroundThread;
     private Handler m_BackgroundHandler;
     private Context m_Context;
     private PreviewCamera m_PreviewCamera;
@@ -25,12 +25,12 @@ public class CameraView extends TextureView implements TextureView.SurfaceTextur
     public void onPause()
     {
         m_PreviewCamera.CloseCamera();
-        stopBackgroundThread();
+        StopBackgroundThread();
     }
 
     public void onResume()
     {
-        startBackgroundThread();
+        StartBackgroundThread();
         if(isAvailable() && m_PreviewCamera != null)
         {
             m_PreviewCamera.OpenCamera();
@@ -48,7 +48,7 @@ public class CameraView extends TextureView implements TextureView.SurfaceTextur
     @Override
     public void onSurfaceTextureAvailable(@NonNull SurfaceTexture surface, int width, int height)
     {
-        startBackgroundThread();
+        StartBackgroundThread();
         m_PreviewCamera = new PreviewCamera(m_Context, surface, m_BackgroundHandler);
         m_PreviewCamera.SetupCamera(width, height);
         m_PreviewCamera.OpenCamera();
@@ -63,7 +63,7 @@ public class CameraView extends TextureView implements TextureView.SurfaceTextur
     public boolean onSurfaceTextureDestroyed(@NonNull SurfaceTexture surface)
     {
         m_PreviewCamera.CloseCamera();
-        stopBackgroundThread();
+        StopBackgroundThread();
         m_PreviewCamera = null;
         return false;
     }
@@ -73,20 +73,21 @@ public class CameraView extends TextureView implements TextureView.SurfaceTextur
     {
     }
 
-    private void startBackgroundThread() {
-        mBackgroundThread = new HandlerThread("CameraBackground");
-        mBackgroundThread.start();
-        m_BackgroundHandler = new Handler(mBackgroundThread.getLooper());
+    private void StartBackgroundThread()
+    {
+        m_BackgroundThread = new HandlerThread("CameraBackground");
+        m_BackgroundThread.start();
+        m_BackgroundHandler = new Handler(m_BackgroundThread.getLooper());
     }
 
-    private void stopBackgroundThread() {
-        mBackgroundThread.quitSafely();
-        try {
-            mBackgroundThread.join();
-            mBackgroundThread = null;
+    private void StopBackgroundThread()
+    {
+        try
+        {
+            m_BackgroundThread.quitSafely();
+            m_BackgroundThread.join();
+            m_BackgroundThread = null;
             m_BackgroundHandler = null;
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+        } catch (InterruptedException e) { e.printStackTrace(); }
     }
 }

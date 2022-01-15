@@ -10,10 +10,8 @@ import com.example.persep.fragments.Home_Fragment_1;
 import com.example.persep.fragments.VR_Fragment;
 import com.example.persep.fragments.Home_Fragment_3;
 
-
 public class SlidePagerAdapter extends FragmentStateAdapter
 {
-    //Public
     public static final int MIDDLE_PAGE_INDEX = 1;
     public static final int NUM_PAGES = 3;
 
@@ -28,10 +26,8 @@ public class SlidePagerAdapter extends FragmentStateAdapter
     {
         switch (position)
         {
-            case 0:
-                return new Home_Fragment_1();
-            case 1:
-                return new VR_Fragment();
+            case 0: return new Home_Fragment_1();
+            case 1: return new VR_Fragment();
         }
         return new Home_Fragment_3();
     }
