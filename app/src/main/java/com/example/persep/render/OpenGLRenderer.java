@@ -64,7 +64,9 @@ public class OpenGLRenderer
         GLES20.glEnableVertexAttribArray(m_PositionIndex);
         GLES20.glEnableVertexAttribArray(m_ColorIndex);
 
-        GLES20.glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+        GLES20.glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+        GLES20.glEnable(GLES20.GL_BLEND);
+        GLES20.glBlendFunc( GLES20.GL_SRC_ALPHA, GLES20.GL_ONE_MINUS_SRC_ALPHA );
     }
 
     public void drawFrame(long deltaTime)

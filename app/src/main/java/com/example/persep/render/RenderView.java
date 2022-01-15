@@ -9,12 +9,10 @@ import androidx.annotation.NonNull;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
-//https://riptutorial.com/android/example/2021/preview-the-main-camera-in-a-textureview
 public class RenderView extends TextureView implements TextureView.SurfaceTextureListener
 {
     private static final String TAG = "RenderView";
 
-    //OpenGL
     private GLProducerThread m_GLThread = null;
     private OpenGLRenderer m_Renderer;
 
@@ -45,7 +43,6 @@ public class RenderView extends TextureView implements TextureView.SurfaceTextur
         Log.d(TAG, "Texture view destroyed");
 
         //Clean up running threads
-        //GLThread
         m_GLThread.SetShouldRender(false);
         m_GLThread.SetRunningFlag(false);
         try
@@ -56,7 +53,6 @@ public class RenderView extends TextureView implements TextureView.SurfaceTextur
             e.printStackTrace();
         }
         m_GLThread = null;
-
         System.gc();
         return true;
     }
@@ -84,11 +80,9 @@ public class RenderView extends TextureView implements TextureView.SurfaceTextur
 
     public void onStart()
     {
-
     }
 
     public void onStop()
     {
-
     }
 }

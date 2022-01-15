@@ -9,20 +9,19 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 
+import com.example.persep.R;
+import com.example.persep.camera.CameraView;
 import com.example.persep.render.RenderView;
-
-//https://github.com/google/grafika/blob/b1df331e89cffeab621f02b102d4c2c25eb6088a/app/src/main/java/com/android/grafika/ContinuousCaptureActivity.java#L482
-//https://www.maninara.com/2015/03/render-camera-preview-using-opengl-es.html
-//https://www.freecodecamp.org/news/android-camera2-api-take-photos-and-videos/
-//https://programmer.group/writing-opengl-program-based-on-textureview.html
 
 public class VR_Fragment extends Fragment
 {
-
     private static final String TAG = "VR_Fragment";
 
+    FrameLayout m_VRLayout;
     RenderView m_RenderView;
+    CameraView m_CameraView;
 
     @Override
     public void onCreate(Bundle savedInstanceState)
@@ -37,6 +36,7 @@ public class VR_Fragment extends Fragment
         Log.d(TAG, "Started");
         super.onStart();
         m_RenderView.onStart();
+        m_CameraView.onStart();
     }
 
     @Override
@@ -45,6 +45,7 @@ public class VR_Fragment extends Fragment
         Log.d(TAG, "Stopped");
         super.onStop();
         m_RenderView.onStop();
+        m_CameraView.onStop();
     }
 
     @Override
@@ -53,6 +54,7 @@ public class VR_Fragment extends Fragment
         Log.d(TAG, "Paused");
         super.onPause();
         m_RenderView.onPause();
+        m_CameraView.onPause();
     }
 
     @Override
@@ -61,13 +63,24 @@ public class VR_Fragment extends Fragment
         Log.d(TAG, "Resumed");
         super.onResume();
         m_RenderView.onResume();
+        m_CameraView.onResume();
     }
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState)
     {
+        View view = inflater.inflate(R.layout.vr_fragment, container, false);
+        m_VRLayout = (FrameLayout) view.findViewById(R.id.vr_root_layout);
+
+        m_CameraView = new CameraView(getActivity());
+        m_VRLayout.addView(m_CameraView);
+
         m_RenderView = new RenderView(getActivity());
-        return m_RenderView;
+        m_VRLayout.addView(m_RenderView);
+
+        m_RenderView.setOpaque(false);
+
+        return view;
     }
 }

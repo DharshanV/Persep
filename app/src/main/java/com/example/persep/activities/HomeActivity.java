@@ -1,9 +1,11 @@
 package com.example.persep.activities;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.FragmentManager;
 import androidx.viewpager2.widget.ViewPager2;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.Bundle;
@@ -20,6 +22,7 @@ public class HomeActivity extends AppCompatActivity
     SlidePagerAdapter slidePagerAdapter;
 
     public static float DEFAULT_DISPLAY_REFRESH_RATE = 0.0f;
+    private static final int REQUEST_CAMERA_PERMISSION = 1;
 
     @SuppressLint("WrongConstant")
     @Override
@@ -27,6 +30,8 @@ public class HomeActivity extends AppCompatActivity
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
+
+        ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, REQUEST_CAMERA_PERMISSION);
 
         Display display = ((WindowManager) getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
         DEFAULT_DISPLAY_REFRESH_RATE = display.getRefreshRate();
