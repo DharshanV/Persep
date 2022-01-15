@@ -35,8 +35,8 @@ public class VR_Fragment extends Fragment
     {
         Log.d(TAG, "Started");
         super.onStart();
-        m_RenderView.onStart();
-        m_CameraView.onStart();
+//        m_RenderView.onStart();
+//        m_CameraView.onStart();
     }
 
     @Override
@@ -44,8 +44,8 @@ public class VR_Fragment extends Fragment
     {
         Log.d(TAG, "Stopped");
         super.onStop();
-        m_RenderView.onStop();
-        m_CameraView.onStop();
+//        m_RenderView.onStop();
+//        m_CameraView.onStop();
     }
 
     @Override
@@ -53,8 +53,8 @@ public class VR_Fragment extends Fragment
     {
         Log.d(TAG, "Paused");
         super.onPause();
-        m_RenderView.onPause();
-        m_CameraView.onPause();
+//        m_RenderView.onPause();
+//        m_CameraView.onPause();
     }
 
     @Override
@@ -62,8 +62,8 @@ public class VR_Fragment extends Fragment
     {
         Log.d(TAG, "Resumed");
         super.onResume();
-        m_RenderView.onResume();
-        m_CameraView.onResume();
+//        m_RenderView.onResume();
+//        m_CameraView.onResume();
     }
 
     @Override
@@ -71,15 +71,15 @@ public class VR_Fragment extends Fragment
                              Bundle savedInstanceState)
     {
         View view = inflater.inflate(R.layout.vr_fragment, container, false);
-        m_VRLayout = (FrameLayout) view.findViewById(R.id.vr_root_layout);
-
-        m_CameraView = new CameraView(getActivity());
-        m_VRLayout.addView(m_CameraView);
-
-        m_RenderView = new RenderView(getActivity());
-        m_VRLayout.addView(m_RenderView);
-
-        m_RenderView.setOpaque(false);
+//        m_VRLayout = (FrameLayout) view.findViewById(R.id.vr_root_layout);
+//
+//        m_CameraView = new CameraView(getActivity());
+//        m_VRLayout.addView(m_CameraView);
+//
+//        m_RenderView = new RenderView(getActivity());
+//        m_VRLayout.addView(m_RenderView);
+//
+//        m_RenderView.setOpaque(false);
 
         return view;
     }
