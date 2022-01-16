@@ -7,12 +7,13 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Handler;
 import android.os.HandlerThread;
+import android.os.SystemClock;
 
 public class Gyroscope
 {
     public interface Listener
     {
-        void onRotation(float rx, float ry, float rz, int accuracy);
+        void onRotationDelta(float[] deltaRotationMatrix);
     }
 
     private Listener m_Listener;
@@ -24,10 +25,17 @@ public class Gyroscope
     private HandlerThread m_SensorThread;
     private Handler m_SensorHandler;
 
+    private static final double NS2S = 1.0 / 1000000000.0;
+    private final float[] m_DeltaRotation = new float[4];
+    private final float[] m_DeltaRotationMatrix = new float[16];
+    private float m_Timestamp;
+
     public Gyroscope(Context context)
     {
         m_SensorManager = (SensorManager) context.getSystemService(Context.SENSOR_SERVICE);
         m_Sensor = m_SensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
+        m_Timestamp = SystemClock.elapsedRealtimeNanos();
+
         m_SensorEventListener = new SensorEventListener()
         {
             @Override
@@ -35,8 +43,33 @@ public class Gyroscope
             {
                 if(m_Listener != null)
                 {
-                    float[] rotation = event.values;
-                    m_Listener.onRotation(rotation[0], rotation[1], rotation[2], event.accuracy);
+                    if (m_Timestamp != 0)
+                    {
+                        final double dT = (event.timestamp - m_Timestamp) * NS2S;
+                        double axisX = event.values[0];
+                        double axisY = event.values[1];
+                        double axisZ = event.values[2];
+
+                        double omegaMagnitude = Math.sqrt(axisX*axisX + axisY*axisY + axisZ*axisZ);
+
+                        if (omegaMagnitude > 0.0001)
+                        {
+                            axisX /= omegaMagnitude;
+                            axisY /= omegaMagnitude;
+                            axisZ /= omegaMagnitude;
+                        }
+
+                        double thetaOverTwo = omegaMagnitude * dT / 2.0f;
+                        double sinThetaOverTwo = Math.sin(thetaOverTwo);
+                        double cosThetaOverTwo = Math.cos(thetaOverTwo);
+                        m_DeltaRotation[0] = (float) (sinThetaOverTwo * axisX);
+                        m_DeltaRotation[1] = (float) (sinThetaOverTwo * axisY);
+                        m_DeltaRotation[2] = (float) (sinThetaOverTwo * axisZ);
+                        m_DeltaRotation[3] = (float) cosThetaOverTwo;
+                    }
+                    m_Timestamp = event.timestamp;
+                    SensorManager.getRotationMatrixFromVector(m_DeltaRotationMatrix, m_DeltaRotation);
+                    m_Listener.onRotationDelta(m_DeltaRotationMatrix);
                 }
             }
 

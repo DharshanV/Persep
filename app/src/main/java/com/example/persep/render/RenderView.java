@@ -84,7 +84,7 @@ public class RenderView extends TextureView implements TextureView.SurfaceTextur
     }
 
     @Override
-    public void onRotation(float rx, float ry, float rz, int accuracy)
+    public void onRotationDelta(float[] deltaRotationMatrix)
     {
     }
 }
