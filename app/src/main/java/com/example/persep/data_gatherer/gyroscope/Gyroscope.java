@@ -5,6 +5,8 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.os.Handler;
+import android.os.HandlerThread;
 
 public class Gyroscope
 {
@@ -18,6 +20,9 @@ public class Gyroscope
     private final SensorManager m_SensorManager;
     private final Sensor m_Sensor;
     private final SensorEventListener m_SensorEventListener;
+
+    private HandlerThread m_SensorThread;
+    private Handler m_SensorHandler;
 
     public Gyroscope(Context context)
     {
@@ -42,11 +47,21 @@ public class Gyroscope
 
     public void RegisterSensor()
     {
-        m_SensorManager.registerListener(m_SensorEventListener, m_Sensor, SensorManager.SENSOR_DELAY_NORMAL);
+        m_SensorThread = new HandlerThread("GyroscopeThread", Thread.MAX_PRIORITY);
+        m_SensorThread.start();
+        m_SensorHandler = new Handler(m_SensorThread.getLooper());
+        m_SensorManager.registerListener(m_SensorEventListener, m_Sensor, SensorManager.SENSOR_DELAY_NORMAL, m_SensorHandler);
     }
 
     public void UnregisterSensor()
     {
+        try
+        {
+            m_SensorThread.quitSafely();
+            m_SensorThread.join();
+            m_SensorThread = null;
+            m_SensorHandler = null;
+        } catch (InterruptedException e) {  e.printStackTrace(); }
         m_SensorManager.unregisterListener(m_SensorEventListener);
     }
 
