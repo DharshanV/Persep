@@ -5,6 +5,9 @@ import android.opengl.GLES20;
 import android.os.Trace;
 import android.util.Log;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
@@ -54,7 +57,7 @@ public class OpenGLRenderer
     {
         Log.d(TAG, "Initialized renderer");
 
-        ComipleAndLinkProgram();
+        CompileAndLinkProgram();
 
         m_PositionIndex = GLES20.glGetAttribLocation(m_ProgramObject, "inPosition");
         GLES20.glVertexAttribPointer(m_PositionIndex, 3, GLES20.GL_FLOAT, false, 3 * 4, m_VertexPosition);
@@ -115,35 +118,37 @@ public class OpenGLRenderer
         return shader;
     }
 
-    private void ComipleAndLinkProgram() {
-        String vertexShaderCode =
-                "attribute vec4 inPosition;" +
-                "attribute vec3 inColor;"+
-                "varying vec3 outColor;"+
-                "void main() {" +
-                "  outColor = inColor;"+
-                "  gl_Position = inPosition;" +
-                "}";
+    private String LoadStringFromAssetFile(String filePath){
+        try
+        {
+            StringBuilder shaderSource = new StringBuilder();
+            BufferedReader reader = new BufferedReader(new InputStreamReader(m_Context.getAssets().open(filePath)));
+            String line;
+            while((line = reader.readLine()) != null)
+            {
+                shaderSource.append(line).append("\n");
+            }
+            reader.close();
+            return shaderSource.toString();
+        }
+        catch (IOException e)
+        {
+            e.printStackTrace();
+            Log.e(TAG, "Could not load shader file");
+            return null;
+        }
+    }
 
-        final String fragmentShaderCode =
-                "precision mediump float;" +
-                "uniform float dimmingFactor;"+
-                "varying vec3 outColor;"+
-                "void main() {" +
-                "  gl_FragColor = dimmingFactor * vec4(outColor, 1.0);" +
-                "}";
+    private void CompileAndLinkProgram() {
+        String vertexShaderCode = LoadStringFromAssetFile("fadingColorTriangle.vert");
+        String fragmentShaderCode = LoadStringFromAssetFile("fadingColorTriangle.frag");
 
-        int vertexShader;
-        int fragmentShader;
-        int programObject;
+        int vertexShader = LoadShader(GLES20.GL_VERTEX_SHADER, vertexShaderCode);
+        int fragmentShader = LoadShader(GLES20.GL_FRAGMENT_SHADER, fragmentShaderCode);
 
-        vertexShader = LoadShader(GLES20.GL_VERTEX_SHADER, vertexShaderCode);
-        fragmentShader = LoadShader(GLES20.GL_FRAGMENT_SHADER, fragmentShaderCode);
-
-        programObject = GLES20.glCreateProgram();
-        GLES20.glAttachShader(programObject, vertexShader);
-        GLES20.glAttachShader(programObject, fragmentShader);
-        GLES20.glLinkProgram(programObject);
-        m_ProgramObject = programObject;
+        m_ProgramObject = GLES20.glCreateProgram();
+        GLES20.glAttachShader(m_ProgramObject, vertexShader);
+        GLES20.glAttachShader(m_ProgramObject, fragmentShader);
+        GLES20.glLinkProgram(m_ProgramObject);
     }
 }
