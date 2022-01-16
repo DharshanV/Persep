@@ -18,14 +18,10 @@ public class DataGathererManager
 
     public void onStart()
     {
-        Log.d(TAG, "Started");
-        m_Gyroscope.RegisterSensor();
     }
 
     public void onStop()
     {
-        Log.d(TAG, "Stopped");
-        m_Gyroscope.UnregisterSensor();
     }
 
     public void onPause()
