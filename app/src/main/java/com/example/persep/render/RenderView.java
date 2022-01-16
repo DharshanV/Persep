@@ -7,9 +7,11 @@ import android.view.TextureView;
 
 import androidx.annotation.NonNull;
 
+import com.example.persep.data_gatherer.gyroscope.Gyroscope;
+
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class RenderView extends TextureView implements TextureView.SurfaceTextureListener
+public class RenderView extends TextureView implements TextureView.SurfaceTextureListener, Gyroscope.Listener
 {
     private static final String TAG = "RenderView";
 
@@ -78,6 +80,11 @@ public class RenderView extends TextureView implements TextureView.SurfaceTextur
     }
 
     public void onStop()
+    {
+    }
+
+    @Override
+    public void onRotation(float rx, float ry, float rz, int accuracy)
     {
     }
 }
