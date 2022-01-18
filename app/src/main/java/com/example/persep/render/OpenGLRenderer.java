@@ -2,6 +2,7 @@ package com.example.persep.render;
 
 import android.content.Context;
 import android.opengl.GLES20;
+import android.opengl.Matrix;
 import android.os.Trace;
 import android.util.Log;
 
@@ -27,15 +28,19 @@ public class OpenGLRenderer
     private int m_Height;
 
     static float[] triangleCoords = {
-            -0.5f, -0.5f, 0.0f, // left
-            0.5f, -0.5f, 0.0f, // right
-            0.0f,  0.5f, 0.0f  // top
+            -0.5f, -0.5f, -3.0f, // left
+            0.5f, -0.5f,  -3.0f, // right
+            0.0f,  0.5f,  -3.0f  // top
     };
     static float[] triangleColor = {
             1.0f, 0.0f, 0.0f,
             0.0f, 1.0f, 0.0f,
             0.0f,  0.0f, 1.0f
     };
+
+    private final float[] m_MVPMatrix = new float[16];
+    private final float[] m_ProjectionMatrix = new float[16];
+    private final float[] m_ViewMatrix = new float[16];
 
     private float dimmingFactorVelocity = 0.01f;
     private float dimmingFactor = 0.0f;
@@ -51,6 +56,10 @@ public class OpenGLRenderer
         m_VertexColor.put(triangleColor).position(0);
 
         m_Context = context;
+
+        Matrix.setIdentityM(m_MVPMatrix, 0);
+        Matrix.setIdentityM(m_ProjectionMatrix, 0);
+        Matrix.setIdentityM(m_ViewMatrix, 0);
     }
 
     public void InitGL()
@@ -79,11 +88,19 @@ public class OpenGLRenderer
         if (dimmingFactor > 1 || dimmingFactor < 0) dimmingFactorVelocity *= -1;
         dimmingFactor += dimmingFactorVelocity;
 
+        Matrix.setLookAtM(m_ViewMatrix, 0, 0, 0, 3, 0f, 0f, 0f, 0f, 1.0f, 0.0f);
+        Matrix.multiplyMM(m_MVPMatrix, 0, m_ProjectionMatrix, 0, m_ViewMatrix, 0);
+
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
 
         GLES20.glUseProgram(m_ProgramObject);
+
         int dimmingFactorIndex = GLES20.glGetUniformLocation(m_ProgramObject, "dimmingFactor");
         GLES20.glUniform1f(dimmingFactorIndex, dimmingFactor);
+
+        int mvpMatrixIndex = GLES20.glGetUniformLocation(m_ProgramObject, "inMVPMatrix");
+        GLES20.glUniformMatrix4fv(mvpMatrixIndex, 1, false, m_MVPMatrix, 0);
+
         GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, 3);
 
         Trace.endSection();
@@ -95,6 +112,9 @@ public class OpenGLRenderer
         m_Width = width;
         m_Height = height;
         GLES20.glViewport(0, 0, m_Width, m_Height);
+
+        float ratio = (float) m_Width / m_Height;
+        Matrix.frustumM(m_ProjectionMatrix, 0, -ratio, ratio, -1, 1, 3, 7);
     }
 
     private int LoadShader(int shaderType, String shaderSource) {

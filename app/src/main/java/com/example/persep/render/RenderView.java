@@ -31,6 +31,8 @@ public class RenderView extends TextureView implements TextureView.SurfaceTextur
         m_GLThread = new GLProducerThread(surface, m_Renderer, new AtomicBoolean(true));
         m_GLThread.SetShouldRender(true);
         m_GLThread.start();
+
+        m_Renderer.Resize(width, height);
     }
 
     @Override
