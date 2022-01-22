@@ -23,6 +23,8 @@ public class GLProducerThread extends Thread
     private AtomicBoolean m_ShouldRender;
     private SurfaceTexture m_SurfaceTexture;
     private OpenGLRenderer m_Renderer;
+    private int m_SurfaceWidth;
+    private int m_SurfaceHeight;
 
     private EGL10 m_Egl;
     private EGLDisplay m_EglDisplay = EGL10.EGL_NO_DISPLAY;
@@ -39,10 +41,12 @@ public class GLProducerThread extends Thread
     private float m_TargetFPS;
     private long m_TargetDelay;
 
-    public GLProducerThread(SurfaceTexture surfaceTexture, OpenGLRenderer renderer, AtomicBoolean runningFlag)
+    public GLProducerThread(SurfaceTexture surfaceTexture, OpenGLRenderer renderer, int width, int height, AtomicBoolean runningFlag)
     {
         m_SurfaceTexture = surfaceTexture;
         m_Renderer = renderer;
+        m_SurfaceWidth = width;
+        m_SurfaceHeight = height;
         m_RunningFlag = runningFlag;
         m_ShouldRender = new AtomicBoolean();
         m_StartTime = System.currentTimeMillis();
@@ -126,6 +130,7 @@ public class GLProducerThread extends Thread
         if (m_Renderer != null)
         {
             m_Renderer.InitGL();
+            m_Renderer.Resize(m_SurfaceWidth, m_SurfaceHeight);
         }
 
         while (m_RunningFlag != null && m_RunningFlag.get())

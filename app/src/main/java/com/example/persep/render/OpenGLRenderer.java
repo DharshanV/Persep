@@ -6,101 +6,80 @@ import android.opengl.Matrix;
 import android.os.Trace;
 import android.util.Log;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-import java.nio.FloatBuffer;
+import com.example.persep.shapes.Triangle;
 
 public class OpenGLRenderer
 {
     private static final String TAG = "Renderer";
 
-    private int m_ProgramObject;
-    private FloatBuffer m_VertexPosition;
-    private int m_PositionIndex;
-    private FloatBuffer m_VertexColor;
-    private int m_ColorIndex;
-
     private Context m_Context;
     private int m_Width;
     private int m_Height;
 
-    static float[] triangleCoords = {
-            -0.5f, -0.5f, -3.0f, // left
-            0.5f, -0.5f,  -3.0f, // right
-            0.0f,  0.5f,  -3.0f  // top
-    };
-    static float[] triangleColor = {
-            1.0f, 0.0f, 0.0f,
-            0.0f, 1.0f, 0.0f,
-            0.0f,  0.0f, 1.0f
-    };
-
-    private final float[] m_MVPMatrix = new float[16];
     private final float[] m_ProjectionMatrix = new float[16];
     private final float[] m_ViewMatrix = new float[16];
 
-    private float dimmingFactorVelocity = 0.01f;
-    private float dimmingFactor = 0.0f;
+    private Triangle m_Triangle;
+    private Shader m_TriangleShader;
+
+    private float[] m_OrientationMatrix = new float[16];
 
     OpenGLRenderer(Context context)
     {
-        m_VertexPosition = ByteBuffer.allocateDirect(triangleCoords.length * 4)
-                .order(ByteOrder.nativeOrder()).asFloatBuffer();
-        m_VertexPosition.put(triangleCoords).position(0);
-
-        m_VertexColor = ByteBuffer.allocateDirect(triangleColor.length * 4)
-                .order(ByteOrder.nativeOrder()).asFloatBuffer();
-        m_VertexColor.put(triangleColor).position(0);
-
         m_Context = context;
 
-        Matrix.setIdentityM(m_MVPMatrix, 0);
         Matrix.setIdentityM(m_ProjectionMatrix, 0);
         Matrix.setIdentityM(m_ViewMatrix, 0);
+        Matrix.setIdentityM(m_OrientationMatrix, 0);
+
+        m_Triangle = new Triangle();
+        m_TriangleShader = new Shader("fadingColorTriangle.vert", "fadingColorTriangle.frag");
     }
 
     public void InitGL()
     {
         Log.d(TAG, "Initialized renderer");
+        InitGLSettings();
 
-        CompileAndLinkProgram();
+        m_TriangleShader.CreateShaderProgram(m_Context);
 
-        m_PositionIndex = GLES20.glGetAttribLocation(m_ProgramObject, "inPosition");
-        GLES20.glVertexAttribPointer(m_PositionIndex, 3, GLES20.GL_FLOAT, false, 3 * 4, m_VertexPosition);
-        m_ColorIndex = GLES20.glGetAttribLocation(m_ProgramObject, "inColor");
-        GLES20.glVertexAttribPointer(m_ColorIndex, 3, GLES20.GL_FLOAT, false, 3 * 4, m_VertexColor);
+        int positionIndex = m_TriangleShader.GetAttribLocation("inPosition");
+        GLES20.glEnableVertexAttribArray(positionIndex);
+        GLES20.glVertexAttribPointer(positionIndex, 3, GLES20.GL_FLOAT, false, 3 * 4, m_Triangle.GetPositionBuffer());
 
-        GLES20.glEnableVertexAttribArray(m_PositionIndex);
-        GLES20.glEnableVertexAttribArray(m_ColorIndex);
+        int colorIndex = m_TriangleShader.GetAttribLocation("inColor");
+        GLES20.glEnableVertexAttribArray(colorIndex);
+        GLES20.glVertexAttribPointer(colorIndex, 3, GLES20.GL_FLOAT, false, 3 * 4, m_Triangle.GetColorBuffer());
+    }
 
+    private void InitGLSettings()
+    {
         GLES20.glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
         GLES20.glEnable(GLES20.GL_BLEND);
-        GLES20.glBlendFunc( GLES20.GL_SRC_ALPHA, GLES20.GL_ONE_MINUS_SRC_ALPHA );
+        GLES20.glEnable(GLES20.GL_CULL_FACE);
+        GLES20.glCullFace(GLES20.GL_BACK);
+        GLES20.glBlendFunc(GLES20.GL_SRC_ALPHA, GLES20.GL_ONE_MINUS_SRC_ALPHA);
     }
 
     public void DrawFrame(long deltaTime)
     {
         Trace.beginSection("gl_draw_frame");
 
-        if (dimmingFactor > 1 || dimmingFactor < 0) dimmingFactorVelocity *= -1;
-        dimmingFactor += dimmingFactorVelocity;
-
-        Matrix.setLookAtM(m_ViewMatrix, 0, 0, 0, 3, 0f, 0f, 0f, 0f, 1.0f, 0.0f);
-        Matrix.multiplyMM(m_MVPMatrix, 0, m_ProjectionMatrix, 0, m_ViewMatrix, 0);
+        Matrix.setLookAtM(m_ViewMatrix, 0, 0f, 0f, 3f, 0f, 0f, 0f, 0f, 1.0f, 0.0f);
 
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
 
-        GLES20.glUseProgram(m_ProgramObject);
+        m_TriangleShader.UseProgram();
+        int modelIndex = m_TriangleShader.GetUniformLocation("model");
+        int viewIndex = m_TriangleShader.GetUniformLocation("view");
+        int projIndex = m_TriangleShader.GetUniformLocation("projection");
 
-        int dimmingFactorIndex = GLES20.glGetUniformLocation(m_ProgramObject, "dimmingFactor");
-        GLES20.glUniform1f(dimmingFactorIndex, dimmingFactor);
+        Matrix.setIdentityM(m_Triangle.GetTransform(), 0);
+        Matrix.multiplyMM(m_Triangle.GetTransform(), 0, m_Triangle.GetTransform(), 0, m_OrientationMatrix, 0);
 
-        int mvpMatrixIndex = GLES20.glGetUniformLocation(m_ProgramObject, "inMVPMatrix");
-        GLES20.glUniformMatrix4fv(mvpMatrixIndex, 1, false, m_MVPMatrix, 0);
-
+        GLES20.glUniformMatrix4fv(modelIndex, 1, false, m_Triangle.GetTransform(), 0);
+        GLES20.glUniformMatrix4fv(viewIndex, 1, false, m_ViewMatrix, 0);
+        GLES20.glUniformMatrix4fv(projIndex, 1, false, m_ProjectionMatrix, 0);
         GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, 3);
 
         Trace.endSection();
@@ -117,58 +96,8 @@ public class OpenGLRenderer
         Matrix.frustumM(m_ProjectionMatrix, 0, -ratio, ratio, -1, 1, 3, 7);
     }
 
-    private int LoadShader(int shaderType, String shaderSource) {
-        int shader;
-        int[] compiled = new int[1];
-
-        shader = GLES20.glCreateShader(shaderType);
-
-        if (shader == 0) return 0;
-
-        GLES20.glShaderSource(shader, shaderSource);
-        GLES20.glCompileShader(shader);
-        GLES20.glGetShaderiv(shader, GLES20.GL_COMPILE_STATUS, compiled, 0);
-
-        if (compiled[0] == 0)
-        {
-            Log.e(TAG, GLES20.glGetShaderInfoLog(shader));
-            GLES20.glDeleteShader(shader);
-            return 0;
-        }
-        return shader;
-    }
-
-    private String LoadStringFromAssetFile(String filePath){
-        try
-        {
-            StringBuilder shaderSource = new StringBuilder();
-            BufferedReader reader = new BufferedReader(new InputStreamReader(m_Context.getAssets().open(filePath)));
-            String line;
-            while((line = reader.readLine()) != null)
-            {
-                shaderSource.append(line).append("\n");
-            }
-            reader.close();
-            return shaderSource.toString();
-        }
-        catch (IOException e)
-        {
-            e.printStackTrace();
-            Log.e(TAG, "Could not load shader file");
-            return null;
-        }
-    }
-
-    private void CompileAndLinkProgram() {
-        String vertexShaderCode = LoadStringFromAssetFile("fadingColorTriangle.vert");
-        String fragmentShaderCode = LoadStringFromAssetFile("fadingColorTriangle.frag");
-
-        int vertexShader = LoadShader(GLES20.GL_VERTEX_SHADER, vertexShaderCode);
-        int fragmentShader = LoadShader(GLES20.GL_FRAGMENT_SHADER, fragmentShaderCode);
-
-        m_ProgramObject = GLES20.glCreateProgram();
-        GLES20.glAttachShader(m_ProgramObject, vertexShader);
-        GLES20.glAttachShader(m_ProgramObject, fragmentShader);
-        GLES20.glLinkProgram(m_ProgramObject);
+    public void UpdateRotation(float[] deltaRotationMatrix)
+    {
+        Matrix.multiplyMM(m_OrientationMatrix, 0, m_OrientationMatrix, 0, deltaRotationMatrix, 0);
     }
 }

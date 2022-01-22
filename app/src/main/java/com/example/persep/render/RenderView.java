@@ -28,11 +28,9 @@ public class RenderView extends TextureView implements TextureView.SurfaceTextur
     @Override
     public void onSurfaceTextureAvailable(@NonNull SurfaceTexture surface, int width, int height)
     {
-        m_GLThread = new GLProducerThread(surface, m_Renderer, new AtomicBoolean(true));
+        m_GLThread = new GLProducerThread(surface, m_Renderer, width, height, new AtomicBoolean(true));
         m_GLThread.SetShouldRender(true);
         m_GLThread.start();
-
-        m_Renderer.Resize(width, height);
     }
 
     @Override
@@ -86,7 +84,8 @@ public class RenderView extends TextureView implements TextureView.SurfaceTextur
     }
 
     @Override
-    public void onRotationDelta(float[] deltaRotationMatrix)
+    public void onRotationDelta(float[] deltaOrientation)
     {
+        m_Renderer.UpdateRotation(deltaOrientation);
     }
 }

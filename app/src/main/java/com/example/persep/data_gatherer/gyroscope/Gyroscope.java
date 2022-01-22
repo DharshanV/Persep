@@ -9,6 +9,8 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.SystemClock;
 
+//https://stackoverflow.com/questions/27846604/how-to-get-smooth-orientation-data-in-android
+//https://stackoverflow.com/questions/30279065/how-to-get-the-euler-angles-from-the-rotation-vector-sensor-type-rotation-vecto
 public class Gyroscope
 {
     public interface Listener
@@ -83,7 +85,7 @@ public class Gyroscope
         m_SensorThread = new HandlerThread("GyroscopeThread", Thread.MAX_PRIORITY);
         m_SensorThread.start();
         m_SensorHandler = new Handler(m_SensorThread.getLooper());
-        m_SensorManager.registerListener(m_SensorEventListener, m_Sensor, SensorManager.SENSOR_DELAY_NORMAL, m_SensorHandler);
+        m_SensorManager.registerListener(m_SensorEventListener, m_Sensor, SensorManager.SENSOR_DELAY_FASTEST, m_SensorHandler);
     }
 
     public void UnregisterSensor()
