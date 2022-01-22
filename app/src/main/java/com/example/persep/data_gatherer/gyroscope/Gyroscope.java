@@ -8,11 +8,14 @@ import android.hardware.SensorManager;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.SystemClock;
+import android.util.Log;
 
 //https://stackoverflow.com/questions/27846604/how-to-get-smooth-orientation-data-in-android
 //https://stackoverflow.com/questions/30279065/how-to-get-the-euler-angles-from-the-rotation-vector-sensor-type-rotation-vecto
 public class Gyroscope
 {
+    private static final String TAG = "Gyroscope";
+
     public interface Listener
     {
         void onRotationDelta(float[] deltaRotationMatrix);
@@ -43,6 +46,12 @@ public class Gyroscope
             @Override
             public void onSensorChanged(SensorEvent event)
             {
+                if (event.accuracy == SensorManager.SENSOR_STATUS_UNRELIABLE)
+                {
+                    Log.d(TAG, "Received unreliable accuracy.");
+                    return;
+                }
+
                 if(m_Listener != null)
                 {
                     if (m_Timestamp != 0)
