@@ -56,9 +56,9 @@ public class OpenGLRenderer
     {
         GLES20.glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
         GLES20.glEnable(GLES20.GL_BLEND);
+        GLES20.glBlendFunc(GLES20.GL_SRC_ALPHA, GLES20.GL_ONE_MINUS_SRC_ALPHA);
         GLES20.glEnable(GLES20.GL_CULL_FACE);
         GLES20.glCullFace(GLES20.GL_BACK);
-        GLES20.glBlendFunc(GLES20.GL_SRC_ALPHA, GLES20.GL_ONE_MINUS_SRC_ALPHA);
     }
 
     public void DrawFrame(long deltaTime)
@@ -75,6 +75,7 @@ public class OpenGLRenderer
         int projIndex = m_TriangleShader.GetUniformLocation("projection");
 
         Matrix.setIdentityM(m_Triangle.GetTransform(), 0);
+        Matrix.translateM(m_Triangle.GetTransform(), 0, 0, 0, -2.0f);
         Matrix.multiplyMM(m_Triangle.GetTransform(), 0, m_Triangle.GetTransform(), 0, m_OrientationMatrix, 0);
 
         GLES20.glUniformMatrix4fv(modelIndex, 1, false, m_Triangle.GetTransform(), 0);
@@ -96,8 +97,8 @@ public class OpenGLRenderer
         Matrix.frustumM(m_ProjectionMatrix, 0, -ratio, ratio, -1, 1, 3, 7);
     }
 
-    public void UpdateRotation(float[] deltaRotationMatrix)
+    public void UpdateRotation(float[] rotationMatrix)
     {
-        Matrix.multiplyMM(m_OrientationMatrix, 0, m_OrientationMatrix, 0, deltaRotationMatrix, 0);
+        m_OrientationMatrix = rotationMatrix.clone();
     }
 }

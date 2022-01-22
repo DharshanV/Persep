@@ -16,9 +16,9 @@ public class Triangle
     public Triangle()
     {
         float[] triangleCoords = {
-            -0.5f, -0.5f, -2.0f, // left
-             0.5f, -0.5f, -2.0f, // right
-             0.0f,  0.5f, -2.0f  // top
+            -0.25f, -0.5f, 0.0f, // left
+             0.25f, -0.5f, 0.0f, // right
+             0.0f,  0.5f, 0.0f  // top
         };
         m_VertexPosition = ByteBuffer.allocateDirect(triangleCoords.length * 4)
                 .order(ByteOrder.nativeOrder()).asFloatBuffer();

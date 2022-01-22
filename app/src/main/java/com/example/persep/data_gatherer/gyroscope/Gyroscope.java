@@ -7,8 +7,6 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Handler;
 import android.os.HandlerThread;
-import android.os.SystemClock;
-import android.util.Log;
 
 //https://stackoverflow.com/questions/27846604/how-to-get-smooth-orientation-data-in-android
 //https://stackoverflow.com/questions/30279065/how-to-get-the-euler-angles-from-the-rotation-vector-sensor-type-rotation-vecto
@@ -24,63 +22,41 @@ public class Gyroscope
     private Listener m_Listener;
 
     private final SensorManager m_SensorManager;
-    private final Sensor m_Sensor;
+    private final Sensor m_AccelerometerSensor;
+    private final Sensor m_MagnaticSensor;
     private final SensorEventListener m_SensorEventListener;
 
     private HandlerThread m_SensorThread;
     private Handler m_SensorHandler;
 
-    private static final double NS2S = 1.0 / 1000000000.0;
-    private final float[] m_DeltaRotation = new float[4];
-    private final float[] m_DeltaRotationMatrix = new float[16];
-    private float m_Timestamp;
+    private static final float LOW_PASS_FILTER_SENSITIVITY = 1/20F;
+    private float[] m_SensorGravity;
+    private float[] m_SensorGeomagnetic;
+    private float[] m_Rotation = new float[16];
 
     public Gyroscope(Context context)
     {
         m_SensorManager = (SensorManager) context.getSystemService(Context.SENSOR_SERVICE);
-        m_Sensor = m_SensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
-        m_Timestamp = SystemClock.elapsedRealtimeNanos();
+        m_AccelerometerSensor = m_SensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+        m_MagnaticSensor = m_SensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
 
         m_SensorEventListener = new SensorEventListener()
         {
             @Override
             public void onSensorChanged(SensorEvent event)
             {
-                if (event.accuracy == SensorManager.SENSOR_STATUS_UNRELIABLE)
-                {
-                    Log.d(TAG, "Received unreliable accuracy.");
-                    return;
-                }
-
                 if(m_Listener != null)
                 {
-                    if (m_Timestamp != 0)
+                    if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER)
+                        m_SensorGravity = LowPassFilter(event.values.clone(), m_SensorGravity);
+                    if (event.sensor.getType() == Sensor.TYPE_MAGNETIC_FIELD)
+                        m_SensorGeomagnetic = LowPassFilter(event.values.clone(), m_SensorGeomagnetic);
+
+                    if (m_SensorGravity != null && m_SensorGeomagnetic != null)
                     {
-                        final double dT = (event.timestamp - m_Timestamp) * NS2S;
-                        double axisX = event.values[0];
-                        double axisY = event.values[1];
-                        double axisZ = event.values[2];
-
-                        double omegaMagnitude = Math.sqrt(axisX*axisX + axisY*axisY + axisZ*axisZ);
-
-                        if (omegaMagnitude > 0.0001)
-                        {
-                            axisX /= omegaMagnitude;
-                            axisY /= omegaMagnitude;
-                            axisZ /= omegaMagnitude;
-                        }
-
-                        double thetaOverTwo = omegaMagnitude * dT / 2.0f;
-                        double sinThetaOverTwo = Math.sin(thetaOverTwo);
-                        double cosThetaOverTwo = Math.cos(thetaOverTwo);
-                        m_DeltaRotation[0] = (float) (sinThetaOverTwo * axisX);
-                        m_DeltaRotation[1] = (float) (sinThetaOverTwo * axisY);
-                        m_DeltaRotation[2] = (float) (sinThetaOverTwo * axisZ);
-                        m_DeltaRotation[3] = (float) cosThetaOverTwo;
+                        SensorManager.getRotationMatrix(m_Rotation, null, m_SensorGravity, m_SensorGeomagnetic);
+                        m_Listener.onRotationDelta(m_Rotation);
                     }
-                    m_Timestamp = event.timestamp;
-                    SensorManager.getRotationMatrixFromVector(m_DeltaRotationMatrix, m_DeltaRotation);
-                    m_Listener.onRotationDelta(m_DeltaRotationMatrix);
                 }
             }
 
@@ -89,12 +65,23 @@ public class Gyroscope
         };
     }
 
+    private float[] LowPassFilter(float[] input, float[] output)
+    {
+        if (output == null) return input;
+        for (int i = 0; i < input.length; i++)
+        {
+            output[i] = output[i] + LOW_PASS_FILTER_SENSITIVITY * (input[i] - output[i]);
+        }
+        return output;
+    }
+
     public void RegisterSensor()
     {
         m_SensorThread = new HandlerThread("GyroscopeThread", Thread.MAX_PRIORITY);
         m_SensorThread.start();
         m_SensorHandler = new Handler(m_SensorThread.getLooper());
-        m_SensorManager.registerListener(m_SensorEventListener, m_Sensor, SensorManager.SENSOR_DELAY_FASTEST, m_SensorHandler);
+        m_SensorManager.registerListener(m_SensorEventListener, m_AccelerometerSensor, SensorManager.SENSOR_DELAY_GAME, m_SensorHandler);
+        m_SensorManager.registerListener(m_SensorEventListener, m_MagnaticSensor, SensorManager.SENSOR_DELAY_GAME, m_SensorHandler);
     }
 
     public void UnregisterSensor()
