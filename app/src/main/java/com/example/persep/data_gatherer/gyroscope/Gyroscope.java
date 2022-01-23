@@ -23,22 +23,22 @@ public class Gyroscope
 
     private final SensorManager m_SensorManager;
     private final Sensor m_AccelerometerSensor;
-    private final Sensor m_MagnaticSensor;
+    private final Sensor m_MagneticSensor;
     private final SensorEventListener m_SensorEventListener;
 
     private HandlerThread m_SensorThread;
     private Handler m_SensorHandler;
 
     private static final float LOW_PASS_FILTER_SENSITIVITY = 1/20F;
-    private float[] m_SensorGravity;
+    private float[] m_SensorAccelerometer;
     private float[] m_SensorGeomagnetic;
-    private float[] m_Rotation = new float[16];
+    private final float[] m_Rotation = new float[16];
 
     public Gyroscope(Context context)
     {
         m_SensorManager = (SensorManager) context.getSystemService(Context.SENSOR_SERVICE);
         m_AccelerometerSensor = m_SensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-        m_MagnaticSensor = m_SensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
+        m_MagneticSensor = m_SensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
 
         m_SensorEventListener = new SensorEventListener()
         {
@@ -48,13 +48,13 @@ public class Gyroscope
                 if(m_Listener != null)
                 {
                     if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER)
-                        m_SensorGravity = LowPassFilter(event.values.clone(), m_SensorGravity);
+                        m_SensorAccelerometer = LowPassFilter(event.values.clone(), m_SensorAccelerometer);
                     if (event.sensor.getType() == Sensor.TYPE_MAGNETIC_FIELD)
                         m_SensorGeomagnetic = LowPassFilter(event.values.clone(), m_SensorGeomagnetic);
 
-                    if (m_SensorGravity != null && m_SensorGeomagnetic != null)
+                    if (m_SensorAccelerometer != null && m_SensorGeomagnetic != null)
                     {
-                        SensorManager.getRotationMatrix(m_Rotation, null, m_SensorGravity, m_SensorGeomagnetic);
+                        SensorManager.getRotationMatrix(m_Rotation, null, m_SensorAccelerometer, m_SensorGeomagnetic);
                         m_Listener.onRotationDelta(m_Rotation);
                     }
                 }
@@ -81,7 +81,7 @@ public class Gyroscope
         m_SensorThread.start();
         m_SensorHandler = new Handler(m_SensorThread.getLooper());
         m_SensorManager.registerListener(m_SensorEventListener, m_AccelerometerSensor, SensorManager.SENSOR_DELAY_GAME, m_SensorHandler);
-        m_SensorManager.registerListener(m_SensorEventListener, m_MagnaticSensor, SensorManager.SENSOR_DELAY_GAME, m_SensorHandler);
+        m_SensorManager.registerListener(m_SensorEventListener, m_MagneticSensor, SensorManager.SENSOR_DELAY_GAME, m_SensorHandler);
     }
 
     public void UnregisterSensor()
