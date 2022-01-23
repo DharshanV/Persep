@@ -57,8 +57,8 @@ public class OpenGLRenderer
         GLES20.glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
         GLES20.glEnable(GLES20.GL_BLEND);
         GLES20.glBlendFunc(GLES20.GL_SRC_ALPHA, GLES20.GL_ONE_MINUS_SRC_ALPHA);
-        GLES20.glEnable(GLES20.GL_CULL_FACE);
-        GLES20.glCullFace(GLES20.GL_BACK);
+//        GLES20.glEnable(GLES20.GL_CULL_FACE);
+//        GLES20.glCullFace(GLES20.GL_BACK);
     }
 
     public void DrawFrame(long deltaTime)
@@ -75,8 +75,9 @@ public class OpenGLRenderer
         int projIndex = m_TriangleShader.GetUniformLocation("projection");
 
         Matrix.setIdentityM(m_Triangle.GetTransform(), 0);
-        Matrix.translateM(m_Triangle.GetTransform(), 0, 0, 0, -2.0f);
         Matrix.multiplyMM(m_Triangle.GetTransform(), 0, m_Triangle.GetTransform(), 0, m_OrientationMatrix, 0);
+        Matrix.translateM(m_Triangle.GetTransform(), 0, -4.0f, -10.0f, 0.0f);
+        Matrix.rotateM(m_Triangle.GetTransform(), 0, 90, 1, 0, 0);
 
         GLES20.glUniformMatrix4fv(modelIndex, 1, false, m_Triangle.GetTransform(), 0);
         GLES20.glUniformMatrix4fv(viewIndex, 1, false, m_ViewMatrix, 0);
@@ -94,7 +95,7 @@ public class OpenGLRenderer
         GLES20.glViewport(0, 0, m_Width, m_Height);
 
         float ratio = (float) m_Width / m_Height;
-        Matrix.frustumM(m_ProjectionMatrix, 0, -ratio, ratio, -1, 1, 3, 7);
+        Matrix.frustumM(m_ProjectionMatrix, 0, -ratio, ratio, -1, 1, 3, 1000);
     }
 
     public void UpdateRotation(float[] rotationMatrix)
