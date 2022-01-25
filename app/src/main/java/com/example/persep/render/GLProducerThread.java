@@ -129,7 +129,7 @@ public class GLProducerThread extends Thread
 
         if (m_Renderer != null)
         {
-            m_Renderer.InitGL();
+            m_Renderer.Initialize();
             m_Renderer.Resize(m_SurfaceWidth, m_SurfaceHeight);
         }
 

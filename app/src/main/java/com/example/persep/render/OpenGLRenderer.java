@@ -20,7 +20,6 @@ public class OpenGLRenderer
     private final float[] m_ViewMatrix = new float[16];
 
     private Triangle m_Triangle;
-    private Shader m_TriangleShader;
 
     private float[] m_OrientationMatrix = new float[16];
 
@@ -33,21 +32,20 @@ public class OpenGLRenderer
         Matrix.setIdentityM(m_OrientationMatrix, 0);
 
         m_Triangle = new Triangle();
-        m_TriangleShader = new Shader("fadingColorTriangle.vert", "fadingColorTriangle.frag");
     }
 
-    public void InitGL()
+    public void Initialize()
     {
         Log.d(TAG, "Initialized renderer");
         InitGLSettings();
 
-        m_TriangleShader.CreateShaderProgram(m_Context);
+        m_Triangle.CreateShader(m_Context, "fadingColorTriangle.vert", "fadingColorTriangle.frag");
 
-        int positionIndex = m_TriangleShader.GetAttribLocation("inPosition");
+        int positionIndex = m_Triangle.GetShader().GetAttribLocation("inPosition");
         GLES20.glEnableVertexAttribArray(positionIndex);
         GLES20.glVertexAttribPointer(positionIndex, 3, GLES20.GL_FLOAT, false, 3 * 4, m_Triangle.GetPositionBuffer());
 
-        int colorIndex = m_TriangleShader.GetAttribLocation("inColor");
+        int colorIndex = m_Triangle.GetShader().GetAttribLocation("inColor");
         GLES20.glEnableVertexAttribArray(colorIndex);
         GLES20.glVertexAttribPointer(colorIndex, 3, GLES20.GL_FLOAT, false, 3 * 4, m_Triangle.GetColorBuffer());
     }
@@ -69,10 +67,11 @@ public class OpenGLRenderer
 
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
 
-        m_TriangleShader.UseProgram();
-        int modelIndex = m_TriangleShader.GetUniformLocation("model");
-        int viewIndex = m_TriangleShader.GetUniformLocation("view");
-        int projIndex = m_TriangleShader.GetUniformLocation("projection");
+        Shader triangleShader = m_Triangle.GetShader();
+        triangleShader.UseProgram();
+        int modelIndex = triangleShader.GetUniformLocation("model");
+        int viewIndex = triangleShader.GetUniformLocation("view");
+        int projIndex = triangleShader.GetUniformLocation("projection");
 
         Matrix.setIdentityM(m_Triangle.GetTransform(), 0);
         Matrix.multiplyMM(m_Triangle.GetTransform(), 0, m_Triangle.GetTransform(), 0, m_OrientationMatrix, 0);
