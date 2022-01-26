@@ -1,4 +1,4 @@
-package com.example.persep.data_gatherer.gyroscope;
+package com.example.persep.data_gatherer;
 
 import android.content.Context;
 import android.hardware.Sensor;
@@ -9,9 +9,9 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.util.Log;
 
-public class Gyroscope
+public class RotationSensor
 {
-    private static final String TAG = "Gyroscope";
+    private static final String TAG = "RotationSensor";
 
     public interface Listener
     {
@@ -38,7 +38,7 @@ public class Gyroscope
     private float[] m_PrevAvgRotationVector = new float[4];
     private boolean m_FirstData = true;
 
-    public Gyroscope(Context context)
+    public RotationSensor(Context context)
     {
         m_SensorManager = (SensorManager) context.getSystemService(Context.SENSOR_SERVICE);
         m_RotationSensor = m_SensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR);

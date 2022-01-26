@@ -3,17 +3,15 @@ package com.example.persep.data_gatherer;
 import android.content.Context;
 import android.util.Log;
 
-import com.example.persep.data_gatherer.gyroscope.Gyroscope;
-
 public class DataGathererManager
 {
     private static final String TAG = "Data_Gatherer_Manager";
 
-    private Gyroscope m_Gyroscope;
+    private RotationSensor m_RotationSensor;
 
     public DataGathererManager(Context context)
     {
-        m_Gyroscope = new Gyroscope(context);
+        m_RotationSensor = new RotationSensor(context);
     }
 
     public void onStart()
@@ -27,17 +25,17 @@ public class DataGathererManager
     public void onPause()
     {
         Log.d(TAG, "Paused");
-        m_Gyroscope.UnregisterSensor();
+        m_RotationSensor.UnregisterSensor();
     }
 
     public void onResume()
     {
         Log.d(TAG, "Resumed");
-        m_Gyroscope.RegisterSensor();
+        m_RotationSensor.RegisterSensor();
     }
 
-    public void AddGyroscopeListener(Gyroscope.Listener listener)
+    public void AddGyroscopeListener(RotationSensor.Listener listener)
     {
-        m_Gyroscope.AddListener(listener);
+        m_RotationSensor.AddListener(listener);
     }
 }

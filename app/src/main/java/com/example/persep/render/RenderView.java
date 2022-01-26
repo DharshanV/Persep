@@ -7,11 +7,11 @@ import android.view.TextureView;
 
 import androidx.annotation.NonNull;
 
-import com.example.persep.data_gatherer.gyroscope.Gyroscope;
+import com.example.persep.data_gatherer.RotationSensor;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class RenderView extends TextureView implements TextureView.SurfaceTextureListener, Gyroscope.Listener
+public class RenderView extends TextureView implements TextureView.SurfaceTextureListener, RotationSensor.Listener
 {
     private static final String TAG = "RenderView";
 
