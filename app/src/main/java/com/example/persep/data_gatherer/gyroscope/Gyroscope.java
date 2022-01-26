@@ -9,8 +9,6 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.util.Log;
 
-//https://stackoverflow.com/questions/27846604/how-to-get-smooth-orientation-data-in-android
-//https://stackoverflow.com/questions/30279065/how-to-get-the-euler-angles-from-the-rotation-vector-sensor-type-rotation-vecto
 public class Gyroscope
 {
     private static final String TAG = "Gyroscope";
@@ -31,7 +29,14 @@ public class Gyroscope
 
     private static final float LOW_PASS_FILTER_SENSITIVITY = 1/10F;
     private float[] m_RotationValue;
-    private final float[] m_Rotation = new float[16];
+    private final float[] m_RotationMatrix = new float[16];
+
+    //Exponential Moving Average
+    private static final int EMA_LOOK_BACK = 20;
+    private static final float EMA_WEIGHT_MULTIPLIER = 2.0f/(EMA_LOOK_BACK + 1);
+    private float[] m_AvgRotationVector = new float[4];
+    private float[] m_PrevAvgRotationVector = new float[4];
+    private boolean m_FirstData = true;
 
     public Gyroscope(Context context)
     {
@@ -45,10 +50,11 @@ public class Gyroscope
             {
                 if(m_Listener != null && event.sensor.getType() == Sensor.TYPE_ROTATION_VECTOR)
                 {
+                    //Log.d(TAG, String.format("<%.2f, %.2f, %.2f, %.2f>", m_RotationValue[0], m_RotationValue[1], m_RotationValue[2], m_RotationValue[3]));
                     m_RotationValue = LowPassFilter(event.values.clone(), m_RotationValue);
-//                    Log.d(TAG, String.format("<%.2f, %.2f, %.2f, %.2f>", m_RotationValue[0], m_RotationValue[1], m_RotationValue[2], m_RotationValue[3]));
-                    SensorManager.getRotationMatrixFromVector(m_Rotation, m_RotationValue);
-                    m_Listener.onRotationDelta(m_Rotation);
+                    UpdateAverage(m_RotationValue);
+                    SensorManager.getRotationMatrixFromVector(m_RotationMatrix, m_AvgRotationVector);
+                    m_Listener.onRotationDelta(m_RotationMatrix);
                 }
             }
 
@@ -67,6 +73,24 @@ public class Gyroscope
         return output;
     }
 
+    private void UpdateAverage(float[] newData)
+    {
+        if(m_FirstData)
+        {
+            m_AvgRotationVector = newData.clone();
+            m_PrevAvgRotationVector = newData.clone();
+            m_FirstData = false;
+            return;
+        }
+        float[] temp = new float[4];
+        for(int i=0;i<4;i++)
+        {
+            temp[i] = ((newData[i] - m_PrevAvgRotationVector[i]) * EMA_WEIGHT_MULTIPLIER) + m_PrevAvgRotationVector[i];
+        }
+        m_AvgRotationVector = temp;
+        m_PrevAvgRotationVector = m_AvgRotationVector;
+    }
+
     public void RegisterSensor()
     {
         if(m_RotationSensor != null)
@@ -74,7 +98,7 @@ public class Gyroscope
             m_SensorThread = new HandlerThread("GyroscopeThread", Thread.MAX_PRIORITY);
             m_SensorThread.start();
             m_SensorHandler = new Handler(m_SensorThread.getLooper());
-            m_SensorManager.registerListener(m_SensorEventListener, m_RotationSensor, SensorManager.SENSOR_DELAY_GAME, m_SensorHandler);
+            m_SensorManager.registerListener(m_SensorEventListener, m_RotationSensor, SensorManager.SENSOR_DELAY_FASTEST, m_SensorHandler);
         }
     }
 
