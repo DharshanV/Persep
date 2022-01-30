@@ -6,6 +6,7 @@ import android.opengl.Matrix;
 import android.os.Trace;
 import android.util.Log;
 
+import com.example.persep.shapes.AlbumModel;
 import com.example.persep.shapes.Triangle;
 
 public class OpenGLRenderer
@@ -19,8 +20,8 @@ public class OpenGLRenderer
     private final float[] m_ProjectionMatrix = new float[16];
     private final float[] m_ViewMatrix = new float[16];
 
-    private Triangle m_Triangle;
-    private Shader m_TriangleShader;
+    private AlbumModel m_AlbumModel;
+    private Shader m_AlbumShader;
 
     private float[] m_OrientationMatrix = new float[16];
 
@@ -38,11 +39,12 @@ public class OpenGLRenderer
         Log.d(TAG, "Initialized renderer");
         InitGLSettings();
 
-        m_Triangle = new Triangle();
-        m_TriangleShader = new Shader();
-        m_TriangleShader.CreateShaderProgram(m_Context, "fadingColorTriangle.vert", "fadingColorTriangle.frag");
-        m_TriangleShader.SetFloatVertexArray("inPosition", 3, 3 * 4, m_Triangle.GetPositionBuffer());
-        m_TriangleShader.SetFloatVertexArray("inColor", 3, 3 * 4, m_Triangle.GetColorBuffer());
+        AlbumModel.LoadModel(m_Context, "temp");
+        m_AlbumModel = new AlbumModel();
+        m_AlbumShader = new Shader();
+        m_AlbumShader.CreateShaderProgram(m_Context, "fadingColorTriangle.vert", "fadingColorTriangle.frag");
+        m_AlbumShader.SetFloatVertexArray("inPosition", 3, 3 * 4, AlbumModel.GetPositionBuffer());
+        m_AlbumShader.SetFloatVertexArray("inColor", 3, 3 * 4, AlbumModel.GetColorBuffer());
     }
 
     private void InitGLSettings()
@@ -62,16 +64,16 @@ public class OpenGLRenderer
 
         GLES30.glClear(GLES30.GL_COLOR_BUFFER_BIT | GLES30.GL_DEPTH_BUFFER_BIT);
 
-        Matrix.setIdentityM(m_Triangle.GetTransform(), 0);
-        Matrix.multiplyMM(m_Triangle.GetTransform(), 0, m_Triangle.GetTransform(), 0, m_OrientationMatrix, 0);
-        Matrix.translateM(m_Triangle.GetTransform(), 0, -4.0f, -10.0f, 0.0f);
-        Matrix.rotateM(m_Triangle.GetTransform(), 0, 90, 1, 0, 0);
+        Matrix.setIdentityM(m_AlbumModel.GetTransform(), 0);
+        Matrix.multiplyMM(m_AlbumModel.GetTransform(), 0, m_AlbumModel.GetTransform(), 0, m_OrientationMatrix, 0);
+        Matrix.translateM(m_AlbumModel.GetTransform(), 0, -4.0f, -10.0f, 0.0f);
+        Matrix.rotateM(m_AlbumModel.GetTransform(), 0, 90, 1, 0, 0);
 
-        m_TriangleShader.UseProgram();
-        m_TriangleShader.SetMatrix4("model", m_Triangle.GetTransform());
-        m_TriangleShader.SetMatrix4("view", m_ViewMatrix);
-        m_TriangleShader.SetMatrix4("projection", m_ProjectionMatrix);
-        GLES30.glDrawArrays(GLES30.GL_TRIANGLES, 0, 3);
+        m_AlbumShader.UseProgram();
+        m_AlbumShader.SetMatrix4("model", m_AlbumModel.GetTransform());
+        m_AlbumShader.SetMatrix4("view", m_ViewMatrix);
+        m_AlbumShader.SetMatrix4("projection", m_ProjectionMatrix);
+        m_AlbumModel.Draw();
 
         Trace.endSection();
     }
