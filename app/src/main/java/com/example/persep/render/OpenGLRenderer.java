@@ -24,6 +24,7 @@ public class OpenGLRenderer
     private Shader m_AlbumShader;
 
     private float[] m_OrientationMatrix = new float[16];
+    static private final float[] DEVICE_TO_OPENGL = {-1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f};
 
     OpenGLRenderer(Context context)
     {
@@ -71,8 +72,7 @@ public class OpenGLRenderer
         Matrix.multiplyMM(m_AlbumModel.GetTransform(), 0, m_AlbumModel.GetTransform(), 0, m_OrientationMatrix, 0);
         Matrix.translateM(m_AlbumModel.GetTransform(), 0, -4.0f, -10.0f, 0.0f);
         Matrix.rotateM(m_AlbumModel.GetTransform(), 0, (float)(SystemClock.elapsedRealtime()/10), 0, 1, 1);
-        Matrix.rotateM(m_AlbumModel.GetTransform(), 0, 90, 1, 0, 0);
-        Matrix.rotateM(m_AlbumModel.GetTransform(), 0, 180, 0, 1, 0);
+        Matrix.multiplyMM(m_AlbumModel.GetTransform(), 0, m_AlbumModel.GetTransform(), 0, DEVICE_TO_OPENGL, 0);
 
         m_AlbumShader.UseProgram();
         m_AlbumShader.SetMatrix4("model", m_AlbumModel.GetTransform());
