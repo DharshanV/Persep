@@ -12,6 +12,7 @@ import java.nio.ShortBuffer;
 public class AlbumModel
 {
     static private FloatBuffer m_VertexPosition = null;
+    static private FloatBuffer m_VertexNormals = null;
     static private ShortBuffer m_VertexIndices = null;
     static private FloatBuffer m_VertexUV = null;
     static private FloatBuffer m_VertexColor = null;
@@ -25,6 +26,17 @@ public class AlbumModel
             1.0f, -0.75f,  0.1f,     //v4
             1.0f,  0.75f,  0.1f,     //v5
             -1.0f,  0.75f,  0.1f     //v7
+    };
+
+    private static final float[] NORMALS = {
+            0.0f, 0.0f, -1.0f,    //v0
+            0.0f, 0.0f, -1.0f,     //v1
+            0.0f, 0.0f, -1.0f,     //v3
+            0.0f, 0.0f, -1.0f,     //v2
+            0.0f, 0.0f, 1.0f,    //v6
+            0.0f, 0.0f, 1.0f,     //v4
+            0.0f, 0.0f, 1.0f,     //v5
+            0.0f, 0.0f, 1.0f     //v7
     };
 
     private static final float[] COLORS = {
@@ -67,6 +79,10 @@ public class AlbumModel
                 .order(ByteOrder.nativeOrder()).asFloatBuffer();
         m_VertexPosition.put(VERTICES).position(0);
 
+        m_VertexNormals = ByteBuffer.allocateDirect(NORMALS.length * 4)
+                .order(ByteOrder.nativeOrder()).asFloatBuffer();
+        m_VertexNormals.put(NORMALS).position(0);
+
         m_VertexIndices = ByteBuffer.allocateDirect(INDICES.length * 2)
                 .order(ByteOrder.nativeOrder()).asShortBuffer();
         m_VertexIndices.put(INDICES).position(0);
@@ -77,6 +93,8 @@ public class AlbumModel
     }
 
     static public FloatBuffer GetPositionBuffer() { return m_VertexPosition; }
+
+    static public FloatBuffer GetNormalBuffer() { return m_VertexNormals; }
 
     static public ShortBuffer GetIndicesBuffer() { return m_VertexIndices; }
 

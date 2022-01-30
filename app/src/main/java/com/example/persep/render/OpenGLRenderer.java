@@ -46,6 +46,7 @@ public class OpenGLRenderer
         m_AlbumShader.UseProgram();
         m_AlbumShader.CreateShaderProgram(m_Context, "fadingColorTriangle.vert", "fadingColorTriangle.frag");
         m_AlbumShader.SetFloatVertexArray("inPosition", 3, 3 * 4, AlbumModel.GetPositionBuffer());
+        m_AlbumShader.SetFloatVertexArray("inNormal", 3, 3 * 4, AlbumModel.GetNormalBuffer());
         m_AlbumShader.SetFloatVertexArray("inColor", 3, 3 * 4, AlbumModel.GetColorBuffer());
     }
 
