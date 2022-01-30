@@ -7,7 +7,6 @@ import android.os.Trace;
 import android.util.Log;
 
 import com.example.persep.shapes.AlbumModel;
-import com.example.persep.shapes.Triangle;
 
 public class OpenGLRenderer
 {
