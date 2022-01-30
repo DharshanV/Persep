@@ -7,25 +7,18 @@ import android.util.Log;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.nio.FloatBuffer;
 
 public class Shader
 {
     private static final String TAG = "Shader";
 
-    private String m_VertexShaderPath;
-    private String m_FragmentShaderPath;
     private int m_ProgramId;
 
-    public Shader(String vertexShaderPath, String fragmentShaderPath)
+    public void CreateShaderProgram(Context context, String vertexShaderPath, String fragmentShaderPath)
     {
-        m_VertexShaderPath = vertexShaderPath;
-        m_FragmentShaderPath = fragmentShaderPath;
-    }
-
-    public void CreateShaderProgram(Context context)
-    {
-        String vertexShaderCode = LoadStringFromAssetFile(context, m_VertexShaderPath);
-        String fragmentShaderCode = LoadStringFromAssetFile(context, m_FragmentShaderPath);
+        String vertexShaderCode = LoadStringFromAssetFile(context, vertexShaderPath);
+        String fragmentShaderCode = LoadStringFromAssetFile(context, fragmentShaderPath);
 
         int vertexShader = LoadShader(GLES20.GL_VERTEX_SHADER, vertexShaderCode);
         int fragmentShader = LoadShader(GLES20.GL_FRAGMENT_SHADER, fragmentShaderCode);
@@ -39,6 +32,18 @@ public class Shader
     public void UseProgram()
     {
         GLES20.glUseProgram(m_ProgramId);
+    }
+
+    public void SetMatrix4(String attribName, float[] matrix)
+    {
+        GLES20.glUniformMatrix4fv(GetUniformLocation(attribName), 1, false, matrix, 0);
+    }
+
+    public void SetFloatVertexArray(String attrib, int size, int stride, FloatBuffer buffer)
+    {
+        int arrayIndex = GetAttribLocation(attrib);
+        GLES20.glEnableVertexAttribArray(arrayIndex);
+        GLES20.glVertexAttribPointer(arrayIndex, size, GLES20.GL_FLOAT, false, stride, buffer);
     }
 
     public int GetAttribLocation(String attrib)
