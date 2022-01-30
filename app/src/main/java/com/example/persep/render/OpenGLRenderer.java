@@ -1,7 +1,7 @@
 package com.example.persep.render;
 
 import android.content.Context;
-import android.opengl.GLES20;
+import android.opengl.GLES30;
 import android.opengl.Matrix;
 import android.os.Trace;
 import android.util.Log;
@@ -47,11 +47,11 @@ public class OpenGLRenderer
 
     private void InitGLSettings()
     {
-        GLES20.glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-        GLES20.glEnable(GLES20.GL_BLEND);
-        GLES20.glBlendFunc(GLES20.GL_SRC_ALPHA, GLES20.GL_ONE_MINUS_SRC_ALPHA);
-//        GLES20.glEnable(GLES20.GL_CULL_FACE);
-//        GLES20.glCullFace(GLES20.GL_BACK);
+        GLES30.glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+        GLES30.glEnable(GLES30.GL_BLEND);
+        GLES30.glBlendFunc(GLES30.GL_SRC_ALPHA, GLES30.GL_ONE_MINUS_SRC_ALPHA);
+//        GLES30.glEnable(GLES30.GL_CULL_FACE);
+//        GLES30.glCullFace(GLES30.GL_BACK);
     }
 
     public void DrawFrame(long deltaTime)
@@ -60,7 +60,7 @@ public class OpenGLRenderer
 
         Matrix.setLookAtM(m_ViewMatrix, 0, 0f, 0f, 3f, 0f, 0f, 0f, 0f, 1.0f, 0.0f);
 
-        GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
+        GLES30.glClear(GLES30.GL_COLOR_BUFFER_BIT | GLES30.GL_DEPTH_BUFFER_BIT);
 
         Matrix.setIdentityM(m_Triangle.GetTransform(), 0);
         Matrix.multiplyMM(m_Triangle.GetTransform(), 0, m_Triangle.GetTransform(), 0, m_OrientationMatrix, 0);
@@ -71,7 +71,7 @@ public class OpenGLRenderer
         m_TriangleShader.SetMatrix4("model", m_Triangle.GetTransform());
         m_TriangleShader.SetMatrix4("view", m_ViewMatrix);
         m_TriangleShader.SetMatrix4("projection", m_ProjectionMatrix);
-        GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, 3);
+        GLES30.glDrawArrays(GLES30.GL_TRIANGLES, 0, 3);
 
         Trace.endSection();
     }
@@ -81,7 +81,7 @@ public class OpenGLRenderer
         Log.d(TAG, "Resized | width: " + width + " height: " + height);
         m_Width = width;
         m_Height = height;
-        GLES20.glViewport(0, 0, m_Width, m_Height);
+        GLES30.glViewport(0, 0, m_Width, m_Height);
 
         float ratio = (float) m_Width / m_Height;
         Matrix.frustumM(m_ProjectionMatrix, 0, -ratio, ratio, -1, 1, 3, 1000);

@@ -91,7 +91,7 @@ public class GLProducerThread extends Thread
             throw new RuntimeException("eglChooseConfig failed : " + GLUtils.getEGLErrorString(m_Egl.eglGetError()));
         }
 
-        int[] contextAttribs = { EGL_CONTEXT_CLIENT_VERSION, 2, EGL10.EGL_NONE };
+        int[] contextAttribs = { EGL_CONTEXT_CLIENT_VERSION, 3, EGL10.EGL_NONE };
         m_EglContext = m_Egl.eglCreateContext(m_EglDisplay, configs[0], EGL10.EGL_NO_CONTEXT, contextAttribs);
         m_EglSurface = m_Egl.eglCreateWindowSurface(m_EglDisplay, configs[0], m_SurfaceTexture, null);
         if (m_EglSurface == EGL10.EGL_NO_SURFACE || m_EglContext == EGL10.EGL_NO_CONTEXT)
