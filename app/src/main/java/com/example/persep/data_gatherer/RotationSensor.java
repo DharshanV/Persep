@@ -51,9 +51,9 @@ public class RotationSensor
                 if(m_Listener != null && event.sensor.getType() == Sensor.TYPE_ROTATION_VECTOR)
                 {
                     //Log.d(TAG, String.format("<%.2f, %.2f, %.2f, %.2f>", m_RotationValue[0], m_RotationValue[1], m_RotationValue[2], m_RotationValue[3]));
-                    m_RotationValue = LowPassFilter(event.values.clone(), m_RotationValue);
-                    UpdateAverage(m_RotationValue);
-                    SensorManager.getRotationMatrixFromVector(m_RotationMatrix, m_AvgRotationVector);
+//                    m_RotationValue = LowPassFilter(event.values.clone(), m_RotationValue);
+//                    UpdateAverage(m_RotationValue);
+                    SensorManager.getRotationMatrixFromVector(m_RotationMatrix, event.values.clone());
                     m_Listener.onRotationDelta(m_RotationMatrix);
                 }
             }

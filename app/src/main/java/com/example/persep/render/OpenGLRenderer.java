@@ -3,6 +3,7 @@ package com.example.persep.render;
 import android.content.Context;
 import android.opengl.GLES30;
 import android.opengl.Matrix;
+import android.os.SystemClock;
 import android.os.Trace;
 import android.util.Log;
 
@@ -41,6 +42,7 @@ public class OpenGLRenderer
         AlbumModel.LoadModel(m_Context, "temp");
         m_AlbumModel = new AlbumModel();
         m_AlbumShader = new Shader();
+        m_AlbumShader.UseProgram();
         m_AlbumShader.CreateShaderProgram(m_Context, "fadingColorTriangle.vert", "fadingColorTriangle.frag");
         m_AlbumShader.SetFloatVertexArray("inPosition", 3, 3 * 4, AlbumModel.GetPositionBuffer());
         m_AlbumShader.SetFloatVertexArray("inColor", 3, 3 * 4, AlbumModel.GetColorBuffer());
@@ -51,8 +53,10 @@ public class OpenGLRenderer
         GLES30.glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
         GLES30.glEnable(GLES30.GL_BLEND);
         GLES30.glBlendFunc(GLES30.GL_SRC_ALPHA, GLES30.GL_ONE_MINUS_SRC_ALPHA);
-//        GLES30.glEnable(GLES30.GL_CULL_FACE);
-//        GLES30.glCullFace(GLES30.GL_BACK);
+        GLES30.glEnable(GLES30.GL_CULL_FACE);
+        GLES30.glCullFace(GLES30.GL_FRONT);
+        GLES30.glEnable(GLES30.GL_DEPTH_TEST);
+        GLES30.glDepthFunc(GLES30.GL_LESS);
     }
 
     public void DrawFrame(long deltaTime)
@@ -66,7 +70,9 @@ public class OpenGLRenderer
         Matrix.setIdentityM(m_AlbumModel.GetTransform(), 0);
         Matrix.multiplyMM(m_AlbumModel.GetTransform(), 0, m_AlbumModel.GetTransform(), 0, m_OrientationMatrix, 0);
         Matrix.translateM(m_AlbumModel.GetTransform(), 0, -4.0f, -10.0f, 0.0f);
+        Matrix.rotateM(m_AlbumModel.GetTransform(), 0, (float)(SystemClock.elapsedRealtime()/10), 0, 1, 1);
         Matrix.rotateM(m_AlbumModel.GetTransform(), 0, 90, 1, 0, 0);
+        Matrix.rotateM(m_AlbumModel.GetTransform(), 0, 180, 0, 1, 0);
 
         m_AlbumShader.UseProgram();
         m_AlbumShader.SetMatrix4("model", m_AlbumModel.GetTransform());

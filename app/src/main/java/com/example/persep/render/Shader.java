@@ -1,7 +1,7 @@
 package com.example.persep.render;
 
 import android.content.Context;
-import android.opengl.GLES20;
+import android.opengl.GLES30;
 import android.util.Log;
 
 import java.io.BufferedReader;
@@ -20,40 +20,40 @@ public class Shader
         String vertexShaderCode = LoadStringFromAssetFile(context, vertexShaderPath);
         String fragmentShaderCode = LoadStringFromAssetFile(context, fragmentShaderPath);
 
-        int vertexShader = LoadShader(GLES20.GL_VERTEX_SHADER, vertexShaderCode);
-        int fragmentShader = LoadShader(GLES20.GL_FRAGMENT_SHADER, fragmentShaderCode);
+        int vertexShader = LoadShader(GLES30.GL_VERTEX_SHADER, vertexShaderCode);
+        int fragmentShader = LoadShader(GLES30.GL_FRAGMENT_SHADER, fragmentShaderCode);
 
-        m_ProgramId = GLES20.glCreateProgram();
-        GLES20.glAttachShader(m_ProgramId, vertexShader);
-        GLES20.glAttachShader(m_ProgramId, fragmentShader);
-        GLES20.glLinkProgram(m_ProgramId);
+        m_ProgramId = GLES30.glCreateProgram();
+        GLES30.glAttachShader(m_ProgramId, vertexShader);
+        GLES30.glAttachShader(m_ProgramId, fragmentShader);
+        GLES30.glLinkProgram(m_ProgramId);
     }
 
     public void UseProgram()
     {
-        GLES20.glUseProgram(m_ProgramId);
+        GLES30.glUseProgram(m_ProgramId);
     }
 
     public void SetMatrix4(String attribName, float[] matrix)
     {
-        GLES20.glUniformMatrix4fv(GetUniformLocation(attribName), 1, false, matrix, 0);
+        GLES30.glUniformMatrix4fv(GetUniformLocation(attribName), 1, false, matrix, 0);
     }
 
     public void SetFloatVertexArray(String attrib, int size, int stride, FloatBuffer buffer)
     {
         int arrayIndex = GetAttribLocation(attrib);
-        GLES20.glEnableVertexAttribArray(arrayIndex);
-        GLES20.glVertexAttribPointer(arrayIndex, size, GLES20.GL_FLOAT, false, stride, buffer);
+        GLES30.glEnableVertexAttribArray(arrayIndex);
+        GLES30.glVertexAttribPointer(arrayIndex, size, GLES30.GL_FLOAT, false, stride, buffer);
     }
 
     public int GetAttribLocation(String attrib)
     {
-        return GLES20.glGetAttribLocation(m_ProgramId, attrib);
+        return GLES30.glGetAttribLocation(m_ProgramId, attrib);
     }
 
     public int GetUniformLocation(String uniform)
     {
-        return GLES20.glGetUniformLocation(m_ProgramId, uniform);
+        return GLES30.glGetUniformLocation(m_ProgramId, uniform);
     }
 
     private int LoadShader(int shaderType, String shaderSource)
@@ -61,18 +61,18 @@ public class Shader
         int shader;
         int[] compiled = new int[1];
 
-        shader = GLES20.glCreateShader(shaderType);
+        shader = GLES30.glCreateShader(shaderType);
 
         if (shader == 0) return 0;
 
-        GLES20.glShaderSource(shader, shaderSource);
-        GLES20.glCompileShader(shader);
-        GLES20.glGetShaderiv(shader, GLES20.GL_COMPILE_STATUS, compiled, 0);
+        GLES30.glShaderSource(shader, shaderSource);
+        GLES30.glCompileShader(shader);
+        GLES30.glGetShaderiv(shader, GLES30.GL_COMPILE_STATUS, compiled, 0);
 
         if (compiled[0] == 0)
         {
-            Log.e(TAG, GLES20.glGetShaderInfoLog(shader));
-            GLES20.glDeleteShader(shader);
+            Log.e(TAG, GLES30.glGetShaderInfoLog(shader));
+            GLES30.glDeleteShader(shader);
             return 0;
         }
         return shader;
