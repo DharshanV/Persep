@@ -71,8 +71,8 @@ public class OpenGLRenderer
         Matrix.setIdentityM(m_AlbumModel.GetTransform(), 0);
         Matrix.multiplyMM(m_AlbumModel.GetTransform(), 0, m_AlbumModel.GetTransform(), 0, m_OrientationMatrix, 0);
         Matrix.translateM(m_AlbumModel.GetTransform(), 0, -4.0f, -10.0f, 0.0f);
-        Matrix.rotateM(m_AlbumModel.GetTransform(), 0, (float)(SystemClock.elapsedRealtime()/10), 0, 1, 1);
         Matrix.multiplyMM(m_AlbumModel.GetTransform(), 0, m_AlbumModel.GetTransform(), 0, DEVICE_TO_OPENGL, 0);
+        Matrix.rotateM(m_AlbumModel.GetTransform(), 0, (float)(SystemClock.elapsedRealtime()/10), 0, 1, 0);
 
         m_AlbumShader.UseProgram();
         m_AlbumShader.SetMatrix4("model", m_AlbumModel.GetTransform());

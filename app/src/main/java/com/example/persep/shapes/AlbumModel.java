@@ -17,14 +17,14 @@ public class AlbumModel
     static private FloatBuffer m_VertexColor = null;
 
     private static final float[] VERTICES = {
-            -0.5f, -0.5f, -0.5f,
-            0.5f, -0.5f, -0.5f,
-            0.5f,  0.5f, -0.5f,
-            -0.5f, 0.5f, -0.5f,
-            -0.5f, -0.5f,  0.5f,
-            0.5f, -0.5f,  0.5f,
-            0.5f,  0.5f,  0.5f,
-            -0.5f,  0.5f,  0.5f
+            -1.0f, -0.75f, -0.1f,    //v0
+            1.0f, -0.75f, -0.1f,     //v1
+            1.0f,  0.75f, -0.1f,     //v3
+            -1.0f, 0.75f, -0.1f,     //v2
+            -1.0f, -0.75f,  0.1f,    //v6
+            1.0f, -0.75f,  0.1f,     //v4
+            1.0f,  0.75f,  0.1f,     //v5
+            -1.0f,  0.75f,  0.1f     //v7
     };
 
     private static final float[] COLORS = {
