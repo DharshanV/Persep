@@ -1,19 +1,19 @@
-attribute vec4 inPosition;
-attribute vec3 inNormal;
-attribute vec3 inColor;
+attribute vec4 iPosition;
+attribute vec2 iUV;
+attribute vec3 iNormal;
 
 uniform mat4 model;
 uniform mat4 view;
 uniform mat4 projection;
 
-varying vec3 outColor;
-varying vec3 v_fragmentPos;
-varying vec3 v_normal;
+varying vec3 vFragmentPos;
+varying vec2 vFragmentUV;
+varying vec3 vFragmentNormal;
 
 void main()
 {
-    outColor = inColor;
-    v_fragmentPos =  (model * inPosition).xyz;
-    v_normal =  (model * vec4(inNormal, 0.0)).xyz;
-    gl_Position = projection * view * model * inPosition;
+    vFragmentPos =  (model * iPosition).xyz;
+    vFragmentUV = iUV;
+    vFragmentNormal =  (model * vec4(iNormal, 0.0)).xyz;
+    gl_Position = projection * view * model * iPosition;
 }

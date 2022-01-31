@@ -40,14 +40,14 @@ public class OpenGLRenderer
         Log.d(TAG, "Initialized renderer");
         InitGLSettings();
 
-        AlbumModel.LoadModel(m_Context, "temp");
+        AlbumModel.LoadModel(m_Context, "album.obj");
         m_AlbumModel = new AlbumModel();
         m_AlbumShader = new Shader();
         m_AlbumShader.UseProgram();
         m_AlbumShader.CreateShaderProgram(m_Context, "fadingColorTriangle.vert", "fadingColorTriangle.frag");
-        m_AlbumShader.SetFloatVertexArray("inPosition", 3, 3 * 4, AlbumModel.GetPositionBuffer());
-        m_AlbumShader.SetFloatVertexArray("inNormal", 3, 3 * 4, AlbumModel.GetNormalBuffer());
-        m_AlbumShader.SetFloatVertexArray("inColor", 3, 3 * 4, AlbumModel.GetColorBuffer());
+        m_AlbumShader.SetFloatVertexArray("iPosition", 3, 3 * 4, AlbumModel.GetPositionBuffer());
+        m_AlbumShader.SetFloatVertexArray("iUV", 3, 3 * 4, AlbumModel.GetUVBuffer());
+        m_AlbumShader.SetFloatVertexArray("iNormal", 3, 3 * 4, AlbumModel.GetNormalBuffer());
     }
 
     private void InitGLSettings()
@@ -56,9 +56,10 @@ public class OpenGLRenderer
         GLES30.glEnable(GLES30.GL_BLEND);
         GLES30.glBlendFunc(GLES30.GL_SRC_ALPHA, GLES30.GL_ONE_MINUS_SRC_ALPHA);
         GLES30.glEnable(GLES30.GL_CULL_FACE);
-        GLES30.glCullFace(GLES30.GL_FRONT);
+        GLES30.glCullFace(GLES30.GL_BACK);
         GLES30.glEnable(GLES30.GL_DEPTH_TEST);
-        GLES30.glDepthFunc(GLES30.GL_LESS);
+        GLES30.glDepthFunc(GLES30.GL_LEQUAL);
+        GLES30.glDepthMask(true);
     }
 
     public void DrawFrame(long deltaTime)

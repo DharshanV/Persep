@@ -4,60 +4,21 @@ import android.content.Context;
 import android.opengl.GLES30;
 import android.opengl.Matrix;
 
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
+import java.io.InputStream;
 import java.nio.FloatBuffer;
-import java.nio.ShortBuffer;
+import java.nio.IntBuffer;
+import de.javagl.obj.Obj;
+import de.javagl.obj.ObjData;
+import de.javagl.obj.ObjReader;
+import de.javagl.obj.ObjUtils;
 
 public class AlbumModel
 {
     static private FloatBuffer m_VertexPosition = null;
     static private FloatBuffer m_VertexNormals = null;
-    static private ShortBuffer m_VertexIndices = null;
+    static private IntBuffer m_VertexIndices = null;
     static private FloatBuffer m_VertexUV = null;
-    static private FloatBuffer m_VertexColor = null;
-
-    private static final float[] VERTICES = {
-            -1.0f, -0.75f, -0.1f,    //v0
-            1.0f, -0.75f, -0.1f,     //v1
-            1.0f,  0.75f, -0.1f,     //v3
-            -1.0f, 0.75f, -0.1f,     //v2
-            -1.0f, -0.75f,  0.1f,    //v6
-            1.0f, -0.75f,  0.1f,     //v4
-            1.0f,  0.75f,  0.1f,     //v5
-            -1.0f,  0.75f,  0.1f     //v7
-    };
-
-    private static final float[] NORMALS = {
-            0.0f, 0.0f, -1.0f,    //v0
-            0.0f, 0.0f, -1.0f,     //v1
-            0.0f, 0.0f, -1.0f,     //v3
-            0.0f, 0.0f, -1.0f,     //v2
-            0.0f, 0.0f, 1.0f,    //v6
-            0.0f, 0.0f, 1.0f,     //v4
-            0.0f, 0.0f, 1.0f,     //v5
-            0.0f, 0.0f, 1.0f     //v7
-    };
-
-    private static final float[] COLORS = {
-            0.0f,  1.0f,  0.0f,
-            0.0f,  1.0f,  0.0f,
-            1.0f,  0.5f,  0.0f,
-            1.0f,  0.5f,  0.0f,
-            1.0f,  0.0f,  0.0f,
-            1.0f,  0.0f,  0.0f,
-            0.0f,  0.0f,  1.0f,
-            1.0f,  0.0f,  1.0f
-    };
-
-    private static final short[] INDICES = {
-            0, 4, 5, 0, 5, 1,
-            1, 5, 6, 1, 6, 2,
-            2, 6, 7, 2, 7, 3,
-            3, 7, 4, 3, 4, 0,
-            4, 7, 6, 4, 6, 5,
-            3, 0, 1, 3, 1, 2
-    };
+    static private int m_NumOfIndices = 0;
 
     private float[] m_Transform = new float[16];
 
@@ -68,37 +29,36 @@ public class AlbumModel
 
     public void Draw()
     {
-        GLES30.glDrawElements(GLES30.GL_TRIANGLES, INDICES.length, GLES30.GL_UNSIGNED_SHORT, m_VertexIndices);
+        GLES30.glDrawElements(GLES30.GL_TRIANGLES, m_NumOfIndices * 3, GLES30.GL_UNSIGNED_INT, m_VertexIndices);
     }
 
     public float[] GetTransform() { return m_Transform; }
 
     static public void LoadModel(Context context, String modelPath)
     {
-        m_VertexPosition = ByteBuffer.allocateDirect(VERTICES.length * 4)
-                .order(ByteOrder.nativeOrder()).asFloatBuffer();
-        m_VertexPosition.put(VERTICES).position(0);
-
-        m_VertexNormals = ByteBuffer.allocateDirect(NORMALS.length * 4)
-                .order(ByteOrder.nativeOrder()).asFloatBuffer();
-        m_VertexNormals.put(NORMALS).position(0);
-
-        m_VertexIndices = ByteBuffer.allocateDirect(INDICES.length * 2)
-                .order(ByteOrder.nativeOrder()).asShortBuffer();
-        m_VertexIndices.put(INDICES).position(0);
-
-        m_VertexColor = ByteBuffer.allocateDirect(COLORS.length * 4)
-                .order(ByteOrder.nativeOrder()).asFloatBuffer();
-        m_VertexColor.put(COLORS).position(0);
+        InputStream in = null;
+        try
+        {
+            in = context.getAssets().open(modelPath);
+            Obj obj = ObjUtils.convertToRenderable(ObjReader.read(in));
+            m_NumOfIndices = obj.getNumFaces();
+            m_VertexIndices = ObjData.getFaceVertexIndices(obj, 3);
+            m_VertexPosition = ObjData.getVertices(obj);
+            m_VertexUV = ObjData.getTexCoords(obj, 2);
+            m_VertexNormals = ObjData.getNormals(obj);
+        } catch (Exception ex) { throw new RuntimeException("couldn't load '" + modelPath + "'", ex); }
+        finally
+        {
+            if (in != null)
+            {
+                try { in.close(); } catch (Exception ex) { ex.printStackTrace(); }
+            }
+        }
     }
 
     static public FloatBuffer GetPositionBuffer() { return m_VertexPosition; }
 
     static public FloatBuffer GetNormalBuffer() { return m_VertexNormals; }
 
-    static public ShortBuffer GetIndicesBuffer() { return m_VertexIndices; }
-
     static public FloatBuffer GetUVBuffer() { return m_VertexUV; }
-
-    static public FloatBuffer GetColorBuffer() { return m_VertexColor; }
 }
