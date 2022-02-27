@@ -99,4 +99,11 @@ public class Shader
             return null;
         }
     }
+
+    public static Shader CreateShader(Context context, String vertPath, String fragPath)
+    {
+        Shader shader = new Shader();
+        shader.CreateShaderProgram(context, vertPath, fragPath);
+        return shader;
+    }
 }

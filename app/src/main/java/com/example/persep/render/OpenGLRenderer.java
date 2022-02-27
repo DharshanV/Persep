@@ -17,19 +17,20 @@ public class OpenGLRenderer
     private int m_Width;
     private int m_Height;
 
+    private final float[] m_ModelMatrix = new float[16];
     private final float[] m_ProjectionMatrix = new float[16];
     private final float[] m_ViewMatrix = new float[16];
 
-    private AlbumModel m_AlbumModel;
-    private Shader m_AlbumShader;
-
     private float[] m_OrientationMatrix = new float[16];
     static private final float[] DEVICE_TO_OPENGL = {-1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f};
+
+    private AlbumModel m_AlbumModel;
 
     OpenGLRenderer(Context context)
     {
         m_Context = context;
 
+        Matrix.setIdentityM(m_ModelMatrix, 0);
         Matrix.setIdentityM(m_ProjectionMatrix, 0);
         Matrix.setIdentityM(m_ViewMatrix, 0);
         Matrix.setIdentityM(m_OrientationMatrix, 0);
@@ -40,14 +41,8 @@ public class OpenGLRenderer
         Log.d(TAG, "Initialized renderer");
         InitGLSettings();
 
-        AlbumModel.LoadModel(m_Context, "album.obj");
-        m_AlbumModel = new AlbumModel();
-        m_AlbumShader = new Shader();
-        m_AlbumShader.UseProgram();
-        m_AlbumShader.CreateShaderProgram(m_Context, "fadingColorTriangle.vert", "fadingColorTriangle.frag");
-        m_AlbumShader.SetFloatVertexArray("iPosition", 3, 3 * 4, AlbumModel.GetPositionBuffer());
-        m_AlbumShader.SetFloatVertexArray("iUV", 3, 3 * 4, AlbumModel.GetUVBuffer());
-        m_AlbumShader.SetFloatVertexArray("iNormal", 3, 3 * 4, AlbumModel.GetNormalBuffer());
+        m_AlbumModel = AlbumModel.LoadModel(m_Context);
+        m_AlbumModel.BuildShaders(m_Context);
     }
 
     private void InitGLSettings()
@@ -66,20 +61,18 @@ public class OpenGLRenderer
     {
         Trace.beginSection("gl_draw_frame");
 
+        //matrix calculation
         Matrix.setLookAtM(m_ViewMatrix, 0, 0f, 0f, 3f, 0f, 0f, 0f, 0f, 1.0f, 0.0f);
 
+        Matrix.setIdentityM(m_ModelMatrix, 0);
+        Matrix.multiplyMM(m_ModelMatrix, 0, m_ModelMatrix, 0, m_OrientationMatrix, 0);
+        Matrix.translateM(m_ModelMatrix, 0, -4.0f, -10.0f, 0.0f);
+        Matrix.multiplyMM(m_ModelMatrix, 0, m_ModelMatrix, 0, DEVICE_TO_OPENGL, 0);
+        Matrix.rotateM(m_ModelMatrix, 0, (float)(SystemClock.elapsedRealtime()/10), 0, 1, 0);
+        m_AlbumModel.SetMVP(m_ModelMatrix, m_ViewMatrix, m_ProjectionMatrix);
+
+        //drawing
         GLES30.glClear(GLES30.GL_COLOR_BUFFER_BIT | GLES30.GL_DEPTH_BUFFER_BIT);
-
-        Matrix.setIdentityM(m_AlbumModel.GetTransform(), 0);
-        Matrix.multiplyMM(m_AlbumModel.GetTransform(), 0, m_AlbumModel.GetTransform(), 0, m_OrientationMatrix, 0);
-        Matrix.translateM(m_AlbumModel.GetTransform(), 0, -4.0f, -10.0f, 0.0f);
-        Matrix.multiplyMM(m_AlbumModel.GetTransform(), 0, m_AlbumModel.GetTransform(), 0, DEVICE_TO_OPENGL, 0);
-        Matrix.rotateM(m_AlbumModel.GetTransform(), 0, (float)(SystemClock.elapsedRealtime()/10), 0, 1, 0);
-
-        m_AlbumShader.UseProgram();
-        m_AlbumShader.SetMatrix4("model", m_AlbumModel.GetTransform());
-        m_AlbumShader.SetMatrix4("view", m_ViewMatrix);
-        m_AlbumShader.SetMatrix4("projection", m_ProjectionMatrix);
         m_AlbumModel.Draw();
 
         Trace.endSection();
