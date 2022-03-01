@@ -13,9 +13,7 @@ varying vec3 vFragmentNormal;
 void main()
 {
     vFragmentPos =  (model * iPosition).xyz;
-    vFragmentUV = iUV;
-    vFragmentUV.xy = vFragmentUV.yx;
-    vFragmentUV.x = 1.0 - vFragmentUV.x;
+    vFragmentUV.xy = vec2(1.0) - iUV.yx;
     vFragmentNormal =  (model * vec4(iNormal, 0.0)).xyz;
     gl_Position = projection * view * model * iPosition;
 }
