@@ -14,6 +14,8 @@ void main()
 {
     vFragmentPos =  (model * iPosition).xyz;
     vFragmentUV = iUV;
+    vFragmentUV.xy = vFragmentUV.yx;
+    vFragmentUV.x = 1.0 - vFragmentUV.x;
     vFragmentNormal =  (model * vec4(iNormal, 0.0)).xyz;
     gl_Position = projection * view * model * iPosition;
 }

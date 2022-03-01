@@ -33,7 +33,7 @@ public class AlbumModel
         {
             m_Shaders[i].UseProgram();
             m_Shaders[i].SetFloatVertexArray("iPosition", 3, 3 * 4, m_VertexPosition[i]);
-            m_Shaders[i].SetFloatVertexArray("iUV", 3, 3 * 4, m_VertexUV[i]);
+            m_Shaders[i].SetFloatVertexArray("iUV", 2, 2 * 4, m_VertexUV[i]);
             m_Shaders[i].SetFloatVertexArray("iNormal", 3, 3 * 4, m_VertexNormals[i]);
             GLES30.glDrawElements(GLES30.GL_TRIANGLES, m_NumOfIndices[i] * 3, GLES30.GL_UNSIGNED_INT, m_VertexIndices[i]);
         }
