@@ -1,13 +1,18 @@
 package com.example.persep.render;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.opengl.GLES30;
+import android.opengl.GLUtils;
 import android.opengl.Matrix;
 import android.os.SystemClock;
 import android.os.Trace;
 import android.util.Log;
 
 import com.example.persep.shapes.AlbumModel;
+
+import java.io.IOException;
 
 public class OpenGLRenderer
 {
@@ -25,6 +30,7 @@ public class OpenGLRenderer
     static private final float[] DEVICE_TO_OPENGL = {-1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f};
 
     private AlbumModel m_AlbumModel;
+    private int[] m_TextureID = new int[1];
 
     OpenGLRenderer(Context context)
     {
@@ -43,6 +49,27 @@ public class OpenGLRenderer
 
         m_AlbumModel = AlbumModel.LoadModel(m_Context);
         m_AlbumModel.BuildShaders(m_Context);
+
+        try
+        {
+            Bitmap bitMap = BitmapFactory.decodeStream(m_Context.getAssets().open("sample_image.jpg"));
+
+            GLES30.glGenTextures(1, m_TextureID, 0);
+            GLES30.glBindTexture(GLES30.GL_TEXTURE_2D, m_TextureID[0]);
+
+            GLES30.glTexParameteri(GLES30.GL_TEXTURE_2D, GLES30.GL_TEXTURE_MIN_FILTER, GLES30.GL_NEAREST);
+            GLES30.glTexParameteri(GLES30.GL_TEXTURE_2D, GLES30.GL_TEXTURE_MAG_FILTER, GLES30.GL_NEAREST);
+
+            GLUtils.texImage2D(GLES30.GL_TEXTURE_2D, 0, bitMap, 0);
+
+            bitMap.recycle();
+        }
+        catch (IOException e)
+        {
+            e.printStackTrace();
+            Log.e(TAG, "Could not load image file");
+        }
+
     }
 
     private void InitGLSettings()
@@ -73,6 +100,7 @@ public class OpenGLRenderer
 
         //drawing
         GLES30.glClear(GLES30.GL_COLOR_BUFFER_BIT | GLES30.GL_DEPTH_BUFFER_BIT);
+        GLES30.glBindTexture(GLES30.GL_TEXTURE_2D, m_TextureID[0]);
         m_AlbumModel.Draw();
 
         Trace.endSection();

@@ -46,6 +46,11 @@ public class Shader
         GLES30.glVertexAttribPointer(arrayIndex, size, GLES30.GL_FLOAT, false, stride, buffer);
     }
 
+    public void SetInt(String attribName, int value)
+    {
+        GLES30.glUniform1i(GetAttribLocation(attribName), value);
+    }
+
     public int GetAttribLocation(String attrib)
     {
         return GLES30.glGetAttribLocation(m_ProgramId, attrib);

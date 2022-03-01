@@ -4,7 +4,11 @@ varying vec3 vFragmentPos;
 varying vec2 vFragmentUV;
 varying vec3 vFragmentNormal;
 
+uniform sampler2D mTexture;
+
 void main()
 {
-    gl_FragColor = vec4(vFragmentUV.x, vFragmentUV.y, 0.0, 1.0);
+    vec2 texCoord = vFragmentUV;
+    texCoord.y = 1.0 - texCoord.y;
+    gl_FragColor = texture2D(mTexture, texCoord);
 }

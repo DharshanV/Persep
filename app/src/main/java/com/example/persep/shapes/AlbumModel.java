@@ -85,6 +85,10 @@ public class AlbumModel
         m_Shaders[1] = Shader.CreateShader(context, ALBUM_SURFACE_SHADER_PATH[0], ALBUM_SURFACE_SHADER_PATH[1]);
     }
 
+    public Shader GetFrameShader() { return m_Shaders[0]; }
+
+    public Shader GetSurfaceShader() { return m_Shaders[1]; }
+
     public void SetMVP(float[] M, float[] V, float[] P)
     {
         for(int i = 0; i < 2; i++)
