@@ -121,4 +121,9 @@ public class OpenGLRenderer
     {
         m_OrientationMatrix = rotationMatrix.clone();
     }
+
+    public void UpdateDeviceLocation(double lat, double lon)
+    {
+
+    }
 }

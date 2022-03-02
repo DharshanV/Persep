@@ -7,11 +7,12 @@ import android.view.TextureView;
 
 import androidx.annotation.NonNull;
 
+import com.example.persep.data_gatherer.GPSSensor;
 import com.example.persep.data_gatherer.RotationSensor;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class RenderView extends TextureView implements TextureView.SurfaceTextureListener, RotationSensor.Listener
+public class RenderView extends TextureView implements TextureView.SurfaceTextureListener, RotationSensor.Listener, GPSSensor.Listener
 {
     private static final String TAG = "RenderView";
 
@@ -87,5 +88,11 @@ public class RenderView extends TextureView implements TextureView.SurfaceTextur
     public void onRotationDelta(float[] deltaOrientation)
     {
         m_Renderer.UpdateRotation(deltaOrientation);
+    }
+
+    @Override
+    public void onLocationChanged(double lat, double lon)
+    {
+        m_Renderer.UpdateDeviceLocation(lat, lon);
     }
 }

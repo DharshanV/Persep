@@ -104,14 +104,17 @@ public class RotationSensor
 
     public void UnregisterSensor()
     {
-        try
+        if(m_RotationSensor != null)
         {
-            m_SensorThread.quitSafely();
-            m_SensorThread.join();
-            m_SensorThread = null;
-            m_SensorHandler = null;
-        } catch (InterruptedException e) {  e.printStackTrace(); }
-        m_SensorManager.unregisterListener(m_SensorEventListener);
+            try
+            {
+                m_SensorThread.quitSafely();
+                m_SensorThread.join();
+                m_SensorThread = null;
+                m_SensorHandler = null;
+            } catch (InterruptedException e) {  e.printStackTrace(); }
+            m_SensorManager.unregisterListener(m_SensorEventListener);
+        }
     }
 
     public void AddListener(Listener listener)

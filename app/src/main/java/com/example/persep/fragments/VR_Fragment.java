@@ -89,6 +89,7 @@ public class VR_Fragment extends Fragment
         m_RenderView.setOpaque(false);
 
         m_DataGathererManager.AddGyroscopeListener(m_RenderView);
+        m_DataGathererManager.AddGPSListener(m_RenderView);
 
         return view;
     }
