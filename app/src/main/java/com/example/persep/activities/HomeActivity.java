@@ -22,7 +22,6 @@ public class HomeActivity extends AppCompatActivity
     SlidePagerAdapter m_SlidePagerAdapter;
 
     public static float DEFAULT_DISPLAY_REFRESH_RATE = 0.0f;
-    private static final int REQUEST_CAMERA_PERMISSION = 1;
 
     @SuppressLint("WrongConstant")
     @Override
@@ -30,8 +29,6 @@ public class HomeActivity extends AppCompatActivity
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
-
-        ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, REQUEST_CAMERA_PERMISSION);
 
         Display display = ((WindowManager) getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
         DEFAULT_DISPLAY_REFRESH_RATE = display.getRefreshRate();
