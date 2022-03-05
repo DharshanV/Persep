@@ -84,7 +84,7 @@ public class OpenGLRenderer
         GLES30.glDepthMask(true);
     }
 
-    public void DrawFrame(long deltaTime)
+    public void DrawFrame(float deltaTime)
     {
         Trace.beginSection("gl_draw_frame");
 
@@ -95,7 +95,7 @@ public class OpenGLRenderer
         Matrix.multiplyMM(m_ModelMatrix, 0, m_ModelMatrix, 0, m_OrientationMatrix, 0);
         Matrix.translateM(m_ModelMatrix, 0, -4.0f, -10.0f, 0.0f);
         Matrix.multiplyMM(m_ModelMatrix, 0, m_ModelMatrix, 0, DEVICE_TO_OPENGL, 0);
-        Matrix.rotateM(m_ModelMatrix, 0, (float)(SystemClock.elapsedRealtime()/10), 0, 1, 0);
+        Matrix.rotateM(m_ModelMatrix, 0, (SystemClock.uptimeMillis() / 10.0f), 0, 1, 0);
         m_AlbumModel.SetMVP(m_ModelMatrix, m_ViewMatrix, m_ProjectionMatrix);
 
         //drawing
