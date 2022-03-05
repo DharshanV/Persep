@@ -33,7 +33,7 @@ public class CameraView extends TextureView implements TextureView.SurfaceTextur
         StartBackgroundThread();
         if(isAvailable() && m_PreviewCamera != null)
         {
-            m_PreviewCamera.OpenCamera();
+            m_PreviewCamera.OpenCamera(m_BackgroundHandler);
         }
     }
 
@@ -49,9 +49,9 @@ public class CameraView extends TextureView implements TextureView.SurfaceTextur
     public void onSurfaceTextureAvailable(@NonNull SurfaceTexture surface, int width, int height)
     {
         StartBackgroundThread();
-        m_PreviewCamera = new PreviewCamera(m_Context, surface, m_BackgroundHandler);
+        m_PreviewCamera = new PreviewCamera(m_Context, surface);
         m_PreviewCamera.SetupCamera(width, height);
-        m_PreviewCamera.OpenCamera();
+        m_PreviewCamera.OpenCamera(m_BackgroundHandler);
     }
 
     @Override

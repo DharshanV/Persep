@@ -1,8 +1,7 @@
 package com.example.persep.camera;
 
-import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.Context;
-import android.content.pm.PackageManager;
 import android.graphics.SurfaceTexture;
 import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraCaptureSession;
@@ -17,7 +16,6 @@ import android.util.Size;
 import android.view.Surface;
 
 import androidx.annotation.NonNull;
-import androidx.core.content.ContextCompat;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -75,11 +73,10 @@ public class PreviewCamera
         }
     };
 
-    public PreviewCamera(Context context, SurfaceTexture texture, Handler backgroundHandler)
+    public PreviewCamera(Context context, SurfaceTexture texture)
     {
         m_Context = context;
         m_SurfaceTexture = texture;
-        m_BackgroundHandler = backgroundHandler;
     }
 
     public void SetupCamera(int width, int height)
@@ -134,13 +131,10 @@ public class PreviewCamera
         return mapSizes[0];
     }
 
-    public void OpenCamera()
+    @SuppressLint("MissingPermission")
+    public void OpenCamera(Handler backgroundHandler)
     {
-        if (ContextCompat.checkSelfPermission(m_Context, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED)
-        {
-            return;
-        }
-
+        m_BackgroundHandler = backgroundHandler;
         try
         {
             if (!m_CameraOpenCloseLock.tryAcquire(2500, TimeUnit.MILLISECONDS))
