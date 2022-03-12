@@ -5,15 +5,19 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.location.Location;
-import android.location.LocationListener;
-import android.location.LocationManager;
 import android.os.HandlerThread;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 
-public class GPSSensor implements LocationListener
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationCallback;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationResult;
+import com.google.android.gms.location.LocationServices;
+
+public class GPSSensor
 {
     private static final String TAG = "GPSSensor";
 
@@ -25,10 +29,9 @@ public class GPSSensor implements LocationListener
     private Listener m_Listener;
 
     boolean m_IsLocationServiceEnabled = false;
-    boolean m_IsGPSEnabled = false;
-    boolean m_IsNetworkEnabled = false;
-
-    LocationManager m_LocationManager;
+    private FusedLocationProviderClient m_FusedLocationProvider = null;
+    private LocationRequest m_LocationRequest = null;
+    private LocationCallback m_LocationCB = null;
 
     private HandlerThread m_SensorThread;
 
@@ -36,7 +39,7 @@ public class GPSSensor implements LocationListener
     private static final long MIN_DISTANCE_BW_UPDATES = 0;
 
     // The minimum time between updates in milliseconds
-    private static final long MIN_TIME_BW_UPDATES = 1000;
+    private static final long MIN_TIME_BW_UPDATES = 100;
 
     public GPSSensor(Context context)
     {
@@ -46,16 +49,30 @@ public class GPSSensor implements LocationListener
 
         if(isPermissionEnabled)
         {
-            m_LocationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
+            //get google play fused location service
+            m_FusedLocationProvider = LocationServices.getFusedLocationProviderClient(context);
 
-            m_IsGPSEnabled = m_LocationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
-            m_IsNetworkEnabled = m_LocationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
+            if(m_FusedLocationProvider != null)
+            {
+                m_LocationRequest = LocationRequest.create();
+                m_LocationRequest.setInterval(MIN_TIME_BW_UPDATES);
+                m_LocationRequest.setFastestInterval(MIN_TIME_BW_UPDATES / 2);
+                m_LocationRequest.setSmallestDisplacement(MIN_DISTANCE_BW_UPDATES);
+                m_LocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
 
-            if (!m_IsGPSEnabled && !m_IsNetworkEnabled)
-            {
-                Log.e(TAG, "No network or GPS provider is enabled to receive location updates.");
-            } else
-            {
+                m_LocationCB = new LocationCallback()
+                {
+                    @Override
+                    public void onLocationResult(@NonNull LocationResult locationResult)
+                    {
+                        if(m_Listener != null)
+                        {
+                            Location location = locationResult.getLastLocation();
+                            m_Listener.onLocationChanged(location.getLatitude(), location.getLongitude());
+                        }
+                    }
+                };
+
                 m_IsLocationServiceEnabled = true;
             }
         }
@@ -75,15 +92,7 @@ public class GPSSensor implements LocationListener
 
         m_SensorThread = new HandlerThread("GPSThread", Thread.MAX_PRIORITY);
         m_SensorThread.start();
-
-        if (m_IsGPSEnabled)
-        {
-            m_LocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, MIN_TIME_BW_UPDATES, MIN_DISTANCE_BW_UPDATES, this, m_SensorThread.getLooper());
-        }
-        else if(m_IsNetworkEnabled)
-        {
-            m_LocationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, MIN_TIME_BW_UPDATES, MIN_DISTANCE_BW_UPDATES, this, m_SensorThread.getLooper());
-        }
+        m_FusedLocationProvider.requestLocationUpdates(m_LocationRequest, m_LocationCB, m_SensorThread.getLooper());
     }
 
     public void UnregisterSensor()
@@ -92,26 +101,30 @@ public class GPSSensor implements LocationListener
         {
             return;
         }
+
         try
         {
             m_SensorThread.quitSafely();
             m_SensorThread.join();
             m_SensorThread = null;
         } catch (InterruptedException e) {  e.printStackTrace(); }
-        m_LocationManager.removeUpdates(this);
+        m_FusedLocationProvider.removeLocationUpdates(m_LocationCB);
     }
 
+    @SuppressLint("MissingPermission")
     public void AddListener(GPSSensor.Listener listener)
     {
         m_Listener = listener;
-    }
 
-    @Override
-    public void onLocationChanged(@NonNull Location location)
-    {
-        if(m_Listener != null)
+        if(m_FusedLocationProvider != null)
         {
-            m_Listener.onLocationChanged(location.getLatitude(), location.getLongitude());
+            m_FusedLocationProvider.getLastLocation().addOnCompleteListener(task -> {
+                Location location = task.getResult();
+                if(location != null)
+                {
+                    m_Listener.onLocationChanged(location.getLatitude(), location.getLongitude());
+                }
+            });
         }
     }
 

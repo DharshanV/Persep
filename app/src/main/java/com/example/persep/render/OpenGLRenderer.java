@@ -10,7 +10,10 @@ import android.os.SystemClock;
 import android.os.Trace;
 import android.util.Log;
 
+import com.example.persep.math_helpers.GeoLocationHelper;
 import com.example.persep.shapes.AlbumModel;
+
+import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
 
 import java.io.IOException;
 
@@ -32,9 +35,17 @@ public class OpenGLRenderer
     private AlbumModel m_AlbumModel;
     private int[] m_TextureID = new int[1];
 
+    private final double ALBUM_LAT = 12.977051454389024;
+    private final double ALBUM_LON = 77.55564352899383;
+    private final Vector3D m_AlbumCoord;
+    private double m_AlbumOffsetX;
+    private double m_AlbumOffsetY;
+
     OpenGLRenderer(Context context)
     {
         m_Context = context;
+
+        m_AlbumCoord = GeoLocationHelper.ConvertToCartesian(ALBUM_LAT, ALBUM_LON);
 
         Matrix.setIdentityM(m_ModelMatrix, 0);
         Matrix.setIdentityM(m_ProjectionMatrix, 0);
@@ -93,7 +104,7 @@ public class OpenGLRenderer
 
         Matrix.setIdentityM(m_ModelMatrix, 0);
         Matrix.multiplyMM(m_ModelMatrix, 0, m_ModelMatrix, 0, m_OrientationMatrix, 0);
-        Matrix.translateM(m_ModelMatrix, 0, -4.0f, -10.0f, 0.0f);
+        Matrix.translateM(m_ModelMatrix, 0, (float)m_AlbumOffsetX, (float)m_AlbumOffsetY, 0.0f);
         Matrix.multiplyMM(m_ModelMatrix, 0, m_ModelMatrix, 0, DEVICE_TO_OPENGL, 0);
         Matrix.rotateM(m_ModelMatrix, 0, (SystemClock.uptimeMillis() / 10.0f), 0, 1, 0);
         m_AlbumModel.SetMVP(m_ModelMatrix, m_ViewMatrix, m_ProjectionMatrix);
@@ -124,6 +135,8 @@ public class OpenGLRenderer
 
     public void UpdateDeviceLocation(double lat, double lon)
     {
-
+        Vector3D devicePos = GeoLocationHelper.ConvertToCartesian(lat, lon);
+        m_AlbumOffsetX = devicePos.getX() - m_AlbumCoord.getX();
+        m_AlbumOffsetY = m_AlbumCoord.getY() - devicePos.getY();
     }
 }

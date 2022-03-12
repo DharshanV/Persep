@@ -8,12 +8,12 @@ public class DataGathererManager
     private static final String TAG = "Data_Gatherer_Manager";
 
     private RotationSensor m_RotationSensor;
-//    private GPSSensor m_GPSSensor;
+    private GPSSensor m_GPSSensor;
 
     public DataGathererManager(Context context)
     {
         m_RotationSensor = new RotationSensor(context);
-//        m_GPSSensor= new GPSSensor(context);
+        m_GPSSensor= new GPSSensor(context);
     }
 
     public void onStart()
@@ -28,14 +28,14 @@ public class DataGathererManager
     {
         Log.d(TAG, "Paused");
         m_RotationSensor.UnregisterSensor();
-//        m_GPSSensor.UnregisterSensor();
+        m_GPSSensor.UnregisterSensor();
     }
 
     public void onResume()
     {
         Log.d(TAG, "Resumed");
         m_RotationSensor.RegisterSensor();
-//        m_GPSSensor.RegisterSensor();
+        m_GPSSensor.RegisterSensor();
     }
 
     public void AddGyroscopeListener(RotationSensor.Listener listener)
@@ -45,6 +45,6 @@ public class DataGathererManager
 
     public void AddGPSListener(GPSSensor.Listener listener)
     {
-//        m_GPSSensor.AddListener(listener);
+        m_GPSSensor.AddListener(listener);
     }
 }

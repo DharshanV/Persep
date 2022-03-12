@@ -31,5 +31,6 @@ dependencies {
     implementation 'com.google.android.material:material:1.4.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.2'
     implementation 'org.apache.commons:commons-math3:3.6.1'
+    implementation 'com.google.android.gms:play-services-location:19.0.1'
     implementation files('libs/obj-0.3.0.jar')
 }
