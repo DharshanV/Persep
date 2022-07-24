@@ -148,4 +148,9 @@ public class OpenGLRenderer
             m_AlbumOffsetY = m_AlbumCoord.getY() - devicePos.getY();
         }
     }
+
+    public void onAlbumUpdate()
+    {
+
+    }
 }

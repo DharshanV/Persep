@@ -90,6 +90,7 @@ public class VR_Fragment extends Fragment
 
         m_DataGathererManager.AddGyroscopeListener(m_RenderView);
         m_DataGathererManager.AddGPSListener(m_RenderView);
+        m_DataGathererManager.AddAlbumListener(m_RenderView);
 
         return view;
     }
