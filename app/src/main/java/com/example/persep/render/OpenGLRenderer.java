@@ -35,9 +35,10 @@ public class OpenGLRenderer
     private AlbumModel m_AlbumModel;
     private int[] m_TextureID = new int[1];
 
-    private final double ALBUM_LAT = 12.977051454389024;
-    private final double ALBUM_LON = 77.55564352899383;
-    private final Vector3D m_AlbumCoord;
+    private final double ALBUM_LAT = -33.88825930832218;
+    private final double ALBUM_LON = 151.2131708957415;
+    private boolean m_FirstRun = true;
+    private Vector3D m_AlbumCoord;
     private double m_AlbumOffsetX;
     private double m_AlbumOffsetY;
 
@@ -45,7 +46,7 @@ public class OpenGLRenderer
     {
         m_Context = context;
 
-        m_AlbumCoord = GeoLocationHelper.ConvertToCartesian(ALBUM_LAT, ALBUM_LON);
+//        m_AlbumCoord = GeoLocationHelper.ConvertToCartesian(ALBUM_LAT, ALBUM_LON);
 
         Matrix.setIdentityM(m_ModelMatrix, 0);
         Matrix.setIdentityM(m_ProjectionMatrix, 0);
@@ -136,7 +137,15 @@ public class OpenGLRenderer
     public void UpdateDeviceLocation(double lat, double lon)
     {
         Vector3D devicePos = GeoLocationHelper.ConvertToCartesian(lat, lon);
-        m_AlbumOffsetX = devicePos.getX() - m_AlbumCoord.getX();
-        m_AlbumOffsetY = m_AlbumCoord.getY() - devicePos.getY();
+        if(m_FirstRun)
+        {
+            m_AlbumCoord = devicePos.add(Vector3D.MINUS_I.scalarMultiply(4.0));
+            m_FirstRun = false;
+        }
+        else
+        {
+            m_AlbumOffsetX = devicePos.getX() - m_AlbumCoord.getX();
+            m_AlbumOffsetY = m_AlbumCoord.getY() - devicePos.getY();
+        }
     }
 }

@@ -28,7 +28,7 @@ public class RotationSensor
     private Handler m_SensorHandler;
 
     private static final float LOW_PASS_FILTER_SENSITIVITY = 1/10F;
-    private float[] m_RotationValue;
+    private float[] m_RotationValue = null;
     private final float[] m_RotationMatrix = new float[16];
 
     //Exponential Moving Average
@@ -82,12 +82,10 @@ public class RotationSensor
             m_FirstData = false;
             return;
         }
-        float[] temp = new float[4];
         for(int i=0;i<4;i++)
         {
-            temp[i] = ((newData[i] - m_PrevAvgRotationVector[i]) * EMA_WEIGHT_MULTIPLIER) + m_PrevAvgRotationVector[i];
+            m_AvgRotationVector[i] = ((newData[i] - m_PrevAvgRotationVector[i]) * EMA_WEIGHT_MULTIPLIER) + m_PrevAvgRotationVector[i];
         }
-        m_AvgRotationVector = temp;
         m_PrevAvgRotationVector = m_AvgRotationVector;
     }
 
