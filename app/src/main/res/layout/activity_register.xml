@@ -69,7 +69,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:inputType="textPassword"
-                android:hint="Confirm Pasasword"
+                android:hint="Confirm Password"
                 android:id="@+id/register_reinput_password"
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"/>
         </com.google.android.material.textfield.TextInputLayout>
