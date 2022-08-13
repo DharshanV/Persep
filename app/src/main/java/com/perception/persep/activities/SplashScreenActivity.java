@@ -35,11 +35,12 @@ public class SplashScreenActivity extends Activity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash_screen);
 
-        m_ManifestPermissions = GetAllManifestPermission(this).clone();
-        if(CheckAndRequestRequiredPermissions())
-        {
-            StartHomeActivity();
-        }
+//        m_ManifestPermissions = GetAllManifestPermission(this).clone();
+//        if(CheckAndRequestRequiredPermissions())
+//        {
+//            StartHomeActivity();
+//        }
+        StartLoginActivity();
     }
 
     @Override
@@ -112,6 +113,14 @@ public class SplashScreenActivity extends Activity
         Log.d(TAG, "All permission granted. Starting home activity.");
         new Handler().postDelayed(() -> {
             startActivity(new Intent(SplashScreenActivity.this, HomeActivity.class));
+            finish();
+        }, HOME_ACTIVITY_DELAY_MS);
+    }
+
+    private void StartLoginActivity()
+    {
+        new Handler().postDelayed(() -> {
+            startActivity(new Intent(SplashScreenActivity.this, LoginActivity.class));
             finish();
         }, HOME_ACTIVITY_DELAY_MS);
     }

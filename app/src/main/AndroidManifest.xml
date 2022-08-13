@@ -24,6 +24,14 @@
             android:exported="true">
         </activity>
         <activity
+            android:name="com.perception.persep.activities.LoginActivity"
+            android:exported="true">
+        </activity>
+        <activity
+            android:name="com.perception.persep.activities.RegisterActivity"
+            android:exported="true">
+        </activity>
+        <activity
             android:name="com.perception.persep.activities.SplashScreenActivity"
             android:exported="true">
             <intent-filter>

@@ -36,4 +36,5 @@ dependencies {
     implementation files('libs/obj-0.3.0.jar')
     implementation platform('com.google.firebase:firebase-bom:30.3.2')
     implementation 'com.google.firebase:firebase-analytics'
+    implementation 'com.google.firebase:firebase-auth'
 }
