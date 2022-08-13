@@ -4,4 +4,4 @@
     android:id="@+id/vr_root_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".fragments.VR_Fragment"/>
+    tools:context="com.perception.persep.fragments.VR_Fragment"/>

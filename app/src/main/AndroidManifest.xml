@@ -20,11 +20,11 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Persep">
         <activity
-            android:name=".activities.HomeActivity"
+            android:name="com.perception.persep.activities.HomeActivity"
             android:exported="true">
         </activity>
         <activity
-            android:name=".activities.SplashScreenActivity"
+            android:name="com.perception.persep.activities.SplashScreenActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
