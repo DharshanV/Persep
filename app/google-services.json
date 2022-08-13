@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "3081532345",
+    "project_id": "persep-1999a",
+    "storage_bucket": "persep-1999a.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:3081532345:android:d3f7c368b570b1a84d3c68",
+        "android_client_info": {
+          "package_name": "com.perception.persep"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "3081532345-j0fa5u0ad9bn90fc548ickf2dvbgi37k.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA2lCmBsT7yedcalxSTkati45Z2CRdxM_A"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "3081532345-j0fa5u0ad9bn90fc548ickf2dvbgi37k.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
