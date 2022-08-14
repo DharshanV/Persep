@@ -61,26 +61,12 @@
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"/>
         </com.google.android.material.textfield.TextInputLayout>
 
-        <com.google.android.material.textfield.TextInputLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:layout_marginBottom="8dp">
-            <EditText
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:inputType="textPassword"
-                android:hint="Confirm Password"
-                android:id="@+id/register_reinput_password"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"/>
-        </com.google.android.material.textfield.TextInputLayout>
-
         <androidx.appcompat.widget.AppCompatButton
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Register"
             android:textColor="?attr/colorOnPrimary"
-            android:id="@+id/button_register"
+            android:id="@+id/register_button"
             android:padding="15dp"
             android:layout_marginTop="5dp"
             android:background="@drawable/white_rounded_button"/>
@@ -90,10 +76,10 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
             android:layout_marginBottom="25dp"
-            android:textColor="#FF0000"
+            android:textColor="?attr/colorOnPrimary"
             android:gravity="center"
             android:textSize="16sp"
-            android:id="@+id/register_error_message"/>
+            android:id="@+id/register_message"/>
     </LinearLayout>
 
 </RelativeLayout>
