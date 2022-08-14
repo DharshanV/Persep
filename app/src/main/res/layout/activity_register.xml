@@ -76,9 +76,9 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
             android:layout_marginBottom="25dp"
-            android:textColor="?attr/colorOnPrimary"
             android:gravity="center"
             android:textSize="16sp"
+            android:visibility="gone"
             android:id="@+id/register_message"/>
     </LinearLayout>
 

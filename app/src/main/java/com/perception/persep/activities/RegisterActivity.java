@@ -1,7 +1,11 @@
 package com.perception.persep.activities;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -10,18 +14,15 @@ import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 import com.example.persep.R;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 import com.perception.persep.firebase_helpers.FirebaseUserAuthentication;
 
 import java.util.regex.Pattern;
 
 
-public class RegisterActivity extends AppCompatActivity
+public class RegisterActivity extends AppCompatActivity implements FirebaseUserAuthentication.UserAuthListener
 {
     private static final String TAG = "RegisterActivity";
+    private static final int HOME_ACTIVITY_DELAY_MS = 1000;
 
     private Context m_Context;
 
@@ -31,8 +32,6 @@ public class RegisterActivity extends AppCompatActivity
     private Button m_RegisterButton;
 
     // Firebase
-    private FirebaseAuth m_FirebaseAuth;
-    private FirebaseAuth.AuthStateListener m_FirebaseAuthListener;
     private FirebaseUserAuthentication m_UserAuth;
 
     protected void onCreate(Bundle savedInstanceState)
@@ -41,9 +40,9 @@ public class RegisterActivity extends AppCompatActivity
         setContentView(R.layout.activity_register);
         m_Context = RegisterActivity.this;
         m_UserAuth = new FirebaseUserAuthentication(m_Context);
+        m_UserAuth.SetAuthListener(this);
 
         InitWidgets();
-//        SetupFirebaseAuth();
         Init();
     }
 
@@ -51,17 +50,14 @@ public class RegisterActivity extends AppCompatActivity
     public void onStart()
     {
         super.onStart();
-        m_FirebaseAuth.addAuthStateListener(m_FirebaseAuthListener);
+        m_UserAuth.onStart();
     }
 
     @Override
     public void onStop()
     {
         super.onStop();
-        if (m_FirebaseAuthListener != null)
-        {
-            m_FirebaseAuth.removeAuthStateListener(m_FirebaseAuthListener);
-        }
+        m_UserAuth.onStop();
     }
 
     private void InitWidgets()
@@ -73,32 +69,23 @@ public class RegisterActivity extends AppCompatActivity
         m_RegisterButton = (Button) findViewById(R.id.register_button);
         m_RegisterTextView = (TextView) findViewById(R.id.register_message);
 
-        View.OnKeyListener editTextOnKeyListener = (v, keyCode, event) -> {
-            m_RegisterTextView.setVisibility(View.GONE);
-            return false;
-        };
-        m_Username.setOnKeyListener(editTextOnKeyListener);
-        m_Email.setOnKeyListener(editTextOnKeyListener);
-    }
+        TextWatcher watcher = new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
 
-    private void SetupFirebaseAuth()
-    {
-        Log.d(TAG, "Setting up Firebase auth.");
-        m_FirebaseAuth = FirebaseAuth.getInstance();
-        FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
-        DatabaseReference databaseRef = firebaseDatabase.getReference();
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count)
+            {
+                if (m_RegisterTextView.getVisibility() != View.GONE)
+                    m_RegisterTextView.setVisibility(View.GONE);
+            }
 
-        m_FirebaseAuthListener = firebaseAuth -> {
-            FirebaseUser currentUser = firebaseAuth.getCurrentUser();
-            if (currentUser != null)
-            {
-                Log.d(TAG, "onAuthStateChanged: User signed in.");
-            }
-            else
-            {
-                Log.d(TAG, "onAuthStateChanged: User signed out.");
-            }
+            @Override
+            public void afterTextChanged(Editable s) { }
         };
+        m_Username.addTextChangedListener(watcher);
+        m_Email.addTextChangedListener(watcher);
+        m_Password.addTextChangedListener(watcher);
     }
 
     private void Init()
@@ -109,22 +96,21 @@ public class RegisterActivity extends AppCompatActivity
             String password = m_Password.getText().toString();
 
             DisplayMessage("Loading...");
+            m_RegisterButton.setEnabled(false);
             if (CheckInputs(username, email, password))
             {
-                if (m_UserAuth.RegisterNewUser(username, email, password)) {
-                    DisplayMessage("Successful! Logging in...");
-                }
+                m_UserAuth.RegisterNewUser(username, email, password);
+            }
+            else
+            {
+                m_RegisterButton.setEnabled(true);
             }
         });
     }
 
-    private void DisplayError(String message)
-    {
-        m_RegisterTextView.setText(message);
-    }
-
     private void DisplayMessage(String message)
     {
+        m_RegisterTextView.setVisibility(View.VISIBLE);
         m_RegisterTextView.setText(message);
     }
 
@@ -135,9 +121,9 @@ public class RegisterActivity extends AppCompatActivity
         if (!username.isEmpty())
         {
             final String regexPattern = "^(?=.{5,20}$)(?![_.])(?!.*[_.]{2})[a-zA-Z0-9._]+(?<![_.])$";
-            isUsernameValid = Pattern.compile(regexPattern).matcher(email).matches();
+            isUsernameValid = Pattern.compile(regexPattern).matcher(username).matches();
         }
-        if (!isUsernameValid) {  DisplayError("Invalid username or already exists."); return false;  }
+        if (!isUsernameValid) {  DisplayMessage("Invalid username or already exists"); return false;  }
 
         // Email
         boolean isEmailValid = false;
@@ -147,13 +133,36 @@ public class RegisterActivity extends AppCompatActivity
                     + "[^-][A-Za-z0-9-]+(\\.[A-Za-z0-9-]+)*(\\.[A-Za-z]{2,})$";
             isEmailValid = Pattern.compile(regexPattern).matcher(email).matches();
         }
-        if (!isEmailValid) { DisplayError("Invalid email or already exists."); return false; }
+        if (!isEmailValid) { DisplayMessage("Invalid email or already exists"); return false; }
 
         // Password
-        boolean isPasswordValid = !password.isEmpty();
-        if (!isPasswordValid) { DisplayError("Invalid password."); return false; }
+        boolean isPasswordValid = !password.isEmpty() && password.length() >= 5;
+        if (!isPasswordValid) { DisplayMessage("Invalid password"); return false; }
 
         return true;
     }
 
+    @Override
+    public void WasAuthSuccessful(boolean successful, String message)
+    {
+        if (successful)
+        {
+            DisplayMessage("Successful! Logging in...");
+            StartHomeActivity();
+        }
+        else
+        {
+            DisplayMessage("Error: " + message);
+            m_RegisterButton.setEnabled(true);
+        }
+    }
+
+    private void StartHomeActivity()
+    {
+        Log.d(TAG, "Starting home activity.");
+        new Handler().postDelayed(() -> {
+            startActivity(new Intent(RegisterActivity.this, HomeActivity.class));
+            finish();
+        }, HOME_ACTIVITY_DELAY_MS);
+    }
 }
