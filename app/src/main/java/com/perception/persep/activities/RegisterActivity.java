@@ -148,7 +148,7 @@ public class RegisterActivity extends AppCompatActivity implements FirebaseUserA
         if (successful)
         {
             DisplayMessage("Successful! Logging in...");
-            StartHomeActivity();
+//            StartHomeActivity();
         }
         else
         {
