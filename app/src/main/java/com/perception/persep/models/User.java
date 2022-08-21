@@ -3,6 +3,9 @@ package com.perception.persep.models;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class User implements Parcelable
 {
     public String m_UserID;
@@ -16,6 +19,15 @@ public class User implements Parcelable
         m_UserID = in.readString();
         m_Username = in.readString();
         m_Email = in.readString();
+    }
+
+    public Map<String, Object> getMap()
+    {
+        Map<String, Object> user = new HashMap<>();
+        user.put("user_id", m_UserID);
+        user.put("username", m_Username);
+        user.put("email", m_Email);
+        return user;
     }
 
     public static final Creator<User> CREATOR = new Creator<User>()

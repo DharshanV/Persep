@@ -4,17 +4,19 @@ import android.content.Context;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
+
+import com.google.android.gms.tasks.OnCanceledListener;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.Query;
-import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.perception.persep.models.User;
 
-public class FirebaseUserAuthentication implements ValueEventListener
+public class FirebaseUserAuthentication implements OnCompleteListener, OnSuccessListener, OnFailureListener, OnCanceledListener
 {
     private static final String TAG = "UserAuthentication";
 
@@ -26,12 +28,10 @@ public class FirebaseUserAuthentication implements ValueEventListener
 
     // Authentication
     private FirebaseAuth m_FirebaseAuth;
-    private FirebaseAuth.AuthStateListener m_FirebaseAuthListener;
     private UserAuthListener m_UserAuthListener;
 
     // Database
-    private FirebaseDatabase m_FirebaseDatabase;
-    private DatabaseReference m_DatabaseRef;
+    private FirebaseFirestore m_FirebaseDB;
     private User m_User;
 
     public FirebaseUserAuthentication(Context context)
@@ -42,18 +42,10 @@ public class FirebaseUserAuthentication implements ValueEventListener
 
     public void onStart()
     {
-        if (m_FirebaseAuthListener != null)
-        {
-            m_FirebaseAuth.addAuthStateListener(m_FirebaseAuthListener);
-        }
     }
 
     public void onStop()
     {
-        if (m_FirebaseAuthListener != null)
-        {
-            m_FirebaseAuth.removeAuthStateListener(m_FirebaseAuthListener);
-        }
     }
 
     public void SetAuthListener(UserAuthListener listener) { m_UserAuthListener = listener; }
@@ -77,7 +69,7 @@ public class FirebaseUserAuthentication implements ValueEventListener
             }
             else {
                 Log.d(TAG, "Couldn't create user with email and password");
-                m_UserAuthListener.WasAuthSuccessful(false, "Firebase couldn't create user with email and password");
+                m_UserAuthListener.WasAuthSuccessful(false, "User authentication failed");
             }
         });
     }
@@ -85,94 +77,45 @@ public class FirebaseUserAuthentication implements ValueEventListener
     private void TryAddNewUser()
     {
         Log.d(TAG, "Trying to add new user...");
-//        m_UserAuthListener.WasAuthSuccessful(false, "");
-        Query query = m_DatabaseRef.child("users").orderByChild("username").equalTo(m_User.m_Username);
-        query.addListenerForSingleValueEvent(new ValueEventListener()
-        {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot)
-            {
-                Log.d(TAG, "Query finished... on data changed");
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error)
-            {
-                Log.d(TAG, "Query finished... on cancelled");
-            }
-        });
+        DocumentReference userDoc = m_FirebaseDB.collection("users").document(m_User.m_UserID);
+        userDoc.set(m_User.getMap())
+                .addOnCompleteListener(this)
+                .addOnSuccessListener(this)
+                .addOnFailureListener(this)
+                .addOnCanceledListener(this);
     }
 
     private void SetupFirebaseAuth()
     {
         Log.d(TAG, "Setting up Firebase auth.");
         m_FirebaseAuth = FirebaseAuth.getInstance();
-        m_FirebaseDatabase = FirebaseDatabase.getInstance();
-        m_DatabaseRef = m_FirebaseDatabase.getReference();
-
-        m_FirebaseAuthListener = firebaseAuth -> {
-            Log.d(TAG, "Firebase auth state changed...");
-            FirebaseUser currentUser = firebaseAuth.getCurrentUser();
-            if (currentUser != null)
-            {
-                Log.d(TAG, "User authenticated and signed in");
-//                m_DatabaseRef.addListenerForSingleValueEvent(new ValueEventListener()
-//                {
-//                    @Override
-//                    public void onDataChange(@NonNull DataSnapshot snapshot)
-//                    {
-//                        TryAddNewUser();
-//                    }
-//
-//                    @Override
-//                    public void onCancelled(@NonNull DatabaseError error)
-//                    {
-//
-//                    }
-//                });
-            }
-            else
-            {
-                Log.d(TAG, "User authentication failed.");
-                m_UserAuthListener.WasAuthSuccessful(false, "User authentication failed");
-            }
-        };
+        m_FirebaseDB = FirebaseFirestore.getInstance();
     }
 
     @Override
-    public void onDataChange(@NonNull DataSnapshot snapshot)
+    public void onComplete(@NonNull Task task)
     {
-        Log.d(TAG, "Query finished...");
-        // Firebase user data has been created.
-        // Now validate username
-        for(DataSnapshot singleSnapshot : snapshot.getChildren()){
-            if (singleSnapshot.exists())
-            {
-                // found a existing user with the name.
-                Log.d(TAG, "Found an existing user with the same name");
-                m_UserAuthListener.WasAuthSuccessful(false, "Username already exists");
-                return;
-            }
-        }
-
-        // username is valid, add userdata to database
-        Log.d(TAG, "Writing out user data to database...");
-        DatabaseReference database = m_FirebaseDatabase.getReference();
-        database.child("users").child(m_User.m_UserID).setValue(m_User).addOnCompleteListener(task -> {
-            if(task.isSuccessful()) {
-                Log.d(TAG, "Write to user database was sucessfull");
-                m_UserAuthListener.WasAuthSuccessful(true, "");
-            }
-            else {
-                Log.d(TAG, "Unable to write user data to database");
-                m_UserAuthListener.WasAuthSuccessful(false, "Unable to write user data to database");
-            }
-        });
+        Log.d(TAG, "Write user data to DB complete");
     }
 
     @Override
-    public void onCancelled(@NonNull DatabaseError error)
+    public void onSuccess(Object o)
     {
-        m_UserAuthListener.WasAuthSuccessful(false, "Unable to register user");
+        Log.d(TAG, "Successfully created user data");
+        m_UserAuthListener.WasAuthSuccessful(true, "");
+    }
+
+    @Override
+    public void onFailure(@NonNull Exception e)
+    {
+        Log.d(TAG, "Write user data to DB failed");
+        m_UserAuthListener.WasAuthSuccessful(false, "Couldn't create user data");
+    }
+
+    @Override
+    public void onCanceled()
+    {
+        Log.d(TAG, "Write user data to DB canceled");
+        m_UserAuthListener.WasAuthSuccessful(false, "Couldn't create user data");
     }
 }

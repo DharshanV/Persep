@@ -95,10 +95,10 @@ public class RegisterActivity extends AppCompatActivity implements FirebaseUserA
             String email = m_Email.getText().toString();
             String password = m_Password.getText().toString();
 
-            DisplayMessage("Loading...");
             m_RegisterButton.setEnabled(false);
             if (CheckInputs(username, email, password))
             {
+                DisplayMessage("Loading...");
                 m_UserAuth.RegisterNewUser(username, email, password);
             }
             else
@@ -148,7 +148,7 @@ public class RegisterActivity extends AppCompatActivity implements FirebaseUserA
         if (successful)
         {
             DisplayMessage("Successful! Logging in...");
-//            StartHomeActivity();
+            StartHomeActivity();
         }
         else
         {
