@@ -21,6 +21,14 @@ public class User implements Parcelable
         m_Email = in.readString();
     }
 
+    public User(Map<String, Object> data)
+    {
+        m_UserID = (String) data.get("user_id");
+        m_Username = (String) data.get("username");
+        m_Email = (String) data.get("email");
+    }
+
+
     public Map<String, Object> getMap()
     {
         Map<String, Object> user = new HashMap<>();

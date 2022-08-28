@@ -19,7 +19,7 @@ import com.perception.persep.firebase_helpers.FirebaseUserAuthentication;
 import java.util.regex.Pattern;
 
 
-public class RegisterActivity extends AppCompatActivity implements FirebaseUserAuthentication.UserAuthListener
+public class RegisterActivity extends AppCompatActivity implements FirebaseUserAuthentication.UserRegisterAuthListener
 {
     private static final String TAG = "RegisterActivity";
     private static final int HOME_ACTIVITY_DELAY_MS = 1000;
@@ -39,8 +39,8 @@ public class RegisterActivity extends AppCompatActivity implements FirebaseUserA
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
         m_Context = RegisterActivity.this;
-        m_UserAuth = new FirebaseUserAuthentication(m_Context);
-        m_UserAuth.SetAuthListener(this);
+        m_UserAuth = FirebaseUserAuthentication.getInstance();
+        m_UserAuth.m_UserRegisterAuthListener = this;
 
         InitWidgets();
         Init();
@@ -143,7 +143,7 @@ public class RegisterActivity extends AppCompatActivity implements FirebaseUserA
     }
 
     @Override
-    public void WasAuthSuccessful(boolean successful, String message)
+    public void WasRegisterSuccessful(boolean successful, String message)
     {
         if (successful)
         {
