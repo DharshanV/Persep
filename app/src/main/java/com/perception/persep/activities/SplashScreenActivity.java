@@ -15,6 +15,7 @@ import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 
 import com.example.persep.R;
+import com.google.firebase.auth.FirebaseAuth;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,7 +26,7 @@ public class SplashScreenActivity extends Activity
 
     public static final int REQUEST_ID_MULTIPLE_PERMISSIONS = 1;
 
-    private static final int HOME_ACTIVITY_DELAY_MS = 2000;
+    private static final int START_ACTIVITY_DELAY = 2000;
     private static final int FINISH_ACTIVITY_DELAY_MS = 1500;
     private String[] m_ManifestPermissions = null;
 
@@ -40,7 +41,14 @@ public class SplashScreenActivity extends Activity
 //        {
 //            StartHomeActivity();
 //        }
-        StartLoginActivity();
+        if (IsUserAuthenticated())
+        {
+            StartActivity(HomeActivity.class);
+        }
+        else
+        {
+            StartActivity(LoginActivity.class);
+        }
     }
 
     @Override
@@ -65,7 +73,7 @@ public class SplashScreenActivity extends Activity
 
             if(allPermissionGranted)
             {
-                StartHomeActivity();
+                StartActivity(HomeActivity.class);
             }
             else
             {
@@ -90,7 +98,7 @@ public class SplashScreenActivity extends Activity
                             {
                                 if(CheckAndRequestRequiredPermissions())
                                 {
-                                    StartHomeActivity();
+                                    StartActivity(HomeActivity.class);
                                 }
                             }
                             else if(which == DialogInterface.BUTTON_NEGATIVE)
@@ -106,23 +114,6 @@ public class SplashScreenActivity extends Activity
                 }
             }
         }
-    }
-
-    private void StartHomeActivity()
-    {
-        Log.d(TAG, "All permission granted. Starting home activity.");
-        new Handler().postDelayed(() -> {
-            startActivity(new Intent(SplashScreenActivity.this, HomeActivity.class));
-            finish();
-        }, HOME_ACTIVITY_DELAY_MS);
-    }
-
-    private void StartLoginActivity()
-    {
-        new Handler().postDelayed(() -> {
-            startActivity(new Intent(SplashScreenActivity.this, LoginActivity.class));
-            finish();
-        }, HOME_ACTIVITY_DELAY_MS);
     }
 
     private void StopSplashScreenActivity()
@@ -170,5 +161,18 @@ public class SplashScreenActivity extends Activity
                 .setNegativeButton("Cancel", okListener)
                 .create()
                 .show();
+    }
+
+    private void StartActivity(Class<?> cls)
+    {
+        new Handler().postDelayed(() -> {
+            startActivity(new Intent(SplashScreenActivity.this, cls));
+            finish();
+        }, START_ACTIVITY_DELAY);
+    }
+
+    private boolean IsUserAuthenticated()
+    {
+        return FirebaseAuth.getInstance().getCurrentUser() != null;
     }
 }
