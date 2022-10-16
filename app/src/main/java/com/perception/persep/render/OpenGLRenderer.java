@@ -35,12 +35,12 @@ public class OpenGLRenderer
     private AlbumModel m_AlbumModel;
     private int[] m_TextureID = new int[1];
 
-//    private final double ALBUM_LAT = -33.92390284563642;
-//    private final double ALBUM_LON = 151.23390093988533;
+    private final double ALBUM_LAT = -33.92436285591135;
+    private final double ALBUM_LON = 151.23376500151787;
     private boolean m_FirstRun = true;
     private Vector3D m_AlbumCoord;
     private double m_AlbumOffsetX;
-    private double m_AlbumOffsetY;
+    private double m_AlbumOffsetZ;
 
     OpenGLRenderer(Context context)
     {
@@ -105,8 +105,8 @@ public class OpenGLRenderer
 
         Matrix.setIdentityM(m_ModelMatrix, 0);
         Matrix.multiplyMM(m_ModelMatrix, 0, m_ModelMatrix, 0, m_OrientationMatrix, 0);
-        Matrix.translateM(m_ModelMatrix, 0, (float)m_AlbumOffsetX, (float)m_AlbumOffsetY, 0.0f);
         Matrix.multiplyMM(m_ModelMatrix, 0, m_ModelMatrix, 0, DEVICE_TO_OPENGL, 0);
+        Matrix.translateM(m_ModelMatrix, 0, (float)m_AlbumOffsetX, 0.0f, (float)m_AlbumOffsetZ);
         Matrix.rotateM(m_ModelMatrix, 0, (SystemClock.uptimeMillis() / 10.0f), 0, 1, 0);
         m_AlbumModel.SetMVP(m_ModelMatrix, m_ViewMatrix, m_ProjectionMatrix);
 
@@ -138,15 +138,10 @@ public class OpenGLRenderer
     {
 //        Log.d(TAG, "(" + lat + ", " + lon + ") <-> " + "(" + ALBUM_LAT + ", " + ALBUM_LON + ")" +
 //                "Diff: (" + Math.abs(ALBUM_LAT - lat) + ", " + Math.abs(ALBUM_LON - lon) + ")");
-        Vector3D devicePos = GeoLocationHelper.ConvertToCartesian(lat, lon);
-        if(m_FirstRun)
-        {
-            m_AlbumCoord = devicePos.add(Vector3D.MINUS_J.scalarMultiply(4.0));
-            m_FirstRun = false;
-        }
-
-        m_AlbumOffsetX = devicePos.getX() - m_AlbumCoord.getX();
-        m_AlbumOffsetY = m_AlbumCoord.getY() - devicePos.getY();
+        double bearing = GeoLocationHelper.Heading(lat, lon, ALBUM_LAT, ALBUM_LON);
+        double distance = GeoLocationHelper.Distance(lat, lon, ALBUM_LAT, ALBUM_LON);
+        m_AlbumOffsetX = distance * Math.cos(bearing);
+        m_AlbumOffsetZ = distance * Math.sin(bearing);
     }
 
     public void onAlbumUpdate()
