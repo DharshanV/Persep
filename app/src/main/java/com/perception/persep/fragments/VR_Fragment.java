@@ -2,6 +2,7 @@ package com.perception.persep.fragments;
 
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.os.AsyncTask;
 import android.os.Bundle;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -36,8 +37,6 @@ public class VR_Fragment extends Fragment
     {
         Log.d(TAG, "Created");
         super.onCreate(savedInstanceState);
-
-        TryInitializeFragment();
     }
 
     private void TryInitializeFragment()
@@ -135,6 +134,7 @@ public class VR_Fragment extends Fragment
     {
         View view = inflater.inflate(R.layout.vr_fragment, container, false);
         m_VRLayout = view.findViewById(R.id.vr_root_layout);
+        TryInitializeFragment();
         return view;
     }
 
