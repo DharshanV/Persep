@@ -35,8 +35,8 @@ public class OpenGLRenderer
     private AlbumModel m_AlbumModel;
     private int[] m_TextureID = new int[1];
 
-    private final double ALBUM_LAT = -33.88825930832218;
-    private final double ALBUM_LON = 151.2131708957415;
+//    private final double ALBUM_LAT = -33.92390284563642;
+//    private final double ALBUM_LON = 151.23390093988533;
     private boolean m_FirstRun = true;
     private Vector3D m_AlbumCoord;
     private double m_AlbumOffsetX;
@@ -136,17 +136,17 @@ public class OpenGLRenderer
 
     public void UpdateDeviceLocation(double lat, double lon)
     {
+//        Log.d(TAG, "(" + lat + ", " + lon + ") <-> " + "(" + ALBUM_LAT + ", " + ALBUM_LON + ")" +
+//                "Diff: (" + Math.abs(ALBUM_LAT - lat) + ", " + Math.abs(ALBUM_LON - lon) + ")");
         Vector3D devicePos = GeoLocationHelper.ConvertToCartesian(lat, lon);
         if(m_FirstRun)
         {
-            m_AlbumCoord = devicePos.add(Vector3D.MINUS_I.scalarMultiply(4.0));
+            m_AlbumCoord = devicePos.add(Vector3D.MINUS_J.scalarMultiply(4.0));
             m_FirstRun = false;
         }
-        else
-        {
-            m_AlbumOffsetX = devicePos.getX() - m_AlbumCoord.getX();
-            m_AlbumOffsetY = m_AlbumCoord.getY() - devicePos.getY();
-        }
+
+        m_AlbumOffsetX = devicePos.getX() - m_AlbumCoord.getX();
+        m_AlbumOffsetY = m_AlbumCoord.getY() - devicePos.getY();
     }
 
     public void onAlbumUpdate()

@@ -32,6 +32,7 @@ public class GPSSensor
     private FusedLocationProviderClient m_FusedLocationProvider = null;
     private LocationRequest m_LocationRequest = null;
     private LocationCallback m_LocationCB = null;
+    private Location m_BestLocation = null;
 
     private HandlerThread m_SensorThread;
 
@@ -68,7 +69,8 @@ public class GPSSensor
                         if(m_Listener != null)
                         {
                             Location location = locationResult.getLastLocation();
-                            m_Listener.onLocationChanged(location.getLatitude(), location.getLongitude());
+                            UpdateBestLocation(location);
+                            m_Listener.onLocationChanged(m_BestLocation.getLatitude(), m_BestLocation.getLongitude());
                         }
                     }
                 };
@@ -122,9 +124,18 @@ public class GPSSensor
                 Location location = task.getResult();
                 if(location != null)
                 {
-                    m_Listener.onLocationChanged(location.getLatitude(), location.getLongitude());
+                    UpdateBestLocation(location);
+                    m_Listener.onLocationChanged(m_BestLocation.getLatitude(), m_BestLocation.getLongitude());
                 }
             });
+        }
+    }
+
+    private void UpdateBestLocation(Location location)
+    {
+        if (m_BestLocation == null || location.getAccuracy() < m_BestLocation.getAccuracy())
+        {
+            m_BestLocation = location;
         }
     }
 
