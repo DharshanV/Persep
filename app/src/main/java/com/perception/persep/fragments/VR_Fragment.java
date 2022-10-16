@@ -1,8 +1,13 @@
 package com.perception.persep.fragments;
 
+import android.content.Context;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
+import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 
 import android.util.Log;
@@ -32,54 +37,41 @@ public class VR_Fragment extends Fragment
         Log.d(TAG, "Created");
         super.onCreate(savedInstanceState);
 
-        m_DataGathererManager = new DataGathererManager(getActivity());
+        TryInitializeFragment();
     }
 
-    @Override
-    public void onStart()
+    private void TryInitializeFragment()
     {
-        Log.d(TAG, "Started");
-        super.onStart();
-        m_RenderView.onStart();
-//        m_CameraView.onStart();
-        m_DataGathererManager.onStart();
+        String[] manifestPermissions = GetAllPermission();
+        if (HasAllPermissions(manifestPermissions))
+        {
+            InitializeFragment();
+            return;
+        }
+        ActivityResultLauncher<String[]> multiplePermissionResultLauncher = registerForActivityResult(new ActivityResultContracts.RequestMultiplePermissions(), isGranted -> {
+            Log.d(TAG, "Permission launcher result: " + isGranted.toString());
+            if (isGranted.containsValue(false))
+            {
+                Log.d(TAG, "At least one of the permissions was not granted");
+            }
+            else
+            {
+                Log.d(TAG, "All permissions granted...");
+                InitializeFragment();
+            }
+        });
+
+        Log.d(TAG, "Launching multiple contract permission launcher for ALL required permissions");
+        multiplePermissionResultLauncher.launch(manifestPermissions);
     }
 
-    @Override
-    public void onStop()
+    private void InitializeFragment()
     {
-        Log.d(TAG, "Stopped");
-        super.onStop();
-        m_RenderView.onStop();
-//        m_CameraView.onStop();
-        m_DataGathererManager.onStop();
-    }
-
-    @Override
-    public void onPause()
-    {
-        Log.d(TAG, "Paused");
-        super.onPause();
-        m_RenderView.onPause();
-//        m_CameraView.onPause();
-        m_DataGathererManager.onPause();
-    }
-
-    @Override
-    public void onResume()
-    {
-        Log.d(TAG, "Resumed");
-        super.onResume();
-        m_RenderView.onResume();
-//        m_CameraView.onResume();
-        m_DataGathererManager.onResume();
-    }
-
-    @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
-    {
-        View view = inflater.inflate(R.layout.vr_fragment, container, false);
-        m_VRLayout = view.findViewById(R.id.vr_root_layout);
+        if(m_VRLayout == null)
+        {
+            Log.e(TAG, "Null VR layout");
+            return;
+        }
 
 //        m_CameraView = new CameraView(getActivity());
 //        m_VRLayout.addView(m_CameraView);
@@ -88,10 +80,89 @@ public class VR_Fragment extends Fragment
         m_VRLayout.addView(m_RenderView);
         m_RenderView.setOpaque(false);
 
+        m_DataGathererManager = new DataGathererManager(getActivity());
         m_DataGathererManager.AddGyroscopeListener(m_RenderView);
         m_DataGathererManager.AddGPSListener(m_RenderView);
         m_DataGathererManager.AddAlbumListener(m_RenderView);
+    }
 
+    @Override
+    public void onStart()
+    {
+        Log.d(TAG, "Started");
+        super.onStart();
+
+        if(m_RenderView != null) m_RenderView.onStart();
+        if(m_CameraView != null) m_CameraView.onStart();
+        if(m_DataGathererManager != null) m_DataGathererManager.onStart();
+    }
+
+    @Override
+    public void onStop()
+    {
+        Log.d(TAG, "Stopped");
+        super.onStop();
+
+        if(m_RenderView != null) m_RenderView.onStop();
+        if(m_CameraView != null) m_CameraView.onStop();
+        if(m_DataGathererManager != null) m_DataGathererManager.onStop();
+    }
+
+    @Override
+    public void onPause()
+    {
+        Log.d(TAG, "Paused");
+        super.onPause();
+
+        if(m_RenderView != null) m_RenderView.onPause();
+        if(m_CameraView != null) m_CameraView.onPause();
+        if(m_DataGathererManager != null) m_DataGathererManager.onPause();
+    }
+
+    @Override
+    public void onResume()
+    {
+        Log.d(TAG, "Resumed");
+        super.onResume();
+
+        if(m_RenderView != null) m_RenderView.onResume();
+        if(m_CameraView != null) m_CameraView.onResume();
+        if(m_DataGathererManager != null) m_DataGathererManager.onResume();
+    }
+
+    @Override
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
+    {
+        View view = inflater.inflate(R.layout.vr_fragment, container, false);
+        m_VRLayout = view.findViewById(R.id.vr_root_layout);
         return view;
+    }
+
+    private boolean HasAllPermissions(String[] permissions)
+    {
+        if (permissions != null)
+        {
+            for (String permission : permissions)
+            {
+                if (ActivityCompat.checkSelfPermission(getActivity(), permission) != PackageManager.PERMISSION_GRANTED)
+                {
+                    Log.d(TAG, "Permission is not granted: " + permission);
+                    return false;
+                }
+                Log.d(TAG, "Permission already granted: " + permission);
+            }
+        }
+        return true;
+    }
+
+    private String[] GetAllPermission()
+    {
+        try
+        {
+            Context context = getActivity();
+            return context.getPackageManager()
+                    .getPackageInfo(context.getPackageName(), PackageManager.GET_PERMISSIONS)
+                    .requestedPermissions;
+        } catch (PackageManager.NameNotFoundException e) { throw new RuntimeException ("Unable to get manifest permission", e); }
     }
 }
