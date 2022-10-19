@@ -35,8 +35,8 @@ public class OpenGLRenderer
     private AlbumModel m_AlbumModel;
     private int[] m_TextureID = new int[1];
 
-    private final double ALBUM_LAT = -33.92436285591135;
-    private final double ALBUM_LON = 151.23376500151787;
+    private final double ALBUM_LAT = -33.92447747349893;
+    private final double ALBUM_LON = 151.2338687296112;
     private boolean m_FirstRun = true;
     private Vector3D m_AlbumCoord;
     private double m_AlbumOffsetX;
@@ -141,7 +141,7 @@ public class OpenGLRenderer
         double bearing = GeoLocationHelper.Heading(lat, lon, ALBUM_LAT, ALBUM_LON);
         double distance = GeoLocationHelper.Distance(lat, lon, ALBUM_LAT, ALBUM_LON);
         m_AlbumOffsetX = distance * Math.cos(bearing);
-        m_AlbumOffsetZ = distance * Math.sin(bearing);
+        m_AlbumOffsetZ = distance * Math.sin(bearing) * -1;
     }
 
     public void onAlbumUpdate()
