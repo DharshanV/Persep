@@ -1,13 +1,19 @@
 package com.perception.persep.shapes;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.opengl.GLES30;
+import android.opengl.GLUtils;
+import android.util.Log;
 
 import com.perception.persep.render.Shader;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
+
 import de.javagl.obj.Obj;
 import de.javagl.obj.ObjData;
 import de.javagl.obj.ObjReader;
@@ -15,6 +21,10 @@ import de.javagl.obj.ObjUtils;
 
 public class AlbumModel
 {
+    private static final String TAG = "AlbumModel";
+
+    static private final int FRAME = 0;
+    static private final int SURFACE = 1;
     static private final FloatBuffer[] m_VertexPosition = new FloatBuffer[2];
     static private final FloatBuffer[] m_VertexNormals = new FloatBuffer[2];
     static private final IntBuffer[] m_VertexIndices = new IntBuffer[2];
@@ -22,21 +32,28 @@ public class AlbumModel
     static private final int[] m_NumOfIndices = new int[2];
 
     private final Shader[] m_Shaders = new Shader[2];
+    private int[] m_TextureID = null;
 
-    private static final String[] ALBUM_MODEL_PATH = { "album_frame.obj", "album_surface.obj" };
-    private static final String[] ALBUM_FRAME_SHADER_PATH = { "album_frame.vert", "album_frame.frag" };
-    private static final String[] ALBUM_SURFACE_SHADER_PATH = { "album_surface.vert", "album_surface.frag" };
+    private static final String[] ALBUM_MODEL_PATH = {"album_frame.obj", "album_surface.obj"};
+    private static final String[] ALBUM_FRAME_SHADER_PATH = {"album_frame.vert", "album_frame.frag"};
+    private static final String[] ALBUM_SURFACE_SHADER_PATH = {"album_surface.vert", "album_surface.frag"};
 
-    public void Draw()
+    public void Draw(int textureIndex)
     {
-        for(int i = 0; i < 2; i++)
-        {
-            m_Shaders[i].UseProgram();
-            m_Shaders[i].SetFloatVertexArray("iPosition", 3, 3 * 4, m_VertexPosition[i]);
-            m_Shaders[i].SetFloatVertexArray("iUV", 2, 2 * 4, m_VertexUV[i]);
-            m_Shaders[i].SetFloatVertexArray("iNormal", 3, 3 * 4, m_VertexNormals[i]);
-            GLES30.glDrawElements(GLES30.GL_TRIANGLES, m_NumOfIndices[i] * 3, GLES30.GL_UNSIGNED_INT, m_VertexIndices[i]);
-        }
+        // album_frame
+        m_Shaders[FRAME].UseProgram();
+        m_Shaders[FRAME].SetFloatVertexArray("iPosition", 3, 3 * 4, m_VertexPosition[FRAME]);
+        m_Shaders[FRAME].SetFloatVertexArray("iUV", 2, 2 * 4, m_VertexUV[FRAME]);
+        m_Shaders[FRAME].SetFloatVertexArray("iNormal", 3, 3 * 4, m_VertexNormals[FRAME]);
+        GLES30.glDrawElements(GLES30.GL_TRIANGLES, m_NumOfIndices[FRAME] * 3, GLES30.GL_UNSIGNED_INT, m_VertexIndices[FRAME]);
+
+        // album_surface
+        m_Shaders[SURFACE].UseProgram();
+        m_Shaders[SURFACE].SetFloatVertexArray("iPosition", 3, 3 * 4, m_VertexPosition[SURFACE]);
+        m_Shaders[SURFACE].SetFloatVertexArray("iUV", 2, 2 * 4, m_VertexUV[SURFACE]);
+        m_Shaders[SURFACE].SetFloatVertexArray("iNormal", 3, 3 * 4, m_VertexNormals[SURFACE]);
+        if(m_TextureID != null) GLES30.glBindTexture(GLES30.GL_TEXTURE_2D, m_TextureID[textureIndex]);
+        GLES30.glDrawElements(GLES30.GL_TRIANGLES, m_NumOfIndices[SURFACE] * 3, GLES30.GL_UNSIGNED_INT, m_VertexIndices[SURFACE]);
     }
 
     static private void LoadModelBuffers(Context context, int i)
@@ -81,17 +98,52 @@ public class AlbumModel
 
     public void BuildShaders(Context context)
     {
-        m_Shaders[0] = Shader.CreateShader(context, ALBUM_FRAME_SHADER_PATH[0], ALBUM_FRAME_SHADER_PATH[1]);
-        m_Shaders[1] = Shader.CreateShader(context, ALBUM_SURFACE_SHADER_PATH[0], ALBUM_SURFACE_SHADER_PATH[1]);
+        m_Shaders[FRAME] = Shader.CreateShader(context, ALBUM_FRAME_SHADER_PATH[0], ALBUM_FRAME_SHADER_PATH[1]);
+        m_Shaders[SURFACE] = Shader.CreateShader(context, ALBUM_SURFACE_SHADER_PATH[0], ALBUM_SURFACE_SHADER_PATH[1]);
     }
 
-    public Shader GetFrameShader() { return m_Shaders[0]; }
+    public void LoadTextures(Context context, String[] imagePaths)
+    {
+        m_TextureID = new int[imagePaths.length];
 
-    public Shader GetSurfaceShader() { return m_Shaders[1]; }
+        // load textures into album_surface shader
+        m_Shaders[SURFACE].UseProgram();
+        GLES30.glGenTextures(imagePaths.length, m_TextureID, 0);
+
+        try
+        {
+            for (int i = 0; i < imagePaths.length; i++)
+            {
+                Bitmap bitMap = BitmapFactory.decodeStream(context.getAssets().open(imagePaths[i]));
+                GLES30.glBindTexture(GLES30.GL_TEXTURE_2D, m_TextureID[i]);
+
+                GLES30.glTexParameteri(GLES30.GL_TEXTURE_2D, GLES30.GL_TEXTURE_MIN_FILTER, GLES30.GL_NEAREST);
+                GLES30.glTexParameteri(GLES30.GL_TEXTURE_2D, GLES30.GL_TEXTURE_MAG_FILTER, GLES30.GL_NEAREST);
+
+                GLUtils.texImage2D(GLES30.GL_TEXTURE_2D, 0, bitMap, 0);
+
+                bitMap.recycle();
+            }
+        } catch (IOException e)
+        {
+            e.printStackTrace();
+            Log.e(TAG, "Could not load image file");
+        }
+    }
+
+    public Shader GetFrameShader()
+    {
+        return m_Shaders[FRAME];
+    }
+
+    public Shader GetSurfaceShader()
+    {
+        return m_Shaders[SURFACE];
+    }
 
     public void SetMVP(float[] M, float[] V, float[] P)
     {
-        for(int i = 0; i < 2; i++)
+        for (int i = 0; i < 2; i++)
         {
             m_Shaders[i].UseProgram();
             m_Shaders[i].SetMatrix4("model", M);

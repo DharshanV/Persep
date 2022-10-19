@@ -16,6 +16,8 @@ import com.perception.persep.shapes.AlbumModel;
 import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
 
 import java.io.IOException;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class OpenGLRenderer
 {
@@ -33,7 +35,8 @@ public class OpenGLRenderer
     static private final float[] DEVICE_TO_OPENGL = {-1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f};
 
     private AlbumModel m_AlbumModel;
-    private int[] m_TextureID = new int[1];
+    static private final String[] m_AlbumTexturePaths = {"sample_image.jpg", "sample_image_2.jpg"};
+    private int m_TextureIndex = 0;
 
     private final double ALBUM_LAT = -33.92447747349893;
     private final double ALBUM_LON = 151.2338687296112;
@@ -61,26 +64,14 @@ public class OpenGLRenderer
 
         m_AlbumModel = AlbumModel.LoadModel(m_Context);
         m_AlbumModel.BuildShaders(m_Context);
+        m_AlbumModel.LoadTextures(m_Context, m_AlbumTexturePaths);
 
-        try
-        {
-            Bitmap bitMap = BitmapFactory.decodeStream(m_Context.getAssets().open("sample_image.jpg"));
-
-            GLES30.glGenTextures(1, m_TextureID, 0);
-            GLES30.glBindTexture(GLES30.GL_TEXTURE_2D, m_TextureID[0]);
-
-            GLES30.glTexParameteri(GLES30.GL_TEXTURE_2D, GLES30.GL_TEXTURE_MIN_FILTER, GLES30.GL_NEAREST);
-            GLES30.glTexParameteri(GLES30.GL_TEXTURE_2D, GLES30.GL_TEXTURE_MAG_FILTER, GLES30.GL_NEAREST);
-
-            GLUtils.texImage2D(GLES30.GL_TEXTURE_2D, 0, bitMap, 0);
-
-            bitMap.recycle();
-        }
-        catch (IOException e)
-        {
-            e.printStackTrace();
-            Log.e(TAG, "Could not load image file");
-        }
+        new Timer().scheduleAtFixedRate(new TimerTask() {
+            @Override
+            public void run() {
+                m_TextureIndex = (m_TextureIndex + 1) % m_AlbumTexturePaths.length;
+            }
+        }, 1000, 1000);
 
     }
 
@@ -106,14 +97,13 @@ public class OpenGLRenderer
         Matrix.setIdentityM(m_ModelMatrix, 0);
         Matrix.multiplyMM(m_ModelMatrix, 0, m_ModelMatrix, 0, m_OrientationMatrix, 0);
         Matrix.multiplyMM(m_ModelMatrix, 0, m_ModelMatrix, 0, DEVICE_TO_OPENGL, 0);
-        Matrix.translateM(m_ModelMatrix, 0, (float)m_AlbumOffsetX, 0.0f, (float)m_AlbumOffsetZ);
+        Matrix.translateM(m_ModelMatrix, 0, (float) m_AlbumOffsetX, 0.0f, (float) m_AlbumOffsetZ);
         Matrix.rotateM(m_ModelMatrix, 0, (SystemClock.uptimeMillis() / 10.0f), 0, 1, 0);
         m_AlbumModel.SetMVP(m_ModelMatrix, m_ViewMatrix, m_ProjectionMatrix);
 
         //drawing
         GLES30.glClear(GLES30.GL_COLOR_BUFFER_BIT | GLES30.GL_DEPTH_BUFFER_BIT);
-        GLES30.glBindTexture(GLES30.GL_TEXTURE_2D, m_TextureID[0]);
-        m_AlbumModel.Draw();
+        m_AlbumModel.Draw(m_TextureIndex);
 
         Trace.endSection();
     }
