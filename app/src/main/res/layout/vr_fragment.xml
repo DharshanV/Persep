@@ -4,4 +4,12 @@
     android:id="@+id/vr_root_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.perception.persep.fragments.VR_Fragment"/>
+    tools:context="com.perception.persep.fragments.VR_Fragment">
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:layout_width="1000dp"
+        android:layout_height="100dp"
+        android:layout_gravity="center|bottom"
+        android:layout_marginBottom="10dp"
+        android:id="@+id/vr_button_take_photo"/>
+</FrameLayout>

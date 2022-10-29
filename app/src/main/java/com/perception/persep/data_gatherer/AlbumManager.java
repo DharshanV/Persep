@@ -4,47 +4,81 @@ import android.content.Context;
 import android.os.Handler;
 
 import com.perception.persep.album_data.Album;
+import com.perception.persep.album_data.Post;
+import com.perception.persep.firebase_helpers.FirebaseGeoqueries;
 
-public class AlbumManager implements Runnable
+import java.util.List;
+
+public class AlbumManager implements Runnable, FirebaseGeoqueries.GeoqueryListener
 {
     public interface Listener
     {
         void onAlbumUpdate();
     }
 
+    private Context m_Context;
     private Listener m_Listener;
-    private Album[] m_Albums;
+    private List<Album> m_Albums;
+    private FirebaseGeoqueries m_FirebaseGeo = null;
+    private boolean m_IsQueryInProgress = true;
 
     private final long UPDATE_LOOP_INTERVAL = 5000; //update and notify every 5 secs
-    Handler handler;
+    Handler m_Handler;
 
     AlbumManager(Context context)
     {
-        handler = new Handler();
+        m_Context = context;
+        m_Handler = new Handler();
+        m_FirebaseGeo = FirebaseGeoqueries.getInstance();
     }
 
     @Override
     public void run()
     {
-        handler.postDelayed(this, UPDATE_LOOP_INTERVAL);
-        if (m_Listener != null)
+        m_Handler.postDelayed(this, UPDATE_LOOP_INTERVAL);
+
+        if (!m_IsQueryInProgress)
         {
-            m_Listener.onAlbumUpdate();
+            m_FirebaseGeo.QueryNearbyAlbums(0, 0, 0);
+            m_IsQueryInProgress = true;
         }
     }
 
     public void onPause()
     {
-        handler.removeCallbacks(this);
+        m_Handler.removeCallbacks(this);
     }
 
     public void onResume()
     {
-        handler.postDelayed(this, UPDATE_LOOP_INTERVAL);
+        m_Handler.postDelayed(this, UPDATE_LOOP_INTERVAL);
     }
 
     public void AddListener(Listener listener)
     {
         m_Listener = listener;
+    }
+
+    public void TestAddAlbum()
+    {
+        Album album = new Album(-33.92447747349893, 151.2338687296112);
+        album.AddPost(new Post(m_Context, "sample_image.jpg"));
+        album.AddPost(new Post(m_Context, "sample_image_2.jpg"));
+        m_FirebaseGeo.AddAlbum(album);
+    }
+
+    @Override
+    public void OnQueryResult(boolean successful, String message, List<Album> albums)
+    {
+        UpdateAlbums(albums);
+        m_IsQueryInProgress = false;
+    }
+
+    private void UpdateAlbums(List<Album> albums)
+    {
+        if (m_Listener != null)
+        {
+            m_Listener.onAlbumUpdate();
+        }
     }
 }

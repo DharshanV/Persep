@@ -7,9 +7,9 @@ public class DataGathererManager
 {
     private static final String TAG = "Data_Gatherer_Manager";
 
-    private RotationSensor m_RotationSensor;
-    private GPSSensor m_GPSSensor;
-    private AlbumManager m_AlbumManger;
+    public RotationSensor m_RotationSensor;
+    public GPSSensor m_GPSSensor;
+    public AlbumManager m_AlbumManger;
 
     public DataGathererManager(Context context)
     {

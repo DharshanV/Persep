@@ -18,6 +18,7 @@ import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
 import com.example.persep.R;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.perception.persep.camera.CameraView;
 import com.perception.persep.data_gatherer.DataGathererManager;
 import com.perception.persep.render.RenderView;
@@ -31,6 +32,9 @@ public class VR_Fragment extends Fragment
     private FrameLayout m_VRLayout;
     private RenderView m_RenderView;
     private CameraView m_CameraView;
+
+    // widgets
+    private FloatingActionButton m_TakePhotoButton = null;
 
     @Override
     public void onCreate(Bundle savedInstanceState)
@@ -134,8 +138,17 @@ public class VR_Fragment extends Fragment
     {
         View view = inflater.inflate(R.layout.vr_fragment, container, false);
         m_VRLayout = view.findViewById(R.id.vr_root_layout);
+        InitWidgets(view);
         TryInitializeFragment();
         return view;
+    }
+
+    void InitWidgets(View view)
+    {
+        m_TakePhotoButton = view.findViewById(R.id.vr_button_take_photo);
+        m_TakePhotoButton.setOnClickListener(v -> {
+            m_DataGathererManager.m_AlbumManger.TestAddAlbum();
+        });
     }
 
     private boolean HasAllPermissions(String[] permissions)
