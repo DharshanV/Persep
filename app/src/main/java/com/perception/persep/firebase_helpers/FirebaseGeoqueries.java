@@ -1,6 +1,8 @@
 package com.perception.persep.firebase_helpers;
 
 
+import android.graphics.Bitmap;
+
 import com.firebase.geofire.GeoFireUtils;
 import com.firebase.geofire.GeoLocation;
 import com.firebase.geofire.GeoQueryBounds;
@@ -75,17 +77,49 @@ public class FirebaseGeoqueries
         }
     }
 
-    public void QueryNearbyAlbums(double lat, double lon, double queryRadius)
+    private List<DocumentSnapshot> OnQueryAlbums(List<Task<QuerySnapshot>> tasks, GeoLocation queryCenter, double queryRadius)
     {
-        if (m_Listener == null)
+        List<DocumentSnapshot> albumDocSnapshots = new ArrayList<>();
+
+        for (Task<QuerySnapshot> task : tasks)
         {
-            return;
+            QuerySnapshot snap = task.getResult();
+            for (DocumentSnapshot doc : snap.getDocuments())
+            {
+                double docLat = doc.getDouble("lat");
+                double docLon = doc.getDouble("lon");
+
+                // filter out a few false positives due to GeoHash accuracy
+                GeoLocation docLocation = new GeoLocation(docLat, docLon);
+                double distanceInM = GeoFireUtils.getDistanceBetween(docLocation, queryCenter);
+                if (distanceInM <= queryRadius)
+                {
+                    albumDocSnapshots.add(doc);
+                }
+            }
         }
 
-        GeoLocation queryCenter = new GeoLocation(lat, lon);
-        List<GeoQueryBounds> queryBounds = GeoFireUtils.getGeoHashQueryBounds(queryCenter, queryRadius);
+        return albumDocSnapshots;
+    }
 
+    private List<DocumentSnapshot> OnQueryPosts(List<Task<QuerySnapshot>> tasks, List<DocumentSnapshot> albumDocs)
+    {
+        List<DocumentSnapshot> postDocSnapshots = new ArrayList<>();
+
+        for (Task<QuerySnapshot> task : tasks)
+        {
+            QuerySnapshot snap = task.getResult();
+            postDocSnapshots.addAll(snap.getDocuments());
+        }
+
+        return postDocSnapshots;
+    }
+
+    private List<Task<QuerySnapshot>> GetAlbumQueryTasks(GeoLocation queryCenter, double queryRadius)
+    {
         List<Task<QuerySnapshot>> tasks = new ArrayList<>();
+
+        List<GeoQueryBounds> queryBounds = GeoFireUtils.getGeoHashQueryBounds(queryCenter, queryRadius);
         for (GeoQueryBounds bound : queryBounds)
         {
             Query query = m_FirebaseDB.collection("albums")
@@ -96,35 +130,48 @@ public class FirebaseGeoqueries
 
             tasks.add(query.get());
         }
+        return tasks;
+    }
 
-        Tasks.whenAllComplete(tasks)
-                .addOnCompleteListener(t -> {
-                    List<DocumentSnapshot> albumDocSnapshots = new ArrayList<>();
+    private List<Task<QuerySnapshot>> GetPostQueryTasks(List<DocumentSnapshot> albumDocs)
+    {
+        List<Task<QuerySnapshot>> tasks = new ArrayList<>();
 
-                    for (Task<QuerySnapshot> task : tasks)
-                    {
-                        QuerySnapshot snap = task.getResult();
-                        for (DocumentSnapshot doc : snap.getDocuments())
-                        {
-                            double docLat = doc.getDouble("lat");
-                            double docLon = doc.getDouble("lon");
+        return tasks;
+    }
 
-                            // filter out a few false positives due to GeoHash accuracy
-                            GeoLocation docLocation = new GeoLocation(docLat, docLon);
-                            double distanceInM = GeoFireUtils.getDistanceBetween(docLocation, queryCenter);
-                            if (distanceInM <= queryRadius)
-                            {
-                                albumDocSnapshots.add(doc);
-                            }
-                        }
-                    }
+    private List<Task<QuerySnapshot>> GetImageQueryTasks(List<DocumentSnapshot> postDocs)
+    {
+        List<Task<QuerySnapshot>> tasks = new ArrayList<>();
 
-                    List<Album> albums = new ArrayList<>();
-                    for (DocumentSnapshot albumDocSnap : albumDocSnapshots)
-                    {
-                        albums.add(new Album(Objects.requireNonNull(albumDocSnap.getData())));
-                    }
+        return tasks;
+    }
+
+
+    public void QueryNearbyAlbums(double lat, double lon, double queryRadius)
+    {
+        if (m_Listener == null)
+        {
+            return;
+        }
+
+        GeoLocation queryCenter = new GeoLocation(lat, lon);
+        List<Task<QuerySnapshot>> albumQueryTasks = GetAlbumQueryTasks(queryCenter, queryRadius);
+        Tasks.whenAllComplete(albumQueryTasks).addOnCompleteListener(albumsResult -> {
+            List<DocumentSnapshot> albumDocs = OnQueryAlbums(albumQueryTasks, queryCenter, queryRadius);
+
+            List<Task<QuerySnapshot>> postQueryTasks = GetPostQueryTasks(albumDocs);
+            Tasks.whenAllComplete(postQueryTasks).addOnCompleteListener(postsResult -> {
+                List<DocumentSnapshot> postDocs = OnQueryPosts(postQueryTasks, albumDocs);
+
+                List<Task<QuerySnapshot>> imageQueryTasks = GetImageQueryTasks(postDocs);
+                Tasks.whenAllComplete(imageQueryTasks).addOnCompleteListener(imagesResult -> {
+                    List<Bitmap> images = OnQueryImages(imageQueryTasks);
+
+                    List<Album> albums = ParseQueriedData(albumDocs, postDocs, images);
                     m_Listener.OnQueryResult(true, "", albums);
                 });
+            });
+        });
     }
 }

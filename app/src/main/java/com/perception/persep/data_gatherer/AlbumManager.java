@@ -20,7 +20,7 @@ public class AlbumManager implements Runnable, FirebaseGeoqueries.GeoqueryListen
     private Listener m_Listener;
     private List<Album> m_Albums;
     private FirebaseGeoqueries m_FirebaseGeo = null;
-    private boolean m_IsQueryInProgress = true;
+    private boolean m_IsQueryInProgress = false;
 
     private final long UPDATE_LOOP_INTERVAL = 5000; //update and notify every 5 secs
     Handler m_Handler;
@@ -39,7 +39,7 @@ public class AlbumManager implements Runnable, FirebaseGeoqueries.GeoqueryListen
 
         if (!m_IsQueryInProgress)
         {
-            m_FirebaseGeo.QueryNearbyAlbums(0, 0, 0);
+            m_FirebaseGeo.QueryNearbyAlbums(-33.92447747349893, 151.2338687296112, 100);
             m_IsQueryInProgress = true;
         }
     }
@@ -61,10 +61,10 @@ public class AlbumManager implements Runnable, FirebaseGeoqueries.GeoqueryListen
 
     public void TestAddAlbum()
     {
-        Album album = new Album(-33.92447747349893, 151.2338687296112);
-        album.AddPost(new Post(m_Context, "sample_image.jpg"));
-        album.AddPost(new Post(m_Context, "sample_image_2.jpg"));
-        m_FirebaseGeo.AddAlbum(album);
+//        Album album = new Album(-33.92447747349893, 151.2338687296112);
+//        album.AddPost(new Post(m_Context, "sample_image.jpg"));
+//        album.AddPost(new Post(m_Context, "sample_image_2.jpg"));
+//        m_FirebaseGeo.AddAlbum(album);
     }
 
     @Override
