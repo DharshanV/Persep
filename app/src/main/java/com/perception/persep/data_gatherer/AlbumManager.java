@@ -3,10 +3,13 @@ package com.perception.persep.data_gatherer;
 import android.content.Context;
 import android.os.Handler;
 
+import com.firebase.geofire.GeoFireUtils;
+import com.firebase.geofire.GeoLocation;
 import com.perception.persep.album_data.Album;
 import com.perception.persep.album_data.Post;
 import com.perception.persep.firebase_helpers.FirebaseGeoqueries;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class AlbumManager implements Runnable, FirebaseGeoqueries.GeoqueryListener
@@ -39,7 +42,8 @@ public class AlbumManager implements Runnable, FirebaseGeoqueries.GeoqueryListen
 
         if (!m_IsQueryInProgress)
         {
-            m_FirebaseGeo.QueryNearbyAlbums(-33.92447747349893, 151.2338687296112, 100);
+            List<String> ignoreAlbums = GetAlbumsToIgnore();
+            m_FirebaseGeo.QueryNearbyAlbums(-33.92447747349893, 151.2338687296112, 100, ignoreAlbums);
             m_IsQueryInProgress = true;
         }
     }
@@ -80,5 +84,16 @@ public class AlbumManager implements Runnable, FirebaseGeoqueries.GeoqueryListen
         {
             m_Listener.onAlbumUpdate();
         }
+    }
+
+    private List<String> GetAlbumsToIgnore()
+    {
+        List<String> result = new ArrayList<>();
+        for(Album album : m_Albums)
+        {
+            String geoHash = GeoFireUtils.getGeoHashForLocation(new GeoLocation(album.m_Lat, album.m_Lon));
+            result.add(geoHash);
+        }
+        return result;
     }
 }

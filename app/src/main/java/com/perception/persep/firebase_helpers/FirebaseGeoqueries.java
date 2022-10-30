@@ -115,7 +115,7 @@ public class FirebaseGeoqueries
         return postDocSnapshots;
     }
 
-    private List<Task<QuerySnapshot>> GetAlbumQueryTasks(GeoLocation queryCenter, double queryRadius)
+    private List<Task<QuerySnapshot>> GetAlbumQueryTasks(GeoLocation queryCenter, double queryRadius, List<String> ignoreAlbums)
     {
         List<Task<QuerySnapshot>> tasks = new ArrayList<>();
 
@@ -123,6 +123,7 @@ public class FirebaseGeoqueries
         for (GeoQueryBounds bound : queryBounds)
         {
             Query query = m_FirebaseDB.collection("albums")
+                    .whereNotIn("geohash", ignoreAlbums)
                     .orderBy("geohash")
                     .startAt(bound.startHash)
                     .endAt(bound.endHash)
@@ -148,7 +149,7 @@ public class FirebaseGeoqueries
     }
 
 
-    public void QueryNearbyAlbums(double lat, double lon, double queryRadius)
+    public void QueryNearbyAlbums(double lat, double lon, double queryRadius, List<String> ignoreAlbums)
     {
         if (m_Listener == null)
         {
@@ -156,7 +157,7 @@ public class FirebaseGeoqueries
         }
 
         GeoLocation queryCenter = new GeoLocation(lat, lon);
-        List<Task<QuerySnapshot>> albumQueryTasks = GetAlbumQueryTasks(queryCenter, queryRadius);
+        List<Task<QuerySnapshot>> albumQueryTasks = GetAlbumQueryTasks(queryCenter, queryRadius, ignoreAlbums);
         Tasks.whenAllComplete(albumQueryTasks).addOnCompleteListener(albumsResult -> {
             List<DocumentSnapshot> albumDocs = OnQueryAlbums(albumQueryTasks, queryCenter, queryRadius);
 
@@ -166,10 +167,10 @@ public class FirebaseGeoqueries
 
                 List<Task<QuerySnapshot>> imageQueryTasks = GetImageQueryTasks(postDocs);
                 Tasks.whenAllComplete(imageQueryTasks).addOnCompleteListener(imagesResult -> {
-                    List<Bitmap> images = OnQueryImages(imageQueryTasks);
-
-                    List<Album> albums = ParseQueriedData(albumDocs, postDocs, images);
-                    m_Listener.OnQueryResult(true, "", albums);
+//                    List<Bitmap> images = OnQueryImages(imageQueryTasks);
+//
+//                    List<Album> albums = ParseQueriedData(albumDocs, postDocs, images);
+//                    m_Listener.OnQueryResult(true, "", albums);
                 });
             });
         });
