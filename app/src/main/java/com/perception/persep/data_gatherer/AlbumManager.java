@@ -33,6 +33,7 @@ public class AlbumManager implements Runnable, FirebaseGeoqueries.GeoqueryListen
         m_Context = context;
         m_Handler = new Handler();
         m_FirebaseGeo = FirebaseGeoqueries.getInstance();
+        m_FirebaseGeo.m_Listener = this;
     }
 
     @Override
@@ -75,7 +76,7 @@ public class AlbumManager implements Runnable, FirebaseGeoqueries.GeoqueryListen
     public void OnQueryResult(boolean successful, String message, List<Album> albums)
     {
         UpdateAlbums(albums);
-        m_IsQueryInProgress = false;
+//        m_IsQueryInProgress = false;
     }
 
     private void UpdateAlbums(List<Album> albums)
@@ -89,11 +90,7 @@ public class AlbumManager implements Runnable, FirebaseGeoqueries.GeoqueryListen
     private List<String> GetAlbumsToIgnore()
     {
         List<String> result = new ArrayList<>();
-        for(Album album : m_Albums)
-        {
-            String geoHash = GeoFireUtils.getGeoHashForLocation(new GeoLocation(album.m_Lat, album.m_Lon));
-            result.add(geoHash);
-        }
+        result.add("TEMP");
         return result;
     }
 }

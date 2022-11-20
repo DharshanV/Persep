@@ -1,7 +1,7 @@
 package com.perception.persep.firebase_helpers;
 
 
-import android.graphics.Bitmap;
+import android.util.Log;
 
 import com.firebase.geofire.GeoFireUtils;
 import com.firebase.geofire.GeoLocation;
@@ -20,10 +20,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 public class FirebaseGeoqueries
 {
+    private static final String TAG = "FirebaseGeoqueries";
+
     private static FirebaseGeoqueries m_Instance = null;
     private static int MAX_QUERY_COUNT = 10;
 
@@ -79,6 +80,7 @@ public class FirebaseGeoqueries
 
     private List<DocumentSnapshot> OnQueryAlbums(List<Task<QuerySnapshot>> tasks, GeoLocation queryCenter, double queryRadius)
     {
+        Log.d(TAG, "===== OnQueryAlbums ====");
         List<DocumentSnapshot> albumDocSnapshots = new ArrayList<>();
 
         for (Task<QuerySnapshot> task : tasks)
@@ -102,14 +104,14 @@ public class FirebaseGeoqueries
         return albumDocSnapshots;
     }
 
-    private List<DocumentSnapshot> OnQueryPosts(List<Task<QuerySnapshot>> tasks, List<DocumentSnapshot> albumDocs)
+    private List<DocumentSnapshot> OnQueryPosts(List<Task<DocumentSnapshot>> tasks)
     {
+        Log.d(TAG, "===== OnQueryAlbums ====");
         List<DocumentSnapshot> postDocSnapshots = new ArrayList<>();
 
-        for (Task<QuerySnapshot> task : tasks)
+        for (Task<DocumentSnapshot> task : tasks)
         {
-            QuerySnapshot snap = task.getResult();
-            postDocSnapshots.addAll(snap.getDocuments());
+            postDocSnapshots.add(task.getResult());
         }
 
         return postDocSnapshots;
@@ -134,9 +136,18 @@ public class FirebaseGeoqueries
         return tasks;
     }
 
-    private List<Task<QuerySnapshot>> GetPostQueryTasks(List<DocumentSnapshot> albumDocs)
+    private List<Task<DocumentSnapshot>> GetPostQueryTasks(List<DocumentSnapshot> albumDocs)
     {
-        List<Task<QuerySnapshot>> tasks = new ArrayList<>();
+        List<Task<DocumentSnapshot>> tasks = new ArrayList<>();
+
+        for(DocumentSnapshot albumDoc : albumDocs)
+        {
+            List<DocumentReference> postRefs = (List<DocumentReference>) albumDoc.get("posts");
+            for(DocumentReference postRef : postRefs)
+            {
+                tasks.add(postRef.get());
+            }
+        }
 
         return tasks;
     }
@@ -156,23 +167,50 @@ public class FirebaseGeoqueries
             return;
         }
 
+        Log.d(TAG, "===== QueryNearbyAlbums ====");
+
         GeoLocation queryCenter = new GeoLocation(lat, lon);
         List<Task<QuerySnapshot>> albumQueryTasks = GetAlbumQueryTasks(queryCenter, queryRadius, ignoreAlbums);
         Tasks.whenAllComplete(albumQueryTasks).addOnCompleteListener(albumsResult -> {
             List<DocumentSnapshot> albumDocs = OnQueryAlbums(albumQueryTasks, queryCenter, queryRadius);
 
-            List<Task<QuerySnapshot>> postQueryTasks = GetPostQueryTasks(albumDocs);
+            List<Task<DocumentSnapshot>> postQueryTasks = GetPostQueryTasks(albumDocs);
             Tasks.whenAllComplete(postQueryTasks).addOnCompleteListener(postsResult -> {
-                List<DocumentSnapshot> postDocs = OnQueryPosts(postQueryTasks, albumDocs);
+                List<DocumentSnapshot> postDocs = OnQueryPosts(postQueryTasks);
 
-                List<Task<QuerySnapshot>> imageQueryTasks = GetImageQueryTasks(postDocs);
-                Tasks.whenAllComplete(imageQueryTasks).addOnCompleteListener(imagesResult -> {
+                PrintData(albumDocs, postDocs);
+
+//                List<Task<QuerySnapshot>> imageQueryTasks = GetImageQueryTasks(postDocs);
+//                Tasks.whenAllComplete(imageQueryTasks).addOnCompleteListener(imagesResult -> {
 //                    List<Bitmap> images = OnQueryImages(imageQueryTasks);
 //
 //                    List<Album> albums = ParseQueriedData(albumDocs, postDocs, images);
 //                    m_Listener.OnQueryResult(true, "", albums);
-                });
+//                });
             });
         });
+    }
+
+    private void PrintData(List<DocumentSnapshot> albumDocs, List<DocumentSnapshot> postDocs)
+    {
+        Log.d(TAG, "===== Album Docs =====");
+        String[] ALBUM_TAGS = { "geohash", "lat", "lon", "posts" };
+        for (DocumentSnapshot albumDoc : albumDocs)
+        {
+            for(String tag : ALBUM_TAGS)
+            {
+                Log.d(TAG, tag + ": " + albumDoc.get(tag).toString());
+            }
+        }
+
+        Log.d(TAG, "===== Post Docs =====");
+        String[] POST_TAGS = { "imageuri", "user" };
+        for (DocumentSnapshot postDoc : postDocs)
+        {
+            for(String tag : POST_TAGS)
+            {
+                Log.d(TAG, tag + ": " + postDoc.get(tag).toString());
+            }
+        }
     }
 }
