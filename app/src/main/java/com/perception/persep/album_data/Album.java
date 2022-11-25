@@ -10,9 +10,10 @@ import java.util.Map;
 
 public class Album implements Parcelable
 {
-    public List<Post> m_Posts = new ArrayList<>();
+    private List<Post> m_Posts = new ArrayList<>();
     public int postIndex;
 
+    public String m_GeoHash;
     public double m_Lat;
     public double m_Lon;
 
@@ -30,6 +31,7 @@ public class Album implements Parcelable
 
     public Album(Map<String, Object> data)
     {
+        m_GeoHash = (String) data.get("geohash");
         m_Lat = (double) data.get("lat");
         m_Lon = (double) data.get("lon");
     }
@@ -74,4 +76,6 @@ public class Album implements Parcelable
     {
         m_Posts.add(post);
     }
+
+    public List<Post> GetPosts() { return m_Posts; }
 }

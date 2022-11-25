@@ -64,9 +64,9 @@ public class FirebaseGeoqueries
 
         // add posts
         {
-            for(Post post : album.m_Posts)
+            for(Post post : album.GetPosts())
             {
-                String postID = post.getUniqueID().toString();
+                String postID = post.getPostID().toString();
                 DocumentReference postRef = m_FirebaseDB.collection("posts").document(postID);
                 postRef.update(post.getMap());
             }
@@ -138,7 +138,7 @@ public class FirebaseGeoqueries
 
     private List<Task<DocumentSnapshot>> GetPostQueryTasks(List<DocumentSnapshot> albumDocs)
     {
-        List<Task<DocumentSnapshot>> tasks = new ArrayList<>();
+        List<Task<DocumentSnapshot>> tasks = new ArrayList<>(albumDocs.size());
 
         for(DocumentSnapshot albumDoc : albumDocs)
         {
@@ -152,13 +152,28 @@ public class FirebaseGeoqueries
         return tasks;
     }
 
-    private List<Task<QuerySnapshot>> GetImageQueryTasks(List<DocumentSnapshot> postDocs)
+    private List<Album> GetConvertedData(List<DocumentSnapshot> albumDocs, List<DocumentSnapshot> postDocs)
     {
-        List<Task<QuerySnapshot>> tasks = new ArrayList<>();
+        List<Album> albums = new ArrayList<>();
 
-        return tasks;
+        for(DocumentSnapshot albumDoc : albumDocs)
+        {
+            String albumID = albumDoc.getId();
+
+            Album album = new Album(albumDoc.getData());
+            for(DocumentSnapshot postDoc : postDocs)
+            {
+                String postAlbumID = postDoc.getString("album_id");
+                if (albumID.equals(postAlbumID))
+                {
+                    album.AddPost(new Post(postDoc.getData()));
+                }
+            }
+            albums.add(album);
+        }
+
+        return albums;
     }
-
 
     public void QueryNearbyAlbums(double lat, double lon, double queryRadius, List<String> ignoreAlbums)
     {
@@ -171,23 +186,22 @@ public class FirebaseGeoqueries
 
         GeoLocation queryCenter = new GeoLocation(lat, lon);
         List<Task<QuerySnapshot>> albumQueryTasks = GetAlbumQueryTasks(queryCenter, queryRadius, ignoreAlbums);
-        Tasks.whenAllComplete(albumQueryTasks).addOnCompleteListener(albumsResult -> {
+        Tasks.whenAllSuccess(albumQueryTasks).addOnCompleteListener(albumsResult -> {
             List<DocumentSnapshot> albumDocs = OnQueryAlbums(albumQueryTasks, queryCenter, queryRadius);
 
             List<Task<DocumentSnapshot>> postQueryTasks = GetPostQueryTasks(albumDocs);
             Tasks.whenAllComplete(postQueryTasks).addOnCompleteListener(postsResult -> {
                 List<DocumentSnapshot> postDocs = OnQueryPosts(postQueryTasks);
 
-                PrintData(albumDocs, postDocs);
-
-//                List<Task<QuerySnapshot>> imageQueryTasks = GetImageQueryTasks(postDocs);
-//                Tasks.whenAllComplete(imageQueryTasks).addOnCompleteListener(imagesResult -> {
-//                    List<Bitmap> images = OnQueryImages(imageQueryTasks);
-//
-//                    List<Album> albums = ParseQueriedData(albumDocs, postDocs, images);
-//                    m_Listener.OnQueryResult(true, "", albums);
-//                });
+                List<Album> albumData = GetConvertedData(albumDocs, postDocs);
+                m_Listener.OnQueryResult(true, "", albumData);
+            })
+            .addOnFailureListener(e -> {
+                m_Listener.OnQueryResult(false, "Query posts failed", null);
             });
+        })
+        .addOnFailureListener(e -> {
+            m_Listener.OnQueryResult(false, "Query albums failed", null);
         });
     }
 
