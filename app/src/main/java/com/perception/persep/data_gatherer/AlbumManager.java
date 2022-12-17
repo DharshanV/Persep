@@ -3,8 +3,6 @@ package com.perception.persep.data_gatherer;
 import android.content.Context;
 import android.os.Handler;
 
-import com.firebase.geofire.GeoFireUtils;
-import com.firebase.geofire.GeoLocation;
 import com.perception.persep.album_data.Album;
 import com.perception.persep.album_data.Post;
 import com.perception.persep.firebase_helpers.FirebaseGeoqueries;
@@ -44,7 +42,7 @@ public class AlbumManager implements Runnable, FirebaseGeoqueries.GeoqueryListen
         if (!m_IsQueryInProgress)
         {
             List<String> ignoreAlbums = GetAlbumsToIgnore();
-            m_FirebaseGeo.QueryNearbyAlbums(-33.92447747349893, 151.2338687296112, 100, ignoreAlbums);
+            m_FirebaseGeo.QueryNearbyAlbums(-33.92447747349893, 151.2338687296112, ignoreAlbums);
             m_IsQueryInProgress = true;
         }
     }
@@ -66,17 +64,14 @@ public class AlbumManager implements Runnable, FirebaseGeoqueries.GeoqueryListen
 
     public void TestAddAlbum()
     {
-//        Album album = new Album(-33.92447747349893, 151.2338687296112);
-//        album.AddPost(new Post(m_Context, "sample_image.jpg"));
-//        album.AddPost(new Post(m_Context, "sample_image_2.jpg"));
-//        m_FirebaseGeo.AddAlbum(album);
+        m_FirebaseGeo.AddPost(new Post(), -33.92447747349893, 151.2338687296112);
     }
 
     @Override
     public void OnQueryResult(boolean successful, String message, List<Album> albums)
     {
         UpdateAlbums(albums);
-//        m_IsQueryInProgress = false;
+        m_IsQueryInProgress = false;
     }
 
     private void UpdateAlbums(List<Album> albums)
