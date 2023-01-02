@@ -51,28 +51,33 @@ public class FirebaseGeoqueries
 
     public void AddPost(Post post, double lat, double lon)
     {
-        Log.d(ADD_NEARBY_TAG, "===== AddPost =====");
-        GeoLocation postLocation = new GeoLocation(lat, lon);
-
-        List<Task<QuerySnapshot>> queryAlbumTasks = GetAlbumQueryTasks(postLocation);
-
-        Tasks.whenAllComplete(queryAlbumTasks).addOnCompleteListener(t -> {
-            DocumentSnapshot closestAlbum = OnQueryClosestAlbum(queryAlbumTasks, postLocation);
-
-            if (closestAlbum == null) {
-                Log.d(ADD_NEARBY_TAG, "Didn't find any nearby album. Creating a new one...");
-            }
-            else {
-                Log.d(ADD_NEARBY_TAG, "Found nearby albums, finding closest one to add...");
-            }
-        }).addOnFailureListener(e -> { m_Listener.OnQueryResult(false, "Add post query failed", null); });
+//        Log.d(ADD_NEARBY_TAG, "===== AddPost =====");
+//        GeoLocation postLocation = new GeoLocation(lat, lon);
+//
+//        List<Task<QuerySnapshot>> queryAlbumTasks = GetAlbumQueryTasks(postLocation);
+//
+//        Tasks.whenAllComplete(queryAlbumTasks).addOnCompleteListener(t -> {
+//            DocumentSnapshot closestAlbum = OnQueryClosestAlbum(queryAlbumTasks, postLocation);
+//
+//            if (closestAlbum == null) {
+//                Log.d(ADD_NEARBY_TAG, "No nearby album, creating a new one...");
+//                Map<String, Object> data = new HashMap<>();
+//
+//                m_FirebaseDB.collection("albums").add(data).addOnSuccessListener(documentReference -> {
+//                }).addOnFailureListener(e -> { });
+//            }
+//            else {
+//                Log.d(ADD_NEARBY_TAG, "Found an album, adding post to it...");
+//                AddPostToAlbum(closestAlbum, post);
+//            }
+//        }).addOnFailureListener(e -> { });
     }
 
     private void AddPostToAlbum(DocumentSnapshot albumDoc, Post post)
     {
         String postID = post.getPostID().toString();
         DocumentReference postRef = m_FirebaseDB.collection("posts").document(postID);
-        postRef.update(post.getMap()).addOnSuccessListener(unused -> {
+        postRef.set(post.getMap()).addOnSuccessListener(unused -> {
 
         });
     }
