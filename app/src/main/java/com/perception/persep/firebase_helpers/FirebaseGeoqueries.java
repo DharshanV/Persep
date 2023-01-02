@@ -17,6 +17,7 @@ import com.perception.persep.album_data.Album;
 import com.perception.persep.album_data.Post;
 import com.perception.persep.constants.AlbumConstants;
 import com.perception.persep.constants.PostConstants;
+import com.perception.persep.constants.QueryConstants;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -28,8 +29,6 @@ public class FirebaseGeoqueries
     private static final String ADD_NEARBY_TAG = "AddGeoqueries";
 
     private static FirebaseGeoqueries m_Instance = null;
-    private static int MAX_QUERY_COUNT = 10;
-    private static float MAX_QUERY_RADIUS = 100.0f;
 
     public interface GeoqueryListener
     {
@@ -101,7 +100,7 @@ public class FirebaseGeoqueries
 
                 GeoLocation docLocation = new GeoLocation(docLat, docLon);
                 double distanceInM = GeoFireUtils.getDistanceBetween(docLocation, queryCenter);
-                if (distanceInM < MAX_QUERY_RADIUS)
+                if (distanceInM < QueryConstants.MAX_QUERY_RADIUS)
                 {
                     albumDocSnapshots.add(albumDoc);
                 }
@@ -126,7 +125,7 @@ public class FirebaseGeoqueries
 
                 GeoLocation albumLocation = new GeoLocation(lat, lon);
                 double distanceInM = GeoFireUtils.getDistanceBetween(albumLocation, queryCenter);
-                if (distanceInM < MAX_QUERY_RADIUS && distanceInM < closestDist)
+                if (distanceInM < QueryConstants.MAX_QUERY_RADIUS && distanceInM < closestDist)
                 {
                     closestAlbumDoc = albumDoc;
                     closestDist = distanceInM;
@@ -155,39 +154,24 @@ public class FirebaseGeoqueries
     {
         List<Task<QuerySnapshot>> tasks = new ArrayList<>();
 
-        List<GeoQueryBounds> queryBounds = GeoFireUtils.getGeoHashQueryBounds(queryCenter, MAX_QUERY_RADIUS);
+        List<GeoQueryBounds> queryBounds = GeoFireUtils.getGeoHashQueryBounds(queryCenter, QueryConstants.MAX_QUERY_RADIUS);
         for (GeoQueryBounds bound : queryBounds)
         {
-            Query query = m_FirebaseDB.collection(AlbumConstants.COLLECTION_NAME)
-                    .whereNotIn(AlbumConstants.GEO_HASH, ignoreAlbums)
-                    .orderBy(AlbumConstants.GEO_HASH)
+            Query query = m_FirebaseDB.collection(AlbumConstants.COLLECTION_NAME);
+            if (ignoreAlbums != null && !ignoreAlbums.isEmpty())
+            {
+                Log.d(QUERY_NEARBY_TAG, "Ignore albums: " + ignoreAlbums.toString());
+                query = query.whereNotIn(AlbumConstants.GEO_HASH, ignoreAlbums);
+            }
+
+            query = query.orderBy(AlbumConstants.GEO_HASH)
                     .startAt(bound.startHash)
                     .endAt(bound.endHash)
-                    .limit(MAX_QUERY_COUNT);
-
+                    .limit(QueryConstants.MAX_QUERY_COUNT);
             tasks.add(query.get());
         }
         return tasks;
     }
-
-    private List<Task<QuerySnapshot>> GetAlbumQueryTasks(GeoLocation queryCenter)
-    {
-        List<Task<QuerySnapshot>> tasks = new ArrayList<>();
-
-        List<GeoQueryBounds> queryBounds = GeoFireUtils.getGeoHashQueryBounds(queryCenter, MAX_QUERY_RADIUS);
-        for (GeoQueryBounds bound : queryBounds)
-        {
-            Query query = m_FirebaseDB.collection(AlbumConstants.COLLECTION_NAME)
-                    .orderBy(AlbumConstants.GEO_HASH)
-                    .startAt(bound.startHash)
-                    .endAt(bound.endHash)
-                    .limit(MAX_QUERY_COUNT);
-
-            tasks.add(query.get());
-        }
-        return tasks;
-    }
-
 
     private List<Task<DocumentSnapshot>> GetPostQueryTasks(List<DocumentSnapshot> albumDocs)
     {
@@ -255,10 +239,10 @@ public class FirebaseGeoqueries
             Tasks.whenAllSuccess(postQueryTasks).addOnSuccessListener(postsResult -> {
                 List<DocumentSnapshot> postDocs = OnQueryPosts(postsResult);
 
-//                List<Album> albumData = GetConvertedData(albumDocs, postDocs);
-//                m_Listener.OnQueryResult(true, "", albumData);
+                List<Album> albumData = GetConvertedData(albumDocs, postDocs);
+                m_Listener.OnQueryResult(true, "", albumData);
 //                PrintData(albumDocs, postDocs);
-                m_Listener.OnQueryResult(false, "", null);
+//                m_Listener.OnQueryResult(false, "", null);
             })
             .addOnFailureListener(e -> {
                 m_Listener.OnQueryResult(false, "Query posts failed", null);
