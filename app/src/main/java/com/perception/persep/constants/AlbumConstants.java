@@ -2,6 +2,7 @@ package com.perception.persep.constants;
 
 public class AlbumConstants
 {
+    public static final String COLLECTION_NAME = "albums";
     public static final String GEO_HASH = "geo_hash";
     public static final String LAT = "lat";
     public static final String LON = "lon";

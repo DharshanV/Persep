@@ -2,6 +2,7 @@ package com.perception.persep.constants;
 
 public class PostConstants
 {
+    public static final String COLLECTION_NAME = "posts";
     public static final String ALBUM_ID = "album_id";
     public static final String IMAGE_URI = "image_uri";
     public static final String USER = "user";

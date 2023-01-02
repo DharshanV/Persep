@@ -65,7 +65,7 @@ public class FirebaseGeoqueries
 //                Log.d(ADD_NEARBY_TAG, "No nearby album, creating a new one...");
 //                Map<String, Object> data = new HashMap<>();
 //
-//                m_FirebaseDB.collection("albums").add(data).addOnSuccessListener(documentReference -> {
+//                m_FirebaseDB.collection(AlbumConstants.COLLECTION_NAME).add(data).addOnSuccessListener(documentReference -> {
 //                }).addOnFailureListener(e -> { });
 //            }
 //            else {
@@ -78,7 +78,7 @@ public class FirebaseGeoqueries
     private void AddPostToAlbum(DocumentSnapshot albumDoc, Post post)
     {
         String postID = post.getPostID().toString();
-        DocumentReference postRef = m_FirebaseDB.collection("posts").document(postID);
+        DocumentReference postRef = m_FirebaseDB.collection(PostConstants.COLLECTION_NAME).document(postID);
         postRef.set(post.getMap()).addOnSuccessListener(unused -> {
 
         });
@@ -158,7 +158,7 @@ public class FirebaseGeoqueries
         List<GeoQueryBounds> queryBounds = GeoFireUtils.getGeoHashQueryBounds(queryCenter, MAX_QUERY_RADIUS);
         for (GeoQueryBounds bound : queryBounds)
         {
-            Query query = m_FirebaseDB.collection("albums")
+            Query query = m_FirebaseDB.collection(AlbumConstants.COLLECTION_NAME)
                     .whereNotIn(AlbumConstants.GEO_HASH, ignoreAlbums)
                     .orderBy(AlbumConstants.GEO_HASH)
                     .startAt(bound.startHash)
@@ -177,7 +177,7 @@ public class FirebaseGeoqueries
         List<GeoQueryBounds> queryBounds = GeoFireUtils.getGeoHashQueryBounds(queryCenter, MAX_QUERY_RADIUS);
         for (GeoQueryBounds bound : queryBounds)
         {
-            Query query = m_FirebaseDB.collection("albums")
+            Query query = m_FirebaseDB.collection(AlbumConstants.COLLECTION_NAME)
                     .orderBy(AlbumConstants.GEO_HASH)
                     .startAt(bound.startHash)
                     .endAt(bound.endHash)
