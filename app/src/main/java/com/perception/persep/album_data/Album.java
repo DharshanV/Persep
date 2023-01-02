@@ -3,6 +3,8 @@ package com.perception.persep.album_data;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.perception.persep.constants.AlbumConstants;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -11,14 +13,15 @@ import java.util.Map;
 public class Album implements Parcelable
 {
     private List<Post> m_Posts = new ArrayList<>();
-    public int postIndex;
 
+    public String m_AlbumID;
     public String m_GeoHash;
     public double m_Lat;
     public double m_Lon;
 
-    public Album(double lat, double lon)
+    public Album(String albumID, double lat, double lon)
     {
+        m_AlbumID = albumID;
         m_Lat = lat;
         m_Lon = lon;
     }
@@ -29,11 +32,12 @@ public class Album implements Parcelable
         m_Lon = in.readDouble();
     }
 
-    public Album(Map<String, Object> data)
+    public Album(String albumID, Map<String, Object> data)
     {
-        m_GeoHash = (String) data.get("geohash");
-        m_Lat = (double) data.get("lat");
-        m_Lon = (double) data.get("lon");
+        m_AlbumID = albumID;
+        m_GeoHash = (String) data.get(AlbumConstants.GEO_HASH);
+        m_Lat = (double) data.get(AlbumConstants.LAT);
+        m_Lon = (double) data.get(AlbumConstants.LON);
     }
 
     public static final Creator<Album> CREATOR = new Creator<Album>()
@@ -54,8 +58,8 @@ public class Album implements Parcelable
     public Map<String, Object> getMap()
     {
         Map<String, Object> user = new HashMap<>();
-        user.put("lat", m_Lat);
-        user.put("lon", m_Lon);
+        user.put(AlbumConstants.LAT, m_Lat);
+        user.put(AlbumConstants.LON, m_Lon);
         return user;
     }
 
@@ -77,7 +81,7 @@ public class Album implements Parcelable
     {
         return "Album{" +
                 "m_Posts=" + m_Posts +
-                ", postIndex=" + postIndex +
+                ", m_AlbumID='" + m_AlbumID + '\'' +
                 ", m_GeoHash='" + m_GeoHash + '\'' +
                 ", m_Lat=" + m_Lat +
                 ", m_Lon=" + m_Lon +
@@ -88,6 +92,4 @@ public class Album implements Parcelable
     {
         m_Posts.add(post);
     }
-
-    public List<Post> GetPosts() { return m_Posts; }
 }

@@ -9,6 +9,7 @@ import com.perception.persep.firebase_helpers.FirebaseGeoqueries;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 public class AlbumManager implements Runnable, FirebaseGeoqueries.GeoqueryListener
 {
@@ -64,7 +65,7 @@ public class AlbumManager implements Runnable, FirebaseGeoqueries.GeoqueryListen
 
     public void TestAddAlbum()
     {
-        m_FirebaseGeo.AddPost(new Post(), -33.92447747349893, 151.2338687296112);
+        m_FirebaseGeo.AddPost(new Post(UUID.randomUUID().toString()), -33.92447747349893, 151.2338687296112);
     }
 
     @Override

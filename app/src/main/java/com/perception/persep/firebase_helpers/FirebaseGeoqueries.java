@@ -78,8 +78,7 @@ public class FirebaseGeoqueries
 
     private void AddPostToAlbum(DocumentSnapshot albumDoc, Post post)
     {
-        String postID = post.getPostID().toString();
-        DocumentReference postRef = m_FirebaseDB.collection(PostConstants.COLLECTION_NAME).document(postID);
+        DocumentReference postRef = m_FirebaseDB.collection(PostConstants.COLLECTION_NAME).document(post.m_PostID);
         postRef.set(post.getMap()).addOnSuccessListener(unused -> {
 
         });
@@ -225,12 +224,12 @@ public class FirebaseGeoqueries
         {
             String albumID = albumDoc.getId();
 
-            Album album = new Album(albumDoc.getData());
+            Album album = new Album(albumDoc.getId(), albumDoc.getData());
             List<DocumentSnapshot> albumPostDocs = mapAlbumIDToPost.get(albumID);
             assert albumPostDocs != null;
             for(DocumentSnapshot postDoc : albumPostDocs)
             {
-                album.AddPost(new Post(postDoc.getData()));
+                album.AddPost(new Post(postDoc.getId(), postDoc.getData()));
             }
             albums.add(album);
         }
