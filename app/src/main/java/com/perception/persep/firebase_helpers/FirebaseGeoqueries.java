@@ -19,6 +19,7 @@ import com.perception.persep.constants.AlbumConstants;
 import com.perception.persep.constants.PostConstants;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public class FirebaseGeoqueries
@@ -209,18 +210,27 @@ public class FirebaseGeoqueries
     {
         List<Album> albums = new ArrayList<>();
 
+        HashMap<String, List<DocumentSnapshot>> mapAlbumIDToPost = new HashMap<>();
+        for (DocumentSnapshot postDoc : postDocs)
+        {
+            String postAlbumID = postDoc.getString(PostConstants.ALBUM_ID);
+            if (!mapAlbumIDToPost.containsKey(postAlbumID))
+            {
+                mapAlbumIDToPost.put(postAlbumID, new ArrayList<>());
+            }
+            mapAlbumIDToPost.get(postAlbumID).add(postDoc);
+        }
+
         for(DocumentSnapshot albumDoc : albumDocs)
         {
             String albumID = albumDoc.getId();
 
             Album album = new Album(albumDoc.getData());
-            for(DocumentSnapshot postDoc : postDocs)
+            List<DocumentSnapshot> albumPostDocs = mapAlbumIDToPost.get(albumID);
+            assert albumPostDocs != null;
+            for(DocumentSnapshot postDoc : albumPostDocs)
             {
-                String postAlbumID = postDoc.getString(PostConstants.ALBUM_ID);
-                if (albumID.equals(postAlbumID))
-                {
-                    album.AddPost(new Post(postDoc.getData()));
-                }
+                album.AddPost(new Post(postDoc.getData()));
             }
             albums.add(album);
         }
@@ -248,7 +258,7 @@ public class FirebaseGeoqueries
 
 //                List<Album> albumData = GetConvertedData(albumDocs, postDocs);
 //                m_Listener.OnQueryResult(true, "", albumData);
-                PrintData(albumDocs, postDocs);
+//                PrintData(albumDocs, postDocs);
                 m_Listener.OnQueryResult(false, "", null);
             })
             .addOnFailureListener(e -> {

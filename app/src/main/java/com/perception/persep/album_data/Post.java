@@ -57,4 +57,15 @@ public class Post implements Target
     {
 
     }
+
+    @Override
+    public String toString()
+    {
+        return "Post{" +
+                "m_PostID=" + m_PostID +
+                ", m_AlbumID='" + m_AlbumID + '\'' +
+                ", m_ImageURI='" + m_ImageURI + '\'' +
+                ", m_Image=" + m_Image +
+                '}';
+    }
 }

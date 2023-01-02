@@ -72,6 +72,18 @@ public class Album implements Parcelable
         dest.writeDouble(m_Lon);
     }
 
+    @Override
+    public String toString()
+    {
+        return "Album{" +
+                "m_Posts=" + m_Posts +
+                ", postIndex=" + postIndex +
+                ", m_GeoHash='" + m_GeoHash + '\'' +
+                ", m_Lat=" + m_Lat +
+                ", m_Lon=" + m_Lon +
+                '}';
+    }
+
     public void AddPost(Post post)
     {
         m_Posts.add(post);
