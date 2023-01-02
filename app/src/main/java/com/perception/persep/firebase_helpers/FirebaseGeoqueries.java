@@ -82,24 +82,26 @@ public class FirebaseGeoqueries
         });
     }
 
-    private List<DocumentSnapshot> OnQueryAlbums(List<Task<QuerySnapshot>> tasks, GeoLocation queryCenter)
+    private List<DocumentSnapshot> OnQueryAlbums(List<Object> albumSnapshots, GeoLocation queryCenter)
     {
         Log.d(QUERY_NEARBY_TAG, "===== OnQueryAlbums ====");
         List<DocumentSnapshot> albumDocSnapshots = new ArrayList<>();
 
-        for (Task<QuerySnapshot> task : tasks)
+        for (Object albumSnapshot : albumSnapshots)
         {
-            QuerySnapshot snap = task.getResult();
-            for (DocumentSnapshot doc : snap.getDocuments())
+            if (!(albumSnapshot instanceof QuerySnapshot)) continue;
+
+            QuerySnapshot snapshot = (QuerySnapshot) albumSnapshot;
+            for (DocumentSnapshot albumDoc : snapshot.getDocuments())
             {
-                double docLat = doc.getDouble("lat");
-                double docLon = doc.getDouble("lon");
+                double docLat = albumDoc.getDouble("lat");
+                double docLon = albumDoc.getDouble("lon");
 
                 GeoLocation docLocation = new GeoLocation(docLat, docLon);
                 double distanceInM = GeoFireUtils.getDistanceBetween(docLocation, queryCenter);
                 if (distanceInM < MAX_QUERY_RADIUS)
                 {
-                    albumDocSnapshots.add(doc);
+                    albumDocSnapshots.add(albumDoc);
                 }
             }
         }
@@ -132,14 +134,16 @@ public class FirebaseGeoqueries
         return closestAlbumDoc;
     }
 
-    private List<DocumentSnapshot> OnQueryPosts(List<Task<DocumentSnapshot>> tasks)
+    private List<DocumentSnapshot> OnQueryPosts(List<Object> postSnapshots)
     {
         Log.d(QUERY_NEARBY_TAG, "===== OnQueryPosts ====");
         List<DocumentSnapshot> postDocSnapshots = new ArrayList<>();
 
-        for (Task<DocumentSnapshot> task : tasks)
+        for (Object postSnapshot : postSnapshots)
         {
-            postDocSnapshots.add(task.getResult());
+            if (!(postSnapshot instanceof DocumentSnapshot)) continue;
+
+            postDocSnapshots.add((DocumentSnapshot) postSnapshot);
         }
 
         return postDocSnapshots;
@@ -233,12 +237,12 @@ public class FirebaseGeoqueries
 
         GeoLocation queryCenter = new GeoLocation(lat, lon);
         List<Task<QuerySnapshot>> albumQueryTasks = GetAlbumQueryTasks(queryCenter, ignoreAlbums);
-        Tasks.whenAllSuccess(albumQueryTasks).addOnCompleteListener(albumsResult -> {
-            List<DocumentSnapshot> albumDocs = OnQueryAlbums(albumQueryTasks, queryCenter);
+        Tasks.whenAllSuccess(albumQueryTasks).addOnSuccessListener(albumsResult -> {
+            List<DocumentSnapshot> albumDocs = OnQueryAlbums(albumsResult, queryCenter);
 
             List<Task<DocumentSnapshot>> postQueryTasks = GetPostQueryTasks(albumDocs);
-            Tasks.whenAllComplete(postQueryTasks).addOnCompleteListener(postsResult -> {
-                List<DocumentSnapshot> postDocs = OnQueryPosts(postQueryTasks);
+            Tasks.whenAllSuccess(postQueryTasks).addOnSuccessListener(postsResult -> {
+                List<DocumentSnapshot> postDocs = OnQueryPosts(postsResult);
 
 //                List<Album> albumData = GetConvertedData(albumDocs, postDocs);
 //                m_Listener.OnQueryResult(true, "", albumData);
