@@ -1,0 +1,11 @@
+package com.perception.persep.constants;
+
+public class AlbumConstants
+{
+    public static final String GEO_HASH = "geo_hash";
+    public static final String LAT = "lat";
+    public static final String LON = "lon";
+    public static final String POSTS = "posts";
+
+    public static final String[] TAGS = { GEO_HASH, LAT, LON, POSTS };
+}

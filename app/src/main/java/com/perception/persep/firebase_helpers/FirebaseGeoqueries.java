@@ -15,6 +15,8 @@ import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.perception.persep.album_data.Album;
 import com.perception.persep.album_data.Post;
+import com.perception.persep.constants.AlbumConstants;
+import com.perception.persep.constants.PostConstants;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -94,8 +96,8 @@ public class FirebaseGeoqueries
             QuerySnapshot snapshot = (QuerySnapshot) albumSnapshot;
             for (DocumentSnapshot albumDoc : snapshot.getDocuments())
             {
-                double docLat = albumDoc.getDouble("lat");
-                double docLon = albumDoc.getDouble("lon");
+                double docLat = albumDoc.getDouble(AlbumConstants.LAT);
+                double docLon = albumDoc.getDouble(AlbumConstants.LON);
 
                 GeoLocation docLocation = new GeoLocation(docLat, docLon);
                 double distanceInM = GeoFireUtils.getDistanceBetween(docLocation, queryCenter);
@@ -119,8 +121,8 @@ public class FirebaseGeoqueries
             QuerySnapshot snap = task.getResult();
             for (DocumentSnapshot albumDoc : snap.getDocuments())
             {
-                double lat = albumDoc.getDouble("lat");
-                double lon = albumDoc.getDouble("lon");
+                double lat = albumDoc.getDouble(AlbumConstants.LAT);
+                double lon = albumDoc.getDouble(AlbumConstants.LON);
 
                 GeoLocation albumLocation = new GeoLocation(lat, lon);
                 double distanceInM = GeoFireUtils.getDistanceBetween(albumLocation, queryCenter);
@@ -157,8 +159,8 @@ public class FirebaseGeoqueries
         for (GeoQueryBounds bound : queryBounds)
         {
             Query query = m_FirebaseDB.collection("albums")
-                    .whereNotIn("geohash", ignoreAlbums)
-                    .orderBy("geohash")
+                    .whereNotIn(AlbumConstants.GEO_HASH, ignoreAlbums)
+                    .orderBy(AlbumConstants.GEO_HASH)
                     .startAt(bound.startHash)
                     .endAt(bound.endHash)
                     .limit(MAX_QUERY_COUNT);
@@ -176,7 +178,7 @@ public class FirebaseGeoqueries
         for (GeoQueryBounds bound : queryBounds)
         {
             Query query = m_FirebaseDB.collection("albums")
-                    .orderBy("geohash")
+                    .orderBy(AlbumConstants.GEO_HASH)
                     .startAt(bound.startHash)
                     .endAt(bound.endHash)
                     .limit(MAX_QUERY_COUNT);
@@ -193,7 +195,7 @@ public class FirebaseGeoqueries
 
         for(DocumentSnapshot albumDoc : albumDocs)
         {
-            List<DocumentReference> postRefs = (List<DocumentReference>) albumDoc.get("posts");
+            List<DocumentReference> postRefs = (List<DocumentReference>) albumDoc.get(AlbumConstants.POSTS);
             for(DocumentReference postRef : postRefs)
             {
                 tasks.add(postRef.get());
@@ -214,7 +216,7 @@ public class FirebaseGeoqueries
             Album album = new Album(albumDoc.getData());
             for(DocumentSnapshot postDoc : postDocs)
             {
-                String postAlbumID = postDoc.getString("album_id");
+                String postAlbumID = postDoc.getString(PostConstants.ALBUM_ID);
                 if (albumID.equals(postAlbumID))
                 {
                     album.AddPost(new Post(postDoc.getData()));
@@ -261,20 +263,18 @@ public class FirebaseGeoqueries
     private void PrintData(List<DocumentSnapshot> albumDocs, List<DocumentSnapshot> postDocs)
     {
         Log.d(QUERY_NEARBY_TAG, "===== Album Docs =====");
-        String[] ALBUM_TAGS = { "geohash", "lat", "lon", "posts" };
         for (DocumentSnapshot albumDoc : albumDocs)
         {
-            for(String tag : ALBUM_TAGS)
+            for(String tag : AlbumConstants.TAGS)
             {
                 Log.d(QUERY_NEARBY_TAG, tag + ": " + albumDoc.get(tag).toString());
             }
         }
 
         Log.d(QUERY_NEARBY_TAG, "===== Post Docs =====");
-        String[] POST_TAGS = { "album_id", "image_uri", "user" };
         for (DocumentSnapshot postDoc : postDocs)
         {
-            for(String tag : POST_TAGS)
+            for(String tag : PostConstants.TAGS)
             {
                 Log.d(QUERY_NEARBY_TAG, tag + ": " + postDoc.get(tag).toString());
             }
