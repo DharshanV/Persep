@@ -49,6 +49,10 @@ public class OpenGLRenderer
     private double m_AlbumOffsetX;
     private double m_AlbumOffsetZ;
 
+    // N(+z), W(+x), E(-x), S(-z)
+    private final Vector3D[] albumOffsets = {new Vector3D(0,0,5), new Vector3D(5,0,0), new Vector3D(-5,0,0), new Vector3D(0,0,-5)};
+    private final float[] albumRotation = {90, 180, 0, -90};
+
     OpenGLRenderer(Context context)
     {
         m_Context = context;
@@ -57,7 +61,7 @@ public class OpenGLRenderer
 
         Matrix.setIdentityM(m_ModelMatrix, 0);
         Matrix.setIdentityM(m_ProjectionMatrix, 0);
-        Matrix.setIdentityM(m_ViewMatrix, 0);
+        Matrix.setLookAtM(m_ViewMatrix, 0, 0f, 0f, 2f, 0f, 0f, 0f, 0f, 1.0f, 0.0f);
         Matrix.setIdentityM(m_OrientationMatrix, 0);
     }
 
@@ -95,19 +99,23 @@ public class OpenGLRenderer
     {
         Trace.beginSection("gl_draw_frame");
 
-        //matrix calculation
-        Matrix.setLookAtM(m_ViewMatrix, 0, 0f, 0f, 3f, 0f, 0f, 0f, 0f, 1.0f, 0.0f);
-
-        Matrix.setIdentityM(m_ModelMatrix, 0);
-        Matrix.multiplyMM(m_ModelMatrix, 0, m_ModelMatrix, 0, m_OrientationMatrix, 0);
-        Matrix.multiplyMM(m_ModelMatrix, 0, m_ModelMatrix, 0, DEVICE_TO_OPENGL, 0);
-        Matrix.translateM(m_ModelMatrix, 0, (float) m_AlbumOffsetX, 0.0f, (float) m_AlbumOffsetZ);
-        Matrix.rotateM(m_ModelMatrix, 0, (SystemClock.uptimeMillis() / 10.0f), 0, 1, 0);
-        m_AlbumModel.SetMVP(m_ModelMatrix, m_ViewMatrix, m_ProjectionMatrix);
-
-        //drawing
         GLES30.glClear(GLES30.GL_COLOR_BUFFER_BIT | GLES30.GL_DEPTH_BUFFER_BIT);
-        m_AlbumModel.Draw(m_TextureIndex);
+
+        for (int i = 0; i < albumOffsets.length; i++)
+        {
+            Vector3D albumOffset = albumOffsets[i];
+            float x = (float)albumOffset.getX();
+            float z = (float)albumOffset.getZ();
+
+            Matrix.setIdentityM(m_ModelMatrix, 0);
+            Matrix.multiplyMM(m_ModelMatrix, 0, m_ModelMatrix, 0, m_OrientationMatrix, 0);
+            Matrix.multiplyMM(m_ModelMatrix, 0, m_ModelMatrix, 0, DEVICE_TO_OPENGL, 0);
+            Matrix.translateM(m_ModelMatrix, 0, x, 0.0f, z);
+            Matrix.rotateM(m_ModelMatrix, 0, albumRotation[i], 0, 1, 0);
+
+            m_AlbumModel.SetMVP(m_ModelMatrix, m_ViewMatrix, m_ProjectionMatrix);
+            m_AlbumModel.Draw(m_TextureIndex);
+        }
 
         Trace.endSection();
     }
@@ -140,6 +148,6 @@ public class OpenGLRenderer
 
     public void onAlbumUpdate(List<Album> albums)
     {
-        m_RenderAlbums.addAll(albums);
+//        m_RenderAlbums.addAll(albums);
     }
 }
