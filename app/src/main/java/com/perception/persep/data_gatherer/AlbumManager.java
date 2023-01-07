@@ -21,7 +21,7 @@ public class AlbumManager implements Runnable, FirebaseGeoqueries.GeoqueryListen
 
     public interface Listener
     {
-        void onAlbumUpdate();
+        void onAlbumUpdate(List<Album> albums);
     }
 
     private Context m_Context;
@@ -96,7 +96,7 @@ public class AlbumManager implements Runnable, FirebaseGeoqueries.GeoqueryListen
 
         if (m_Listener != null)
         {
-            m_Listener.onAlbumUpdate();
+            m_Listener.onAlbumUpdate(m_Albums);
         }
     }
 

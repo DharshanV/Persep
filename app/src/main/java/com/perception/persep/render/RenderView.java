@@ -7,10 +7,12 @@ import android.view.TextureView;
 
 import androidx.annotation.NonNull;
 
+import com.perception.persep.album_data.Album;
 import com.perception.persep.data_gatherer.AlbumManager;
 import com.perception.persep.data_gatherer.GPSSensor;
 import com.perception.persep.data_gatherer.RotationSensor;
 
+import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class RenderView extends TextureView implements TextureView.SurfaceTextureListener, RotationSensor.Listener, GPSSensor.Listener, AlbumManager.Listener
@@ -98,8 +100,8 @@ public class RenderView extends TextureView implements TextureView.SurfaceTextur
     }
 
     @Override
-    public void onAlbumUpdate()
+    public void onAlbumUpdate(List<Album> albums)
     {
-        m_Renderer.onAlbumUpdate();
+        m_Renderer.onAlbumUpdate(albums);
     }
 }

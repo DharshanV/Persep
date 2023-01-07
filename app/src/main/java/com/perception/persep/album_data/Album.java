@@ -40,6 +40,17 @@ public class Album implements Parcelable
         m_Lon = (double) data.get(AlbumConstants.LON);
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        Album otherAlbum = (Album) obj;
+        return m_AlbumID.equals(otherAlbum.m_AlbumID);
+    }
+
+    @Override
+    public int hashCode() {
+        return m_AlbumID.hashCode();
+    }
+
     public static final Creator<Album> CREATOR = new Creator<Album>()
     {
         @Override

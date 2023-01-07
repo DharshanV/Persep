@@ -2,6 +2,7 @@ package com.perception.persep.album_data;
 
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
+import android.util.Log;
 
 import com.perception.persep.constants.PostConstants;
 import com.squareup.picasso.Picasso;
@@ -12,10 +13,13 @@ import java.util.Map;
 
 public class Post implements Target
 {
+    private static final String PostLoadImage = "PostLoadImage";
+
     public String m_PostID;
     public String m_AlbumID;
     public String m_ImageURI;
     public Bitmap m_Image;
+    public boolean m_IsLoadingImage = true;
 
     public Post(String postID)
     {
@@ -27,7 +31,9 @@ public class Post implements Target
         m_PostID = postID;
         m_AlbumID = (String) data.get(PostConstants.ALBUM_ID);
         m_ImageURI = (String) data.get(PostConstants.IMAGE_URI);
-        Picasso.get().load(m_ImageURI).resize(200, 200).noFade().into(this);
+
+        Log.d(PostLoadImage, "Loading image: " + m_ImageURI);
+        Picasso.get().load(m_ImageURI).resize(400, 200).noFade().into(this);
     }
 
     public Map<String, Object> getMap()
@@ -41,13 +47,15 @@ public class Post implements Target
     @Override
     public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from)
     {
+        Log.d(PostLoadImage, "Image loaded: " + bitmap.getWidth() + "x" + bitmap.getHeight());
+        m_IsLoadingImage = false;
         m_Image = bitmap;
     }
 
     @Override
     public void onBitmapFailed(Exception e, Drawable errorDrawable)
     {
-
+        Log.d(PostLoadImage, "Couldn't load image: " + e.toString());
     }
 
     @Override

@@ -10,12 +10,15 @@ import android.os.SystemClock;
 import android.os.Trace;
 import android.util.Log;
 
+import com.perception.persep.album_data.Album;
 import com.perception.persep.math_helpers.GeoLocationHelper;
 import com.perception.persep.shapes.AlbumModel;
 
 import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
 
 import java.io.IOException;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -38,6 +41,7 @@ public class OpenGLRenderer
     static private final String[] m_AlbumTexturePaths = {"sample_image.jpg", "sample_image_2.jpg"};
     private int m_TextureIndex = 0;
 
+    private HashSet<Album> m_RenderAlbums = new HashSet<>();
     private final double ALBUM_LAT = -33.92447747349893;
     private final double ALBUM_LON = 151.2338687296112;
     private boolean m_FirstRun = true;
@@ -134,8 +138,8 @@ public class OpenGLRenderer
         m_AlbumOffsetZ = distance * Math.sin(bearing) * -1;
     }
 
-    public void onAlbumUpdate()
+    public void onAlbumUpdate(List<Album> albums)
     {
-
+        m_RenderAlbums.addAll(albums);
     }
 }
