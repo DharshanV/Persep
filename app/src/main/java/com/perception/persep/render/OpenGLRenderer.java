@@ -21,6 +21,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class OpenGLRenderer
 {
@@ -42,16 +45,28 @@ public class OpenGLRenderer
     private int m_TextureIndex = 0;
 
     private HashSet<Album> m_RenderAlbums = new HashSet<>();
-    private final double ALBUM_LAT = -33.92447747349893;
-    private final double ALBUM_LON = 151.2338687296112;
-    private boolean m_FirstRun = true;
-    private Vector3D m_AlbumCoord;
-    private double m_AlbumOffsetX;
-    private double m_AlbumOffsetZ;
+
+    private final ReadWriteLock m_DataUpdateReadWriteLock = new ReentrantReadWriteLock();
+    private final Lock m_DataUpdateWriteLock = m_DataUpdateReadWriteLock.writeLock();
+    private final Lock m_DataUpdateReadLock = m_DataUpdateReadWriteLock.writeLock();
+    private double m_DeviceLat = 0;
+    private double m_DeviceLon = 0;
+    private boolean m_DeviceCoordInit = false;
 
     // N(+z), W(+x), E(-x), S(-z)
     private final Vector3D[] albumOffsets = {new Vector3D(0,0,5), new Vector3D(5,0,0), new Vector3D(-5,0,0), new Vector3D(0,0,-5)};
-    private final float[] albumRotation = {90, 180, 0, -90};
+    private final float[] albumRotation = {90, 180, 0, -90, 0, 0, 0};
+
+    private final Vector3D[] albumCoords = {
+            new Vector3D(-33.92414741995048, 151.23380290528448, 0),
+            new Vector3D(-33.92418636856642, 151.23368689975817, 0),
+            new Vector3D(-33.9242036172335, 151.23387733657594, 0),
+            new Vector3D(-33.92425091194791, 151.23378480037576, 0),
+
+            new Vector3D(-33.89315131618332, 151.2287090320646, 0),
+            new Vector3D(-33.8932495300973, 151.2285675947477, 0),
+            new Vector3D(-33.89429456102966, 151.22743769199667, 0)
+    };
 
     OpenGLRenderer(Context context)
     {
@@ -101,11 +116,17 @@ public class OpenGLRenderer
 
         GLES30.glClear(GLES30.GL_COLOR_BUFFER_BIT | GLES30.GL_DEPTH_BUFFER_BIT);
 
-        for (int i = 0; i < albumOffsets.length; i++)
+        if (!m_DeviceCoordInit) return;
+
+        m_DataUpdateReadLock.lock();
+        for (int i = 0; i < albumCoords.length; i++)
         {
-            Vector3D albumOffset = albumOffsets[i];
-            float x = (float)albumOffset.getX();
-            float z = (float)albumOffset.getZ();
+            Vector3D albumCoord = albumCoords[i];
+            double bearing = GeoLocationHelper.Heading(m_DeviceLat, m_DeviceLon, albumCoord.getX(), albumCoord.getY());
+            double distance = GeoLocationHelper.Distance(m_DeviceLat, m_DeviceLon, albumCoord.getX(), albumCoord.getY());
+
+            float x = (float) (distance * Math.sin(bearing));
+            float z = (float) (distance * Math.cos(bearing));
 
             Matrix.setIdentityM(m_ModelMatrix, 0);
             Matrix.multiplyMM(m_ModelMatrix, 0, m_ModelMatrix, 0, m_OrientationMatrix, 0);
@@ -116,6 +137,7 @@ public class OpenGLRenderer
             m_AlbumModel.SetMVP(m_ModelMatrix, m_ViewMatrix, m_ProjectionMatrix);
             m_AlbumModel.Draw(m_TextureIndex);
         }
+        m_DataUpdateReadLock.unlock();
 
         Trace.endSection();
     }
@@ -133,17 +155,18 @@ public class OpenGLRenderer
 
     public void UpdateRotation(float[] rotationMatrix)
     {
+        m_DataUpdateWriteLock.lock();
         m_OrientationMatrix = rotationMatrix.clone();
+        m_DataUpdateWriteLock.unlock();
     }
 
     public void UpdateDeviceLocation(double lat, double lon)
     {
-//        Log.d(TAG, "(" + lat + ", " + lon + ") <-> " + "(" + ALBUM_LAT + ", " + ALBUM_LON + ")" +
-//                "Diff: (" + Math.abs(ALBUM_LAT - lat) + ", " + Math.abs(ALBUM_LON - lon) + ")");
-        double bearing = GeoLocationHelper.Heading(lat, lon, ALBUM_LAT, ALBUM_LON);
-        double distance = GeoLocationHelper.Distance(lat, lon, ALBUM_LAT, ALBUM_LON);
-        m_AlbumOffsetX = distance * Math.cos(bearing);
-        m_AlbumOffsetZ = distance * Math.sin(bearing) * -1;
+        m_DataUpdateWriteLock.lock();
+        m_DeviceLat = lat;
+        m_DeviceLon = lon;
+        m_DeviceCoordInit = true;
+        m_DataUpdateWriteLock.unlock();
     }
 
     public void onAlbumUpdate(List<Album> albums)
