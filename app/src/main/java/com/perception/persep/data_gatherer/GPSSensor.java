@@ -40,7 +40,7 @@ public class GPSSensor
     private static final long MIN_DISTANCE_BW_UPDATES = 4;
 
     // The minimum time between updates in milliseconds
-    private static final long MIN_TIME_BW_UPDATES = 2500;
+    private static final long MIN_TIME_BW_UPDATES = 100;
 
     public GPSSensor(Context context)
     {
