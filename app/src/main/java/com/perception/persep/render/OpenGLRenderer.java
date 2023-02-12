@@ -12,8 +12,6 @@ import com.perception.persep.constants.QueryConstants;
 import com.perception.persep.math_helpers.GeoLocationHelper;
 import com.perception.persep.shapes.AlbumModel;
 
-import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -38,10 +36,9 @@ public class OpenGLRenderer
     static private final float[] DEVICE_TO_OPENGL = {-1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f};
 
     private AlbumModel m_AlbumModel;
-    static private final String[] m_AlbumTexturePaths = {"sample_image.jpg", "sample_image_2.jpg"};
 
-    private Map<Album, Integer> m_Albums = new HashMap<>();
-    private int[] m_AlbumTextureIDs = new int[QueryConstants.MAX_QUERY_COUNT];
+    private final Map<Album, Integer> m_Albums = new HashMap<>();
+    private final int[] m_AlbumTextureIDs = new int[QueryConstants.MAX_QUERY_COUNT];
 
     private final ReadWriteLock m_DataUpdateReadWriteLock = new ReentrantReadWriteLock();
     private final Lock m_DataUpdateWriteLock = m_DataUpdateReadWriteLock.writeLock();
@@ -49,21 +46,6 @@ public class OpenGLRenderer
     private double m_DeviceLat = 0;
     private double m_DeviceLon = 0;
     private boolean m_DeviceCoordInit = false;
-
-    // N(+z), W(+x), E(-x), S(-z)
-    private final Vector3D[] albumOffsets = {new Vector3D(0, 0, 5), new Vector3D(5, 0, 0), new Vector3D(-5, 0, 0), new Vector3D(0, 0, -5)};
-    private final float[] albumRotation = {90, 180, 0, -90, 0, 0, 0};
-
-    private final Vector3D[] albumCoords = {
-            new Vector3D(-33.92414741995048, 151.23380290528448, 0),
-            new Vector3D(-33.92418636856642, 151.23368689975817, 0),
-            new Vector3D(-33.9242036172335, 151.23387733657594, 0),
-            new Vector3D(-33.92425091194791, 151.23378480037576, 0),
-
-            new Vector3D(-33.89315131618332, 151.2287090320646, 0),
-            new Vector3D(-33.8932495300973, 151.2285675947477, 0),
-            new Vector3D(-33.89429456102966, 151.22743769199667, 0)
-    };
 
     OpenGLRenderer(Context context)
     {
@@ -83,7 +65,6 @@ public class OpenGLRenderer
         GLES30.glGenTextures(m_AlbumTextureIDs.length, m_AlbumTextureIDs, 0);
         m_AlbumModel = AlbumModel.LoadModel(m_Context);
         m_AlbumModel.BuildShaders(m_Context);
-        m_AlbumModel.LoadTextures(m_Context, m_AlbumTexturePaths);
     }
 
     private void InitGLSettings()

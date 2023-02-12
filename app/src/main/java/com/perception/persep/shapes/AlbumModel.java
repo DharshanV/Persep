@@ -112,35 +112,6 @@ public class AlbumModel
         m_Shaders[SURFACE] = Shader.CreateShader(context, ALBUM_SURFACE_SHADER_PATH[0], ALBUM_SURFACE_SHADER_PATH[1]);
     }
 
-    public void LoadTextures(Context context, String[] imagePaths)
-    {
-        m_TextureID = new int[imagePaths.length];
-
-        // load textures into album_surface shader
-        m_Shaders[SURFACE].UseProgram();
-        GLES30.glGenTextures(imagePaths.length, m_TextureID, 0);
-
-        try
-        {
-            for (int i = 0; i < imagePaths.length; i++)
-            {
-                Bitmap bitMap = BitmapFactory.decodeStream(context.getAssets().open(imagePaths[i]));
-                GLES30.glBindTexture(GLES30.GL_TEXTURE_2D, m_TextureID[i]);
-
-                GLES30.glTexParameteri(GLES30.GL_TEXTURE_2D, GLES30.GL_TEXTURE_MIN_FILTER, GLES30.GL_NEAREST);
-                GLES30.glTexParameteri(GLES30.GL_TEXTURE_2D, GLES30.GL_TEXTURE_MAG_FILTER, GLES30.GL_NEAREST);
-
-                GLUtils.texImage2D(GLES30.GL_TEXTURE_2D, 0, bitMap, 0);
-
-                bitMap.recycle();
-            }
-        } catch (IOException e)
-        {
-            e.printStackTrace();
-            Log.e(TAG, "Could not load image file");
-        }
-    }
-
     public Shader GetFrameShader()
     {
         return m_Shaders[FRAME];
