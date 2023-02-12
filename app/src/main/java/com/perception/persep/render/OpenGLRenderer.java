@@ -13,9 +13,9 @@ import com.perception.persep.math_helpers.GeoLocationHelper;
 import com.perception.persep.shapes.AlbumModel;
 
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Stack;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -39,6 +39,7 @@ public class OpenGLRenderer
 
     private final Map<Album, Integer> m_Albums = new HashMap<>();
     private final int[] m_AlbumTextureIDs = new int[QueryConstants.MAX_QUERY_COUNT];
+    private final List<Integer> m_UnusedTextureIndex = new LinkedList<>();
 
     private final ReadWriteLock m_DataUpdateReadWriteLock = new ReentrantReadWriteLock();
     private final Lock m_DataUpdateWriteLock = m_DataUpdateReadWriteLock.writeLock();
@@ -63,6 +64,8 @@ public class OpenGLRenderer
         InitGLSettings();
 
         GLES30.glGenTextures(m_AlbumTextureIDs.length, m_AlbumTextureIDs, 0);
+        for (int i = 0; i < m_AlbumTextureIDs.length; i++) m_UnusedTextureIndex.add(i);
+
         m_AlbumModel = AlbumModel.LoadModel(m_Context);
         m_AlbumModel.BuildShaders(m_Context);
     }
@@ -165,36 +168,33 @@ public class OpenGLRenderer
         m_DataUpdateWriteLock.lock();
 
         // Clear all invalid albums in map
-        m_Albums.keySet().remove(null);
+        Integer invalidIndex = m_Albums.get(null);
+        if (invalidIndex != null)
+        {
+            m_Albums.remove(null);
+            m_UnusedTextureIndex.add(invalidIndex);
+        }
         for (Album mapAlbum : m_Albums.keySet())
         {
             // Remove stale album
             if (!albums.contains(mapAlbum))
             {
                 m_Albums.remove(mapAlbum);
+                m_UnusedTextureIndex.add(m_Albums.get(mapAlbum));
             }
         }
 
-        // Get unused texture indices
-        Stack<Integer> unusedTextureIndices = new Stack<>();
-        for (int i = 0; i < m_AlbumTextureIDs.length; i++)
-        {
-            if (!m_Albums.containsValue(i))
-            {
-                unusedTextureIndices.push(i);
-            }
-        }
-
+        // Map new and incoming albums to an unused texture id
         for (Album album : albums)
         {
             if (!m_Albums.containsKey(album))
             {
-                if (unusedTextureIndices.empty())
+                if (m_UnusedTextureIndex.isEmpty())
                 {
                     Log.e(TAG, "No more textures to assign to album!");
                     break;
                 }
-                m_Albums.put(album, unusedTextureIndices.pop());
+                m_Albums.put(album,  m_UnusedTextureIndex.remove(0));
             }
         }
 
