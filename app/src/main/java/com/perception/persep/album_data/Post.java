@@ -33,7 +33,7 @@ public class Post implements Target
         m_ImageURI = (String) data.get(PostConstants.IMAGE_URI);
 
         Log.d(PostLoadImage, "Loading image: " + m_ImageURI);
-        Picasso.get().load(m_ImageURI).resize(400, 200).noFade().into(this);
+        Picasso.get().load(m_ImageURI).resize(PostConstants.IMAGE_WIDTH, PostConstants.IMAGE_HEIGHT).noFade().into(this);
     }
 
     public Map<String, Object> getMap()

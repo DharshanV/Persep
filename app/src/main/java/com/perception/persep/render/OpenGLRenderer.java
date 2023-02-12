@@ -2,32 +2,29 @@ package com.perception.persep.render;
 
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.opengl.GLES30;
-import android.opengl.GLUtils;
 import android.opengl.Matrix;
-import android.os.SystemClock;
 import android.os.Trace;
 import android.util.Log;
 
 import com.perception.persep.album_data.Album;
+import com.perception.persep.constants.QueryConstants;
 import com.perception.persep.math_helpers.GeoLocationHelper;
 import com.perception.persep.shapes.AlbumModel;
 
 import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
 
-import java.io.IOException;
-import java.util.HashSet;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.Map;
+import java.util.Stack;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class OpenGLRenderer
 {
-    private static final String TAG = "Renderer";
+    private static final String TAG = "OpenGLRenderer";
 
     private Context m_Context;
     private int m_Width;
@@ -42,9 +39,9 @@ public class OpenGLRenderer
 
     private AlbumModel m_AlbumModel;
     static private final String[] m_AlbumTexturePaths = {"sample_image.jpg", "sample_image_2.jpg"};
-    private int m_TextureIndex = 0;
 
-    private HashSet<Album> m_RenderAlbums = new HashSet<>();
+    private Map<Album, Integer> m_Albums = new HashMap<>();
+    private int[] m_AlbumTextureIDs = new int[QueryConstants.MAX_QUERY_COUNT];
 
     private final ReadWriteLock m_DataUpdateReadWriteLock = new ReentrantReadWriteLock();
     private final Lock m_DataUpdateWriteLock = m_DataUpdateReadWriteLock.writeLock();
@@ -54,7 +51,7 @@ public class OpenGLRenderer
     private boolean m_DeviceCoordInit = false;
 
     // N(+z), W(+x), E(-x), S(-z)
-    private final Vector3D[] albumOffsets = {new Vector3D(0,0,5), new Vector3D(5,0,0), new Vector3D(-5,0,0), new Vector3D(0,0,-5)};
+    private final Vector3D[] albumOffsets = {new Vector3D(0, 0, 5), new Vector3D(5, 0, 0), new Vector3D(-5, 0, 0), new Vector3D(0, 0, -5)};
     private final float[] albumRotation = {90, 180, 0, -90, 0, 0, 0};
 
     private final Vector3D[] albumCoords = {
@@ -72,8 +69,6 @@ public class OpenGLRenderer
     {
         m_Context = context;
 
-//        m_AlbumCoord = GeoLocationHelper.ConvertToCartesian(ALBUM_LAT, ALBUM_LON);
-
         Matrix.setIdentityM(m_ModelMatrix, 0);
         Matrix.setIdentityM(m_ProjectionMatrix, 0);
         Matrix.setLookAtM(m_ViewMatrix, 0, 0f, 0f, 2f, 0f, 0f, 0f, 0f, 1.0f, 0.0f);
@@ -85,17 +80,10 @@ public class OpenGLRenderer
         Log.d(TAG, "Initialized renderer");
         InitGLSettings();
 
+        GLES30.glGenTextures(m_AlbumTextureIDs.length, m_AlbumTextureIDs, 0);
         m_AlbumModel = AlbumModel.LoadModel(m_Context);
         m_AlbumModel.BuildShaders(m_Context);
         m_AlbumModel.LoadTextures(m_Context, m_AlbumTexturePaths);
-
-        new Timer().scheduleAtFixedRate(new TimerTask() {
-            @Override
-            public void run() {
-                m_TextureIndex = (m_TextureIndex + 1) % m_AlbumTexturePaths.length;
-            }
-        }, 1000, 1000);
-
     }
 
     private void InitGLSettings()
@@ -119,23 +107,45 @@ public class OpenGLRenderer
         if (!m_DeviceCoordInit) return;
 
         m_DataUpdateReadLock.lock();
-        for (int i = 0; i < albumCoords.length; i++)
+        for (Album album : m_Albums.keySet())
         {
-            Vector3D albumCoord = albumCoords[i];
-            double bearing = GeoLocationHelper.Heading(m_DeviceLat, m_DeviceLon, albumCoord.getX(), albumCoord.getY());
-            double distance = GeoLocationHelper.Distance(m_DeviceLat, m_DeviceLon, albumCoord.getX(), albumCoord.getY());
+            if (album != null)
+            {
+                Integer textureIndex = m_Albums.get(album);
+                if (textureIndex != null)
+                {
+                    int albumTextureID = m_AlbumTextureIDs[textureIndex];
+                    if (album.ShouldUpdateTexture())
+                    {
+                        Bitmap image = album.getCurrentPostBitmap();
+                        if (image != null)
+                        {
+                            m_AlbumModel.UpdateSurfaceTexture(albumTextureID, image);
+                        }
+                    }
 
-            float x = (float) (distance * Math.sin(bearing));
-            float z = (float) (distance * Math.cos(bearing));
+                    double bearing = GeoLocationHelper.Heading(m_DeviceLat, m_DeviceLon, album.m_Lat, album.m_Lon);
+                    double distance = GeoLocationHelper.Distance(m_DeviceLat, m_DeviceLon, album.m_Lat, album.m_Lon);
 
-            Matrix.setIdentityM(m_ModelMatrix, 0);
-            Matrix.multiplyMM(m_ModelMatrix, 0, m_ModelMatrix, 0, m_OrientationMatrix, 0);
-            Matrix.multiplyMM(m_ModelMatrix, 0, m_ModelMatrix, 0, DEVICE_TO_OPENGL, 0);
-            Matrix.translateM(m_ModelMatrix, 0, x, 0.0f, z);
-            Matrix.rotateM(m_ModelMatrix, 0, albumRotation[i], 0, 1, 0);
+                    float x = (float) (distance * Math.sin(bearing));
+                    float z = (float) (distance * Math.cos(bearing));
 
-            m_AlbumModel.SetMVP(m_ModelMatrix, m_ViewMatrix, m_ProjectionMatrix);
-            m_AlbumModel.Draw(m_TextureIndex);
+                    Matrix.setIdentityM(m_ModelMatrix, 0);
+                    Matrix.multiplyMM(m_ModelMatrix, 0, m_ModelMatrix, 0, m_OrientationMatrix, 0);
+                    Matrix.multiplyMM(m_ModelMatrix, 0, m_ModelMatrix, 0, DEVICE_TO_OPENGL, 0);
+                    Matrix.translateM(m_ModelMatrix, 0, x, 0.0f, z);
+
+                    m_AlbumModel.SetMVP(m_ModelMatrix, m_ViewMatrix, m_ProjectionMatrix);
+                    m_AlbumModel.DrawFrame();
+                    m_AlbumModel.DrawSurface(albumTextureID);
+                } else
+                {
+                    Log.e(TAG, "Couldn't find texture ID for album!!");
+                }
+            } else
+            {
+                Log.e(TAG, "Found a null album to render!!");
+            }
         }
         m_DataUpdateReadLock.unlock();
 
@@ -171,6 +181,42 @@ public class OpenGLRenderer
 
     public void onAlbumUpdate(List<Album> albums)
     {
-//        m_RenderAlbums.addAll(albums);
+        m_DataUpdateWriteLock.lock();
+
+        // Clear all invalid albums in map
+        m_Albums.keySet().remove(null);
+        for (Album mapAlbum : m_Albums.keySet())
+        {
+            // Remove stale album
+            if (!albums.contains(mapAlbum))
+            {
+                m_Albums.remove(mapAlbum);
+            }
+        }
+
+        // Get unused texture indices
+        Stack<Integer> unusedTextureIndices = new Stack<>();
+        for (int i = 0; i < m_AlbumTextureIDs.length; i++)
+        {
+            if (!m_Albums.containsValue(i))
+            {
+                unusedTextureIndices.push(i);
+            }
+        }
+
+        for (Album album : albums)
+        {
+            if (!m_Albums.containsKey(album))
+            {
+                if (unusedTextureIndices.empty())
+                {
+                    Log.e(TAG, "No more textures to assign to album!");
+                    break;
+                }
+                m_Albums.put(album, unusedTextureIndices.pop());
+            }
+        }
+
+        m_DataUpdateWriteLock.unlock();
     }
 }

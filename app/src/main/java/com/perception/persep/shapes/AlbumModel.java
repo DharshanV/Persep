@@ -38,22 +38,32 @@ public class AlbumModel
     private static final String[] ALBUM_FRAME_SHADER_PATH = {"album_frame.vert", "album_frame.frag"};
     private static final String[] ALBUM_SURFACE_SHADER_PATH = {"album_surface.vert", "album_surface.frag"};
 
-    public void Draw(int textureIndex)
+    public void DrawFrame()
     {
-        // album_frame
         m_Shaders[FRAME].UseProgram();
         m_Shaders[FRAME].SetFloatVertexArray("iPosition", 3, 3 * 4, m_VertexPosition[FRAME]);
         m_Shaders[FRAME].SetFloatVertexArray("iUV", 2, 2 * 4, m_VertexUV[FRAME]);
         m_Shaders[FRAME].SetFloatVertexArray("iNormal", 3, 3 * 4, m_VertexNormals[FRAME]);
         GLES30.glDrawElements(GLES30.GL_TRIANGLES, m_NumOfIndices[FRAME] * 3, GLES30.GL_UNSIGNED_INT, m_VertexIndices[FRAME]);
+    }
 
-        // album_surface
+    public void DrawSurface(int textureID)
+    {
         m_Shaders[SURFACE].UseProgram();
         m_Shaders[SURFACE].SetFloatVertexArray("iPosition", 3, 3 * 4, m_VertexPosition[SURFACE]);
         m_Shaders[SURFACE].SetFloatVertexArray("iUV", 2, 2 * 4, m_VertexUV[SURFACE]);
         m_Shaders[SURFACE].SetFloatVertexArray("iNormal", 3, 3 * 4, m_VertexNormals[SURFACE]);
-        if(m_TextureID != null) GLES30.glBindTexture(GLES30.GL_TEXTURE_2D, m_TextureID[textureIndex]);
+        GLES30.glBindTexture(GLES30.GL_TEXTURE_2D, textureID);
         GLES30.glDrawElements(GLES30.GL_TRIANGLES, m_NumOfIndices[SURFACE] * 3, GLES30.GL_UNSIGNED_INT, m_VertexIndices[SURFACE]);
+    }
+
+    public void UpdateSurfaceTexture(int textureID, Bitmap image)
+    {
+        m_Shaders[SURFACE].UseProgram();
+        GLES30.glBindTexture(GLES30.GL_TEXTURE_2D, textureID);
+        GLES30.glTexParameteri(GLES30.GL_TEXTURE_2D, GLES30.GL_TEXTURE_MIN_FILTER, GLES30.GL_NEAREST);
+        GLES30.glTexParameteri(GLES30.GL_TEXTURE_2D, GLES30.GL_TEXTURE_MAG_FILTER, GLES30.GL_NEAREST);
+        GLUtils.texImage2D(GLES30.GL_TEXTURE_2D, 0, image, 0);
     }
 
     static private void LoadModelBuffers(Context context, int i)

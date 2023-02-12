@@ -1,5 +1,6 @@
 package com.perception.persep.album_data;
 
+import android.graphics.Bitmap;
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -9,6 +10,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class Album implements Parcelable
 {
@@ -18,6 +21,8 @@ public class Album implements Parcelable
     public String m_GeoHash;
     public double m_Lat;
     public double m_Lon;
+    private int m_CurrPostIndex = 0;
+    private int m_PrevPostIndex = 0;
 
     public Album(String albumID, double lat, double lon)
     {
@@ -38,16 +43,27 @@ public class Album implements Parcelable
         m_GeoHash = (String) data.get(AlbumConstants.GEO_HASH);
         m_Lat = (double) data.get(AlbumConstants.LAT);
         m_Lon = (double) data.get(AlbumConstants.LON);
+
+        new Timer().scheduleAtFixedRate(new TimerTask()
+        {
+            @Override
+            public void run()
+            {
+                m_CurrPostIndex = (m_CurrPostIndex + 1) % m_Posts.size();
+            }
+        }, 1000, 2000);
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(Object obj)
+    {
         Album otherAlbum = (Album) obj;
         return m_AlbumID.equals(otherAlbum.m_AlbumID);
     }
 
     @Override
-    public int hashCode() {
+    public int hashCode()
+    {
         return m_AlbumID.hashCode();
     }
 
@@ -102,5 +118,20 @@ public class Album implements Parcelable
     public void AddPost(Post post)
     {
         m_Posts.add(post);
+    }
+
+    public boolean ShouldUpdateTexture()
+    {
+        if (m_CurrPostIndex != m_PrevPostIndex)
+        {
+            m_PrevPostIndex = m_CurrPostIndex;
+            return true;
+        }
+        return false;
+    }
+
+    public Bitmap getCurrentPostBitmap()
+    {
+        return m_Posts.get(m_CurrPostIndex).m_Image;
     }
 }
