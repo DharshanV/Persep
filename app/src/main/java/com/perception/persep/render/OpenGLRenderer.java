@@ -126,8 +126,12 @@ public class OpenGLRenderer
                     float originToModelZ = -z;
                     double length = Math.sqrt(originToModelX * originToModelX + originToModelZ * originToModelZ);
                     double angle = Math.toDegrees(Math.acos(originToModelX / length));
-                    if(originToModelZ > 0.0f) angle *= -1;
-                    Matrix.rotateM(m_ModelMatrix, 0, (float)angle, 0, 1, 0);
+                    if (originToModelZ > 0.0f) angle *= -1;
+                    Matrix.rotateM(m_ModelMatrix, 0, (float) angle, 0, 1, 0);
+
+                    // Scale the model based on distance
+                    float scale = (float) Math.exp(length / 75);
+                    Matrix.scaleM(m_ModelMatrix, 0, scale, scale, scale);
 
                     m_AlbumModel.SetMVP(m_ModelMatrix, m_ViewMatrix, m_ProjectionMatrix);
                     m_AlbumModel.DrawFrame();
@@ -204,7 +208,7 @@ public class OpenGLRenderer
                     Log.e(TAG, "No more textures to assign to album!");
                     break;
                 }
-                m_Albums.put(album,  m_UnusedTextureIndex.remove(0));
+                m_Albums.put(album, m_UnusedTextureIndex.remove(0));
             }
         }
 
