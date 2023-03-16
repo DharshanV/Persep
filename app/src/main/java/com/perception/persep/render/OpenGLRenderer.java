@@ -32,10 +32,12 @@ public class OpenGLRenderer
     private final float[] m_ProjectionMatrix = new float[16];
     private final float[] m_ViewMatrix = new float[16];
 
+    // N(+z): <0,0,1>, S(-z): <0,0,-1>, W(+x): <1,0,0>, E(-x): <-1,0,0>
     private float[] m_OrientationMatrix = new float[16];
     static private final float[] DEVICE_TO_OPENGL = {-1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f};
 
     private AlbumModel m_AlbumModel;
+    private final float[] m_AlbumRotMatrix = new float[16];
 
     private final Map<Album, Integer> m_Albums = new HashMap<>();
     private final int[] m_AlbumTextureIDs = new int[QueryConstants.MAX_QUERY_COUNT];
@@ -54,7 +56,7 @@ public class OpenGLRenderer
 
         Matrix.setIdentityM(m_ModelMatrix, 0);
         Matrix.setIdentityM(m_ProjectionMatrix, 0);
-        Matrix.setLookAtM(m_ViewMatrix, 0, 0f, 0f, 2f, 0f, 0f, 0f, 0f, 1.0f, 0.0f);
+        Matrix.setLookAtM(m_ViewMatrix, 0, 0f, 0f, 0.0f, 0f, 0f, -1.0f, 0f, 1.0f, 0.0f);
         Matrix.setIdentityM(m_OrientationMatrix, 0);
     }
 
@@ -118,6 +120,14 @@ public class OpenGLRenderer
                     Matrix.multiplyMM(m_ModelMatrix, 0, m_ModelMatrix, 0, m_OrientationMatrix, 0);
                     Matrix.multiplyMM(m_ModelMatrix, 0, m_ModelMatrix, 0, DEVICE_TO_OPENGL, 0);
                     Matrix.translateM(m_ModelMatrix, 0, x, 0.0f, z);
+
+                    // Rotate the album to always face the camera
+                    float originToModelX = -x;
+                    float originToModelZ = -z;
+                    double length = Math.sqrt(originToModelX * originToModelX + originToModelZ * originToModelZ);
+                    double angle = Math.toDegrees(Math.acos(originToModelX / length));
+                    if(originToModelZ > 0.0f) angle *= -1;
+                    Matrix.rotateM(m_ModelMatrix, 0, (float)angle, 0, 1, 0);
 
                     m_AlbumModel.SetMVP(m_ModelMatrix, m_ViewMatrix, m_ProjectionMatrix);
                     m_AlbumModel.DrawFrame();
