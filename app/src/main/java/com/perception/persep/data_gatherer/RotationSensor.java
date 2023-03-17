@@ -9,6 +9,11 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.util.Log;
 
+import org.apache.commons.numbers.quaternion.Quaternion;
+import org.apache.commons.numbers.quaternion.Slerp;
+
+import java.util.Arrays;
+
 public class RotationSensor
 {
     private static final String TAG = "RotationSensor";
@@ -34,8 +39,7 @@ public class RotationSensor
     //Exponential Moving Average
     private static final int EMA_LOOK_BACK = 20;
     private static final float EMA_WEIGHT_MULTIPLIER = 2.0f/(EMA_LOOK_BACK + 1);
-    private float[] m_AvgRotationVector = new float[4];
-    private float[] m_PrevAvgRotationVector = new float[4];
+    private float[] m_PrevRotationVector = new float[4];
     private boolean m_FirstData = true;
 
     public RotationSensor(Context context)
@@ -63,30 +67,34 @@ public class RotationSensor
         };
     }
 
-    private float[] LowPassFilter(float[] input, float[] output)
+    private float[] GetSerpedRotationVector(float[] rotationVector, double t)
     {
-        if (output == null) return input;
-        for (int i = 0; i < input.length; i++)
-        {
-            output[i] = output[i] + LOW_PASS_FILTER_SENSITIVITY * (input[i] - output[i]);
-        }
-        return output;
-    }
-
-    private void UpdateAverage(float[] newData)
-    {
-        if(m_FirstData)
-        {
-            m_AvgRotationVector = newData.clone();
-            m_PrevAvgRotationVector = newData.clone();
+        if (m_FirstData) {
+            m_PrevRotationVector = rotationVector.clone();
             m_FirstData = false;
-            return;
+            return rotationVector;
         }
-        for(int i=0;i<4;i++)
-        {
-            m_AvgRotationVector[i] = ((newData[i] - m_PrevAvgRotationVector[i]) * EMA_WEIGHT_MULTIPLIER) + m_PrevAvgRotationVector[i];
-        }
-        m_PrevAvgRotationVector = m_AvgRotationVector;
+
+        float q0 = rotationVector[3];
+        float q1 = rotationVector[0];
+        float q2 = rotationVector[1];
+        float q3 = rotationVector[2];
+
+        Quaternion quaternion1 = Quaternion.of(m_PrevRotationVector[3],m_PrevRotationVector[0],m_PrevRotationVector[1],m_PrevRotationVector[2]);
+        Quaternion quaternion2 = Quaternion.of(q0, q1, q2, q3);
+        Slerp slerp = new Slerp(quaternion1, quaternion2);
+        Quaternion result = slerp.apply(t);
+
+        Log.d(TAG, Arrays.toString(m_PrevRotationVector));
+
+        m_PrevRotationVector = rotationVector.clone();
+        rotationVector[0] = (float) result.getX();
+        rotationVector[1] = (float) result.getY();
+        rotationVector[2] = (float) result.getZ();
+        rotationVector[3] = (float) result.getW();
+
+        Log.d(TAG, Arrays.toString(rotationVector));
+        return rotationVector;
     }
 
     public void RegisterSensor()
