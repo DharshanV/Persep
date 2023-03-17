@@ -48,14 +48,14 @@ public class AlbumManager implements Runnable, FirebaseGeoqueries.GeoqueryListen
     @Override
     public void run()
     {
-//        m_Handler.postDelayed(this, UPDATE_LOOP_INTERVAL);
-//
-//        if (!m_IsQueryInProgress)
-//        {
-//            List<String> ignoreAlbums = GetAlbumsToIgnore();
-//            m_FirebaseGeo.QueryNearbyAlbums(m_QueryLat, m_QueryLon, ignoreAlbums);
-//            m_IsQueryInProgress = true;
-//        }
+        m_Handler.postDelayed(this, UPDATE_LOOP_INTERVAL);
+
+        if (!m_IsQueryInProgress)
+        {
+            List<String> ignoreAlbums = GetAlbumsToIgnore();
+            m_FirebaseGeo.QueryNearbyAlbums(m_QueryLat, m_QueryLon, ignoreAlbums);
+            m_IsQueryInProgress = true;
+        }
     }
 
     public void onPause()

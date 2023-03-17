@@ -9,6 +9,6 @@ public class PostConstants
 
     public static final String[] TAGS = { ALBUM_ID, IMAGE_URI, USER };
 
-    public static final int IMAGE_WIDTH = 1080;
+    public static final int IMAGE_WIDTH = 1920;
     public static final int IMAGE_HEIGHT = 1080;
 }
