@@ -2,6 +2,7 @@ package com.perception.persep.camera;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.graphics.ImageFormat;
 import android.graphics.SurfaceTexture;
 import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraCaptureSession;
@@ -20,6 +21,7 @@ import androidx.annotation.NonNull;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
@@ -27,6 +29,9 @@ import java.util.concurrent.TimeUnit;
 public class PreviewCamera
 {
     private static final String TAG = "PreviewCamera";
+
+    private static final int MAX_PREVIEW_WIDTH = 1920;
+    private static final int MAX_PREVIEW_HEIGHT = 1080;
 
     private Context m_Context;
     private SurfaceTexture m_SurfaceTexture;
@@ -79,6 +84,11 @@ public class PreviewCamera
         m_SurfaceTexture = texture;
     }
 
+    public Size GetPreviewSize()
+    {
+        return m_PreviewSize;
+    }
+
     public void SetupCamera(int width, int height)
     {
         try
@@ -96,39 +106,59 @@ public class PreviewCamera
                 }
 
                 StreamConfigurationMap map = characteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP);
-                m_PreviewSize = GetPreferredPreviewSize(map.getOutputSizes(SurfaceTexture.class), width, height);
+                Size largest = Collections.max(Arrays.asList(map.getOutputSizes(ImageFormat.JPEG)), new CompareSizesByArea());
+                m_PreviewSize = chooseOptimalSize(map.getOutputSizes(SurfaceTexture.class), width, height, largest);
                 m_CameraId = cameraId;
                 return;
             }
-        } catch (CameraAccessException e) {  e.printStackTrace(); }
+        } catch (CameraAccessException e)
+        {
+            e.printStackTrace();
+        }
     }
 
-    private Size GetPreferredPreviewSize(Size[] mapSizes, int width, int height)
+    static class CompareSizesByArea implements Comparator<Size>
     {
-        List<Size> collectorSizes = new ArrayList<>();
-        for(Size option : mapSizes)
+        @Override
+        public int compare(Size lhs, Size rhs)
         {
-            if(width > height)
+            return Long.signum((long) lhs.getWidth() * lhs.getHeight() -
+                    (long) rhs.getWidth() * rhs.getHeight());
+        }
+    }
+
+    private static Size chooseOptimalSize(Size[] choices, int textureViewWidth, int textureViewHeight, Size aspectRatio)
+    {
+        List<Size> bigEnough = new ArrayList<>();
+        List<Size> notBigEnough = new ArrayList<>();
+        int w = aspectRatio.getWidth();
+        int h = aspectRatio.getHeight();
+        for (Size option : choices)
+        {
+            if (option.getWidth() <= PreviewCamera.MAX_PREVIEW_WIDTH && option.getHeight() <= PreviewCamera.MAX_PREVIEW_HEIGHT &&
+                    option.getHeight() == option.getWidth() * h / w)
             {
-                if(option.getWidth() > width && option.getHeight() > height)
+                if (option.getWidth() >= textureViewWidth &&
+                        option.getHeight() >= textureViewHeight)
                 {
-                    collectorSizes.add(option);
-                }
-            }
-            else
-            {
-                if(option.getWidth() > height && option.getHeight() > width)
+                    bigEnough.add(option);
+                } else
                 {
-                    collectorSizes.add(option);
+                    notBigEnough.add(option);
                 }
             }
         }
 
-        if(collectorSizes.size() > 0)
+        if (bigEnough.size() > 0)
         {
-            return Collections.min(collectorSizes, (lhs, rhs) -> Long.signum((long) lhs.getWidth() * lhs.getHeight() - (long) rhs.getWidth() * rhs.getHeight()));
+            return Collections.min(bigEnough, new CompareSizesByArea());
+        } else if (notBigEnough.size() > 0)
+        {
+            return Collections.max(notBigEnough, new CompareSizesByArea());
+        } else
+        {
+            return choices[0];
         }
-        return mapSizes[0];
     }
 
     @SuppressLint("MissingPermission")
@@ -144,7 +174,10 @@ public class PreviewCamera
 
             CameraManager manager = (CameraManager) m_Context.getSystemService(Context.CAMERA_SERVICE);
             manager.openCamera(m_CameraId, m_StateCallback, m_BackgroundHandler);
-        } catch (CameraAccessException | InterruptedException e) { e.printStackTrace(); }
+        } catch (CameraAccessException | InterruptedException e)
+        {
+            e.printStackTrace();
+        }
     }
 
     public void CloseCamera()
@@ -162,8 +195,7 @@ public class PreviewCamera
                 m_CameraDevice.close();
                 m_CameraDevice = null;
             }
-        }
-        catch (InterruptedException e)
+        } catch (InterruptedException e)
         {
             throw new RuntimeException("Interrupted while trying to lock camera closing.", e);
         }
@@ -192,15 +224,23 @@ public class PreviewCamera
                                     m_PreviewRequest = m_PreviewRequestBuilder.build();
                                     m_CaptureSession = cameraCaptureSession;
                                     m_CaptureSession.setRepeatingRequest(m_PreviewRequest, null, m_BackgroundHandler);
-                                } catch (CameraAccessException e) { e.printStackTrace(); }
+                                } catch (CameraAccessException e)
+                                {
+                                    e.printStackTrace();
+                                }
                             }
                         }
 
                         @Override
-                        public void onConfigureFailed(@NonNull CameraCaptureSession cameraCaptureSession) { }
+                        public void onConfigureFailed(@NonNull CameraCaptureSession cameraCaptureSession)
+                        {
+                        }
                     },
                     null
             );
-        } catch (CameraAccessException e) { e.printStackTrace(); }
+        } catch (CameraAccessException e)
+        {
+            e.printStackTrace();
+        }
     }
 }
