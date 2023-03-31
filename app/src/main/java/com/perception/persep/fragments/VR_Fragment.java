@@ -1,8 +1,10 @@
 package com.perception.persep.fragments;
 
+import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.os.AsyncTask;
+import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -22,6 +24,10 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.perception.persep.camera.CameraView;
 import com.perception.persep.data_gatherer.DataGathererManager;
 import com.perception.persep.render.RenderView;
+import com.yalantis.ucrop.UCrop;
+
+import java.io.File;
+import java.io.IOException;
 
 public class VR_Fragment extends Fragment
 {
@@ -32,6 +38,7 @@ public class VR_Fragment extends Fragment
     private FrameLayout m_VRLayout;
     private RenderView m_RenderView;
     private CameraView m_CameraView;
+    private ActivityResultLauncher<Intent> m_UCropActivityResultLauncher = null;
 
     // widgets
     private FloatingActionButton m_TakePhotoButton = null;
@@ -41,6 +48,19 @@ public class VR_Fragment extends Fragment
     {
         Log.d(TAG, "Created");
         super.onCreate(savedInstanceState);
+
+        m_UCropActivityResultLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    assert result.getData() != null;
+                    if (result.getResultCode() == Activity.RESULT_OK)
+                    {
+                        Uri croppedImageUri = UCrop.getOutput(result.getData());
+                        Log.d(TAG, "UCrop saved image under: " + croppedImageUri.toString());
+                    } else
+                    {
+                        Log.e(TAG, UCrop.getError(result.getData()).toString());
+                    }
+                });
     }
 
     private void TryInitializeFragment()
@@ -56,8 +76,7 @@ public class VR_Fragment extends Fragment
             if (isGranted.containsValue(false))
             {
                 Log.d(TAG, "At least one of the permissions was not granted");
-            }
-            else
+            } else
             {
                 Log.d(TAG, "All permissions granted...");
                 InitializeFragment();
@@ -70,7 +89,7 @@ public class VR_Fragment extends Fragment
 
     private void InitializeFragment()
     {
-        if(m_VRLayout == null)
+        if (m_VRLayout == null)
         {
             Log.e(TAG, "Null VR layout");
             return;
@@ -95,9 +114,9 @@ public class VR_Fragment extends Fragment
         Log.d(TAG, "Started");
         super.onStart();
 
-        if(m_RenderView != null) m_RenderView.onStart();
-        if(m_CameraView != null) m_CameraView.onStart();
-        if(m_DataGathererManager != null) m_DataGathererManager.onStart();
+        if (m_RenderView != null) m_RenderView.onStart();
+        if (m_CameraView != null) m_CameraView.onStart();
+        if (m_DataGathererManager != null) m_DataGathererManager.onStart();
     }
 
     @Override
@@ -106,9 +125,9 @@ public class VR_Fragment extends Fragment
         Log.d(TAG, "Stopped");
         super.onStop();
 
-        if(m_RenderView != null) m_RenderView.onStop();
-        if(m_CameraView != null) m_CameraView.onStop();
-        if(m_DataGathererManager != null) m_DataGathererManager.onStop();
+        if (m_RenderView != null) m_RenderView.onStop();
+        if (m_CameraView != null) m_CameraView.onStop();
+        if (m_DataGathererManager != null) m_DataGathererManager.onStop();
     }
 
     @Override
@@ -117,9 +136,9 @@ public class VR_Fragment extends Fragment
         Log.d(TAG, "Paused");
         super.onPause();
 
-        if(m_RenderView != null) m_RenderView.onPause();
-        if(m_CameraView != null) m_CameraView.onPause();
-        if(m_DataGathererManager != null) m_DataGathererManager.onPause();
+        if (m_RenderView != null) m_RenderView.onPause();
+        if (m_CameraView != null) m_CameraView.onPause();
+        if (m_DataGathererManager != null) m_DataGathererManager.onPause();
     }
 
     @Override
@@ -128,9 +147,9 @@ public class VR_Fragment extends Fragment
         Log.d(TAG, "Resumed");
         super.onResume();
 
-        if(m_RenderView != null) m_RenderView.onResume();
-        if(m_CameraView != null) m_CameraView.onResume();
-        if(m_DataGathererManager != null) m_DataGathererManager.onResume();
+        if (m_RenderView != null) m_RenderView.onResume();
+        if (m_CameraView != null) m_CameraView.onResume();
+        if (m_DataGathererManager != null) m_DataGathererManager.onResume();
     }
 
     @Override
@@ -147,8 +166,25 @@ public class VR_Fragment extends Fragment
     {
         m_TakePhotoButton = view.findViewById(R.id.vr_button_take_photo);
         m_TakePhotoButton.setOnClickListener(v -> {
-            m_DataGathererManager.m_AlbumManger.TestAddAlbum();
+            if (m_CameraView != null) TakePhoto();
         });
+    }
+
+    void TakePhoto()
+    {
+        try
+        {
+            File previewFile = File.createTempFile("cameraPreview", ".jpg");
+            File previewCroppedFile = File.createTempFile("cameraPreview-cropped", ".jpg");
+//            Uri savePreviewUri = m_CameraView.SavePreview(previewFile);
+            Uri savePreviewUri = Uri.parse("https://unsplash.it/200/200/?random");
+            Uri croppedPreviewUri = Uri.fromFile(previewCroppedFile);
+            Intent UCropIntent = UCrop.of(savePreviewUri, croppedPreviewUri).withAspectRatio(16, 9).getIntent(getActivity());
+            m_UCropActivityResultLauncher.launch(UCropIntent);
+        } catch (IOException e)
+        {
+            Log.e(TAG, e.toString());
+        }
     }
 
     private boolean HasAllPermissions(String[] permissions)
@@ -176,6 +212,9 @@ public class VR_Fragment extends Fragment
             return context.getPackageManager()
                     .getPackageInfo(context.getPackageName(), PackageManager.GET_PERMISSIONS)
                     .requestedPermissions;
-        } catch (PackageManager.NameNotFoundException e) { throw new RuntimeException ("Unable to get manifest permission", e); }
+        } catch (PackageManager.NameNotFoundException e)
+        {
+            throw new RuntimeException("Unable to get manifest permission", e);
+        }
     }
 }
