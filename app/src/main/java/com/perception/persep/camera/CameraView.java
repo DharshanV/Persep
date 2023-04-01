@@ -80,6 +80,11 @@ public class CameraView extends TextureView implements TextureView.SurfaceTextur
     {
     }
 
+    public void TakeAndSavePreview(PreviewCamera.TakePictureListener listener)
+    {
+        m_PreviewCamera.TakeAndSavePreview(listener);
+    }
+
     private void StartBackgroundThread()
     {
         m_BackgroundThread = new HandlerThread("CameraBackground");

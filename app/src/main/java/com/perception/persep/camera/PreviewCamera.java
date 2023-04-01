@@ -2,6 +2,8 @@ package com.perception.persep.camera;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.ImageFormat;
 import android.graphics.SurfaceTexture;
 import android.hardware.camera2.CameraAccessException;
@@ -9,8 +11,12 @@ import android.hardware.camera2.CameraCaptureSession;
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CameraDevice;
 import android.hardware.camera2.CameraManager;
+import android.hardware.camera2.CameraMetadata;
 import android.hardware.camera2.CaptureRequest;
+import android.hardware.camera2.TotalCaptureResult;
 import android.hardware.camera2.params.StreamConfigurationMap;
+import android.media.Image;
+import android.media.ImageReader;
 import android.os.Handler;
 import android.util.Log;
 import android.util.Size;
@@ -18,6 +24,11 @@ import android.view.Surface;
 
 import androidx.annotation.NonNull;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -29,6 +40,11 @@ import java.util.concurrent.TimeUnit;
 public class PreviewCamera
 {
     private static final String TAG = "PreviewCamera";
+
+    public interface TakePictureListener
+    {
+        void OnPictureTaken(File file);
+    }
 
     private static final int MAX_PREVIEW_WIDTH = 1920;
     private static final int MAX_PREVIEW_HEIGHT = 1080;
@@ -44,6 +60,9 @@ public class PreviewCamera
 
     private CaptureRequest.Builder m_PreviewRequestBuilder;
     private CaptureRequest m_PreviewRequest;
+
+    private CaptureRequest.Builder m_TakePictureRequestBuilder;
+    private CaptureRequest m_TakePictureRequest;
 
     private CameraCaptureSession m_CaptureSession;
 
@@ -211,33 +230,109 @@ public class PreviewCamera
 
             m_PreviewRequestBuilder = m_CameraDevice.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW);
             m_PreviewRequestBuilder.addTarget(previewSurface);
-            m_CameraDevice.createCaptureSession(Arrays.asList(previewSurface),
-                    new CameraCaptureSession.StateCallback()
+            m_CameraDevice.createCaptureSession(Arrays.asList(previewSurface), new CameraCaptureSession.StateCallback()
+            {
+                @Override
+                public void onConfigured(@NonNull CameraCaptureSession cameraCaptureSession)
+                {
+                    if (m_CameraDevice != null)
                     {
-                        @Override
-                        public void onConfigured(@NonNull CameraCaptureSession cameraCaptureSession)
+                        try
                         {
-                            if (m_CameraDevice != null)
-                            {
-                                try
-                                {
-                                    m_PreviewRequest = m_PreviewRequestBuilder.build();
-                                    m_CaptureSession = cameraCaptureSession;
-                                    m_CaptureSession.setRepeatingRequest(m_PreviewRequest, null, m_BackgroundHandler);
-                                } catch (CameraAccessException e)
-                                {
-                                    e.printStackTrace();
-                                }
-                            }
+                            m_PreviewRequest = m_PreviewRequestBuilder.build();
+                            m_CaptureSession = cameraCaptureSession;
+                            m_CaptureSession.setRepeatingRequest(m_PreviewRequest, null, m_BackgroundHandler);
+                        } catch (CameraAccessException e)
+                        {
+                            e.printStackTrace();
                         }
+                    }
+                }
 
-                        @Override
-                        public void onConfigureFailed(@NonNull CameraCaptureSession cameraCaptureSession)
+                @Override
+                public void onConfigureFailed(@NonNull CameraCaptureSession cameraCaptureSession)
+                {
+                }
+            }, null);
+        } catch (CameraAccessException e)
+        {
+            e.printStackTrace();
+        }
+    }
+
+    public void TakeAndSavePreview(TakePictureListener listener)
+    {
+        try
+        {
+            ImageReader imageReader = ImageReader.newInstance(m_PreviewSize.getWidth(), m_PreviewSize.getHeight(), ImageFormat.JPEG, 1);
+            m_SurfaceTexture.setDefaultBufferSize(m_PreviewSize.getWidth(), m_PreviewSize.getHeight());
+            Surface previewSurface = new Surface(m_SurfaceTexture);
+
+            List<Surface> outputSurfaces = new ArrayList<>(2);
+            outputSurfaces.add(imageReader.getSurface());
+            outputSurfaces.add(previewSurface);
+
+            m_TakePictureRequestBuilder = m_CameraDevice.createCaptureRequest(CameraDevice.TEMPLATE_STILL_CAPTURE);
+            m_TakePictureRequestBuilder.addTarget(imageReader.getSurface());
+            m_TakePictureRequestBuilder.set(CaptureRequest.CONTROL_MODE, CameraMetadata.CONTROL_MODE_AUTO);
+
+            ImageReader.OnImageAvailableListener imageAvailableListener = reader -> {
+                Image image = reader.acquireLatestImage();
+                try
+                {
+                    File previewFile = File.createTempFile("cameraPreview", ".jpg");
+                    OutputStream fileOutputSteam = new FileOutputStream(previewFile);
+
+                    ByteBuffer buffer = image.getPlanes()[0].getBuffer();
+                    byte[] bytes = new byte[buffer.capacity()];
+                    buffer.get(bytes);
+                    Bitmap bitmapImage = BitmapFactory.decodeByteArray(bytes, 0, bytes.length, null);
+                    bitmapImage.compress(Bitmap.CompressFormat.JPEG, 100, fileOutputSteam);
+
+                    fileOutputSteam.flush();
+                    fileOutputSteam.close();
+
+                    listener.OnPictureTaken(previewFile);
+                } catch (IOException e)
+                {
+                    e.printStackTrace();
+                }
+                image.close();
+            };
+            imageReader.setOnImageAvailableListener(imageAvailableListener, m_BackgroundHandler);
+
+            CameraCaptureSession.CaptureCallback captureCallback = new CameraCaptureSession.CaptureCallback()
+            {
+                @Override
+                public void onCaptureCompleted(@NonNull CameraCaptureSession session, @NonNull CaptureRequest request, @NonNull TotalCaptureResult result)
+                {
+                    super.onCaptureCompleted(session, request, result);
+                    CreateCameraPreviewSession();
+                }
+            };
+            m_CameraDevice.createCaptureSession(outputSurfaces, new CameraCaptureSession.StateCallback()
+            {
+                @Override
+                public void onConfigured(@NonNull CameraCaptureSession session)
+                {
+                    if (m_CameraDevice != null)
+                    {
+                        try
                         {
+                            m_TakePictureRequest = m_TakePictureRequestBuilder.build();
+                            session.capture(m_TakePictureRequest, captureCallback, m_BackgroundHandler);
+                        } catch (CameraAccessException e)
+                        {
+                            e.printStackTrace();
                         }
-                    },
-                    null
-            );
+                    }
+                }
+
+                @Override
+                public void onConfigureFailed(@NonNull CameraCaptureSession session)
+                {
+                }
+            }, m_BackgroundHandler);
         } catch (CameraAccessException e)
         {
             e.printStackTrace();

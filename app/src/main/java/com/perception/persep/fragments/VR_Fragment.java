@@ -51,7 +51,7 @@ public class VR_Fragment extends Fragment
 
         m_UCropActivityResultLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
                 result -> {
-                    assert result.getData() != null;
+                    if (result.getData() == null) return;
                     if (result.getResultCode() == Activity.RESULT_OK)
                     {
                         Uri croppedImageUri = UCrop.getOutput(result.getData());
@@ -172,19 +172,19 @@ public class VR_Fragment extends Fragment
 
     void TakePhoto()
     {
-        try
-        {
-            File previewFile = File.createTempFile("cameraPreview", ".jpg");
-            File previewCroppedFile = File.createTempFile("cameraPreview-cropped", ".jpg");
-//            Uri savePreviewUri = m_CameraView.SavePreview(previewFile);
-            Uri savePreviewUri = Uri.parse("https://unsplash.it/200/200/?random");
-            Uri croppedPreviewUri = Uri.fromFile(previewCroppedFile);
-            Intent UCropIntent = UCrop.of(savePreviewUri, croppedPreviewUri).withAspectRatio(16, 9).getIntent(getActivity());
-            m_UCropActivityResultLauncher.launch(UCropIntent);
-        } catch (IOException e)
-        {
-            Log.e(TAG, e.toString());
-        }
+        m_CameraView.TakeAndSavePreview(file -> {
+            try
+            {
+                File previewCroppedFile = File.createTempFile("cameraPreview-cropped", ".jpg");
+                Uri savedPreviewUri = Uri.fromFile(file);
+                Uri croppedPreviewUri = Uri.fromFile(previewCroppedFile);
+                Intent UCropIntent = UCrop.of(savedPreviewUri, croppedPreviewUri).getIntent(getActivity());
+                m_UCropActivityResultLauncher.launch(UCropIntent);
+            } catch (IOException e)
+            {
+                Log.e(TAG, e.toString());
+            }
+        });
     }
 
     private boolean HasAllPermissions(String[] permissions)
