@@ -29,12 +29,12 @@ public class FirebaseQueries
 
     private static FirebaseQueries m_Instance = null;
 
-    public interface GeoqueryListener
+    public interface QueryListener
     {
         void OnQueryResult(boolean successful, String message, List<Album> albums);
     }
 
-    public GeoqueryListener m_Listener = null;
+    public QueryListener m_Listener = null;
 
     // Database
     private final FirebaseFirestore m_FirebaseDB;

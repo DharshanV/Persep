@@ -12,6 +12,13 @@ public class FirebaseUpdates
 
     private static FirebaseUpdates m_Instance = null;
 
+    public interface UpdatesListener
+    {
+        void OnUpdateResult(boolean successful, String message);
+    }
+
+    public FirebaseUpdates.UpdatesListener m_Listener = null;
+
     private final FirebaseFirestore m_FirebaseDB;
 
     public FirebaseUpdates()
@@ -24,7 +31,6 @@ public class FirebaseUpdates
         if (m_Instance == null) m_Instance = new FirebaseUpdates();
         return m_Instance;
     }
-
 
     public void AddPost(Post post, double lat, double lon)
     {

@@ -2,6 +2,7 @@ package com.perception.persep.album_data;
 
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.util.Log;
 
 import com.perception.persep.constants.PostConstants;
@@ -10,6 +11,7 @@ import com.squareup.picasso.Target;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 public class Post implements Target
 {
@@ -19,7 +21,20 @@ public class Post implements Target
     public String m_AlbumID;
     public String m_ImageURI;
     public Bitmap m_Image;
-    public boolean m_IsLoadingImage = true;
+    public boolean m_IsImageLoaded = false;
+
+    public Post()
+    {
+        m_PostID = UUID.randomUUID().toString();
+    }
+
+    public Post(Uri imageURI)
+    {
+        m_PostID = UUID.randomUUID().toString();
+        m_ImageURI = imageURI.toString();
+        Log.d(PostLoadImage, "Loading image: " + m_ImageURI);
+        Picasso.get().load(m_ImageURI).resize(PostConstants.IMAGE_WIDTH, PostConstants.IMAGE_HEIGHT).noFade().into(this);
+    }
 
     public Post(String postID)
     {
@@ -47,8 +62,8 @@ public class Post implements Target
     @Override
     public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from)
     {
-        Log.d(PostLoadImage, "Image loaded: " + bitmap.getWidth() + "x" + bitmap.getHeight());
-        m_IsLoadingImage = false;
+        Log.d(PostLoadImage, "Image loaded from: " + from.toString() + " with: " + bitmap.getWidth() + "x" + bitmap.getHeight());
+        m_IsImageLoaded = true;
         m_Image = bitmap;
     }
 

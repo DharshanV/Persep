@@ -20,6 +20,7 @@ import androidx.fragment.app.Fragment;
 
 import com.example.persep.R;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.perception.persep.album_data.Post;
 import com.perception.persep.camera.CameraView;
 import com.perception.persep.data_gatherer.DataGathererManager;
 import com.perception.persep.render.RenderView;
@@ -54,7 +55,13 @@ public class VR_Fragment extends Fragment
                     if (result.getResultCode() == Activity.RESULT_OK)
                     {
                         Uri croppedImageUri = UCrop.getOutput(result.getData());
-                        Log.d(TAG, "UCrop saved image under: " + croppedImageUri.toString());
+                        if (croppedImageUri != null) {
+                            m_DataGathererManager.m_AlbumManger.AddPost(new Post(croppedImageUri));
+                        }
+                        else
+                        {
+                            Log.e(TAG, "Cropped image uri is null!");
+                        }
                     } else
                     {
                         Log.e(TAG, UCrop.getError(result.getData()).toString());

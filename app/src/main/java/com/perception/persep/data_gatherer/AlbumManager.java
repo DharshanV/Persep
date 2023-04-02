@@ -7,13 +7,15 @@ import android.util.Log;
 import com.firebase.geofire.GeoFireUtils;
 import com.firebase.geofire.GeoLocation;
 import com.perception.persep.album_data.Album;
+import com.perception.persep.album_data.Post;
 import com.perception.persep.constants.QueryConstants;
 import com.perception.persep.firebase_helpers.FirebaseQueries;
+import com.perception.persep.firebase_helpers.FirebaseUpdates;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class AlbumManager implements Runnable, FirebaseQueries.GeoqueryListener
+public class AlbumManager implements Runnable, FirebaseQueries.QueryListener, FirebaseUpdates.UpdatesListener
 {
     private static final String TAG = "AlbumManager";
 
@@ -25,7 +27,8 @@ public class AlbumManager implements Runnable, FirebaseQueries.GeoqueryListener
     private final Context m_Context;
     private Listener m_Listener = null;
     private final List<Album> m_Albums;
-    private final FirebaseQueries m_FirebaseGeo;
+    private final FirebaseQueries m_FirebaseQueries;
+    private final FirebaseUpdates m_FirebaseUpdates;
     private boolean m_IsQueryInProgress = false;
 
     private final double m_QueryLat = -33.92447747349893;
@@ -38,8 +41,10 @@ public class AlbumManager implements Runnable, FirebaseQueries.GeoqueryListener
     {
         m_Context = context;
         m_Handler = new Handler();
-        m_FirebaseGeo = FirebaseQueries.getInstance();
-        m_FirebaseGeo.m_Listener = this;
+        m_FirebaseQueries = FirebaseQueries.getInstance();
+        m_FirebaseUpdates = FirebaseUpdates.getInstance();
+        m_FirebaseQueries.m_Listener = this;
+        m_FirebaseUpdates.m_Listener = this;
         m_Albums = new ArrayList<>();
     }
 
@@ -51,7 +56,7 @@ public class AlbumManager implements Runnable, FirebaseQueries.GeoqueryListener
         if (!m_IsQueryInProgress && m_Listener != null)
         {
             List<String> ignoreAlbums = GetAlbumsToIgnore();
-            m_FirebaseGeo.QueryNearbyAlbums(m_QueryLat, m_QueryLon, ignoreAlbums);
+            m_FirebaseQueries.QueryNearbyAlbums(m_QueryLat, m_QueryLon, ignoreAlbums);
             m_IsQueryInProgress = true;
         }
     }
@@ -80,6 +85,17 @@ public class AlbumManager implements Runnable, FirebaseQueries.GeoqueryListener
         {
             UpdateAlbums(albums);
         }
+    }
+
+    @Override
+    public void OnUpdateResult(boolean successful, String message)
+    {
+
+    }
+
+    public void AddPost(Post post)
+    {
+        m_FirebaseUpdates.AddPost(post, m_QueryLat, m_QueryLon);
     }
 
     private void UpdateAlbums(List<Album> albums)
