@@ -23,12 +23,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public class FirebaseGeoqueries
+public class FirebaseQueries
 {
     private static final String QUERY_NEARBY_TAG = "QueryGeoqueries";
-    private static final String ADD_NEARBY_TAG = "AddGeoqueries";
 
-    private static FirebaseGeoqueries m_Instance = null;
+    private static FirebaseQueries m_Instance = null;
 
     public interface GeoqueryListener
     {
@@ -40,47 +39,15 @@ public class FirebaseGeoqueries
     // Database
     private final FirebaseFirestore m_FirebaseDB;
 
-    public FirebaseGeoqueries()
+    public FirebaseQueries()
     {
         m_FirebaseDB = FirebaseFirestore.getInstance();
     }
 
-    public static FirebaseGeoqueries getInstance()
+    public static FirebaseQueries getInstance()
     {
-        if (m_Instance == null) m_Instance = new FirebaseGeoqueries();
+        if (m_Instance == null) m_Instance = new FirebaseQueries();
         return m_Instance;
-    }
-
-    public void AddPost(Post post, double lat, double lon)
-    {
-//        Log.d(ADD_NEARBY_TAG, "===== AddPost =====");
-//        GeoLocation postLocation = new GeoLocation(lat, lon);
-//
-//        List<Task<QuerySnapshot>> queryAlbumTasks = GetAlbumQueryTasks(postLocation);
-//
-//        Tasks.whenAllComplete(queryAlbumTasks).addOnCompleteListener(t -> {
-//            DocumentSnapshot closestAlbum = OnQueryClosestAlbum(queryAlbumTasks, postLocation);
-//
-//            if (closestAlbum == null) {
-//                Log.d(ADD_NEARBY_TAG, "No nearby album, creating a new one...");
-//                Map<String, Object> data = new HashMap<>();
-//
-//                m_FirebaseDB.collection(AlbumConstants.COLLECTION_NAME).add(data).addOnSuccessListener(documentReference -> {
-//                }).addOnFailureListener(e -> { });
-//            }
-//            else {
-//                Log.d(ADD_NEARBY_TAG, "Found an album, adding post to it...");
-//                AddPostToAlbum(closestAlbum, post);
-//            }
-//        }).addOnFailureListener(e -> { });
-    }
-
-    private void AddPostToAlbum(DocumentSnapshot albumDoc, Post post)
-    {
-        DocumentReference postRef = m_FirebaseDB.collection(PostConstants.COLLECTION_NAME).document(post.m_PostID);
-        postRef.set(post.getMap()).addOnSuccessListener(unused -> {
-
-        });
     }
 
     private List<DocumentSnapshot> OnQueryAlbums(List<Object> albumSnapshots, GeoLocation queryCenter)

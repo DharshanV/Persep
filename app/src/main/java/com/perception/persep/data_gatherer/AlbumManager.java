@@ -7,15 +7,13 @@ import android.util.Log;
 import com.firebase.geofire.GeoFireUtils;
 import com.firebase.geofire.GeoLocation;
 import com.perception.persep.album_data.Album;
-import com.perception.persep.album_data.Post;
 import com.perception.persep.constants.QueryConstants;
-import com.perception.persep.firebase_helpers.FirebaseGeoqueries;
+import com.perception.persep.firebase_helpers.FirebaseQueries;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
-public class AlbumManager implements Runnable, FirebaseGeoqueries.GeoqueryListener
+public class AlbumManager implements Runnable, FirebaseQueries.GeoqueryListener
 {
     private static final String TAG = "AlbumManager";
 
@@ -27,7 +25,7 @@ public class AlbumManager implements Runnable, FirebaseGeoqueries.GeoqueryListen
     private final Context m_Context;
     private Listener m_Listener = null;
     private final List<Album> m_Albums;
-    private final FirebaseGeoqueries m_FirebaseGeo;
+    private final FirebaseQueries m_FirebaseGeo;
     private boolean m_IsQueryInProgress = false;
 
     private final double m_QueryLat = -33.92447747349893;
@@ -40,7 +38,7 @@ public class AlbumManager implements Runnable, FirebaseGeoqueries.GeoqueryListen
     {
         m_Context = context;
         m_Handler = new Handler();
-        m_FirebaseGeo = FirebaseGeoqueries.getInstance();
+        m_FirebaseGeo = FirebaseQueries.getInstance();
         m_FirebaseGeo.m_Listener = this;
         m_Albums = new ArrayList<>();
     }
@@ -71,11 +69,6 @@ public class AlbumManager implements Runnable, FirebaseGeoqueries.GeoqueryListen
     public void AddListener(Listener listener)
     {
         m_Listener = listener;
-    }
-
-    public void TestAddAlbum()
-    {
-        m_FirebaseGeo.AddPost(new Post(UUID.randomUUID().toString()), -33.92447747349893, 151.2338687296112);
     }
 
     @Override
