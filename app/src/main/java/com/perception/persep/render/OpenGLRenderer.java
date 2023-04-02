@@ -24,7 +24,7 @@ public class OpenGLRenderer
 {
     private static final String TAG = "OpenGLRenderer";
 
-    private Context m_Context;
+    private final Context m_Context;
     private int m_Width;
     private int m_Height;
 

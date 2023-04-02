@@ -48,12 +48,12 @@ public class GPSSensor
         isPermissionEnabled &= ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED;
         isPermissionEnabled &= ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED;
 
-        if(isPermissionEnabled)
+        if (isPermissionEnabled)
         {
             //get google play fused location service
             m_FusedLocationProvider = LocationServices.getFusedLocationProviderClient(context);
 
-            if(m_FusedLocationProvider != null)
+            if (m_FusedLocationProvider != null)
             {
                 m_LocationRequest = LocationRequest.create();
                 m_LocationRequest.setInterval(MIN_TIME_BW_UPDATES);
@@ -66,7 +66,7 @@ public class GPSSensor
                     @Override
                     public void onLocationResult(@NonNull LocationResult locationResult)
                     {
-                        if(m_Listener != null)
+                        if (m_Listener != null)
                         {
                             Location location = locationResult.getLastLocation();
                             UpdateBestLocation(location);
@@ -77,8 +77,7 @@ public class GPSSensor
 
                 m_IsLocationServiceEnabled = true;
             }
-        }
-        else
+        } else
         {
             Log.e(TAG, "Permission not enabled for fine and coarse location");
         }
@@ -99,7 +98,7 @@ public class GPSSensor
 
     public void UnregisterSensor()
     {
-        if(!m_IsLocationServiceEnabled)
+        if (!m_IsLocationServiceEnabled)
         {
             return;
         }
@@ -109,7 +108,10 @@ public class GPSSensor
             m_SensorThread.quitSafely();
             m_SensorThread.join();
             m_SensorThread = null;
-        } catch (InterruptedException e) {  e.printStackTrace(); }
+        } catch (InterruptedException e)
+        {
+            e.printStackTrace();
+        }
         m_FusedLocationProvider.removeLocationUpdates(m_LocationCB);
     }
 
@@ -118,11 +120,11 @@ public class GPSSensor
     {
         m_Listener = listener;
 
-        if(m_FusedLocationProvider != null)
+        if (m_FusedLocationProvider != null)
         {
             m_FusedLocationProvider.getLastLocation().addOnCompleteListener(task -> {
                 Location location = task.getResult();
-                if(location != null)
+                if (location != null)
                 {
                     UpdateBestLocation(location);
                     m_Listener.onLocationChanged(m_BestLocation.getLatitude(), m_BestLocation.getLongitude());

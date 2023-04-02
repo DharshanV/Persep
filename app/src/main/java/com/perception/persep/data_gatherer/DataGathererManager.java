@@ -14,7 +14,7 @@ public class DataGathererManager
     public DataGathererManager(Context context)
     {
         m_RotationSensor = new RotationSensor(context);
-        m_GPSSensor= new GPSSensor(context);
+        m_GPSSensor = new GPSSensor(context);
         m_AlbumManger = new AlbumManager(context);
     }
 

@@ -19,12 +19,12 @@ public class GLProducerThread extends Thread
 {
     private static final String TAG = "GL_Thread";
 
-    private AtomicBoolean m_RunningFlag;
-    private AtomicBoolean m_ShouldRender;
-    private SurfaceTexture m_SurfaceTexture;
+    private final AtomicBoolean m_RunningFlag;
+    private final AtomicBoolean m_ShouldRender;
+    private final SurfaceTexture m_SurfaceTexture;
     private OpenGLRenderer m_Renderer;
-    private int m_SurfaceWidth;
-    private int m_SurfaceHeight;
+    private final int m_SurfaceWidth;
+    private final int m_SurfaceHeight;
 
     private EGL10 m_Egl;
     private EGLDisplay m_EglDisplay = EGL10.EGL_NO_DISPLAY;
@@ -35,11 +35,11 @@ public class GLProducerThread extends Thread
     private static final int EGL_OPENGL_ES2_BIT = 4;
 
     //Framerate
-    private long m_StartTime;
+    private final long m_StartTime;
     private long m_EndTime;
     private long m_DeltaTime;
-    private float m_TargetFPS;
-    private long m_TargetDelay;
+    private final float m_TargetFPS;
+    private final long m_TargetDelay;
 
     public GLProducerThread(SurfaceTexture surfaceTexture, OpenGLRenderer renderer, int width, int height, AtomicBoolean runningFlag)
     {
@@ -72,8 +72,7 @@ public class GLProducerThread extends Thread
             throw new RuntimeException("eglInitialize failed : " + GLUtils.getEGLErrorString(m_Egl.eglGetError()));
         }
 
-        int[] configAttribs =
-        {
+        int[] configAttribs = {
             EGL10.EGL_BUFFER_SIZE, 32,
             EGL10.EGL_ALPHA_SIZE, 8,
             EGL10.EGL_BLUE_SIZE, 8,
@@ -94,7 +93,7 @@ public class GLProducerThread extends Thread
             throw new RuntimeException("eglChooseConfig failed : " + GLUtils.getEGLErrorString(m_Egl.eglGetError()));
         }
 
-        int[] contextAttribs = { EGL_CONTEXT_CLIENT_VERSION, 3, EGL10.EGL_NONE };
+        int[] contextAttribs = {EGL_CONTEXT_CLIENT_VERSION, 3, EGL10.EGL_NONE};
         m_EglContext = m_Egl.eglCreateContext(m_EglDisplay, configs[0], EGL10.EGL_NO_CONTEXT, contextAttribs);
         m_EglSurface = m_Egl.eglCreateWindowSurface(m_EglDisplay, configs[0], m_SurfaceTexture, null);
         if (m_EglSurface == EGL10.EGL_NO_SURFACE || m_EglContext == EGL10.EGL_NO_CONTEXT)
@@ -148,7 +147,12 @@ public class GLProducerThread extends Thread
                 }
                 Trace.endSection();
             }
-            try { Thread.sleep(m_TargetDelay); } catch (InterruptedException ignored) { }
+            try
+            {
+                Thread.sleep(m_TargetDelay);
+            } catch (InterruptedException ignored)
+            {
+            }
         }
 
         DestroyGLContext();

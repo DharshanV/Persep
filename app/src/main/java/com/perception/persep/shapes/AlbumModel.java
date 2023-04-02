@@ -2,14 +2,11 @@ package com.perception.persep.shapes;
 
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.opengl.GLES30;
 import android.opengl.GLUtils;
-import android.util.Log;
 
 import com.perception.persep.render.Shader;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
@@ -32,7 +29,7 @@ public class AlbumModel
     static private final int[] m_NumOfIndices = new int[2];
 
     private final Shader[] m_Shaders = new Shader[2];
-    private int[] m_TextureID = null;
+    private final int[] m_TextureID = null;
 
     private static final String[] ALBUM_MODEL_PATH = {"album_frame.obj", "album_surface.obj"};
     private static final String[] ALBUM_FRAME_SHADER_PATH = {"album_frame.vert", "album_frame.frag"};
@@ -78,12 +75,20 @@ public class AlbumModel
             m_VertexPosition[i] = ObjData.getVertices(obj);
             m_VertexUV[i] = ObjData.getTexCoords(obj, 2);
             m_VertexNormals[i] = ObjData.getNormals(obj);
-        } catch (Exception ex) { throw new RuntimeException("couldn't load '" + ALBUM_MODEL_PATH[i] + "'", ex); }
-        finally
+        } catch (Exception ex)
+        {
+            throw new RuntimeException("couldn't load '" + ALBUM_MODEL_PATH[i] + "'", ex);
+        } finally
         {
             if (in != null)
             {
-                try { in.close(); } catch (Exception ex) { ex.printStackTrace(); }
+                try
+                {
+                    in.close();
+                } catch (Exception ex)
+                {
+                    ex.printStackTrace();
+                }
             }
         }
     }
@@ -100,8 +105,9 @@ public class AlbumModel
         {
             frameLoadThread.join();
             surfaceLoadThread.join();
+        } catch (Exception ignored)
+        {
         }
-        catch (Exception ignored) {}
 
         return new AlbumModel();
     }

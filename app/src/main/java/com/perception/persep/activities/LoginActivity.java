@@ -9,6 +9,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
+
 import com.example.persep.R;
 import com.perception.persep.firebase_helpers.FirebaseUserAuthentication;
 import com.perception.persep.models.User;
@@ -69,7 +70,8 @@ public class LoginActivity extends AppCompatActivity implements FirebaseUserAuth
     @Override
     public void WasLoginSuccessful(boolean successful, User user, String message)
     {
-        if (successful) {
+        if (successful)
+        {
             Log.d(TAG, "Login successfully: " + user.toString());
             StartHomeActivity();
         }

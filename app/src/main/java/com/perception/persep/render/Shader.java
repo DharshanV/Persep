@@ -90,14 +90,13 @@ public class Shader
             StringBuilder shaderSource = new StringBuilder();
             BufferedReader reader = new BufferedReader(new InputStreamReader(context.getAssets().open(filePath)));
             String line;
-            while((line = reader.readLine()) != null)
+            while ((line = reader.readLine()) != null)
             {
                 shaderSource.append(line).append("\n");
             }
             reader.close();
             return shaderSource.toString();
-        }
-        catch (IOException e)
+        } catch (IOException e)
         {
             e.printStackTrace();
             Log.e(TAG, "Could not load shader file");

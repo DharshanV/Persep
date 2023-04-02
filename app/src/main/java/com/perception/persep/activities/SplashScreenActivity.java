@@ -1,24 +1,15 @@
 package com.perception.persep.activities;
 
 import android.app.Activity;
-import android.app.AlertDialog;
-import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
-import android.widget.Toast;
 
 import androidx.annotation.Nullable;
-import androidx.core.app.ActivityCompat;
 
 import com.example.persep.R;
 import com.google.firebase.auth.FirebaseAuth;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class SplashScreenActivity extends Activity
 {
@@ -36,8 +27,7 @@ public class SplashScreenActivity extends Activity
         {
             Log.d(TAG, "Has authenticated user. Starting Home activity.");
             StartActivity(HomeActivity.class);
-        }
-        else
+        } else
         {
             Log.d(TAG, "No authenticated user. Staring login activity.");
             StartActivity(LoginActivity.class);

@@ -6,18 +6,17 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.FrameLayout;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
-
-import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.FrameLayout;
 
 import com.example.persep.R;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -178,7 +177,7 @@ public class VR_Fragment extends Fragment
                 File previewCroppedFile = File.createTempFile("cameraPreview-cropped", ".jpg");
                 Uri savedPreviewUri = Uri.fromFile(file);
                 Uri croppedPreviewUri = Uri.fromFile(previewCroppedFile);
-                Intent UCropIntent = UCrop.of(savedPreviewUri, croppedPreviewUri).withAspectRatio(16,9).getIntent(getActivity());
+                Intent UCropIntent = UCrop.of(savedPreviewUri, croppedPreviewUri).withAspectRatio(16, 9).getIntent(getActivity());
                 m_UCropActivityResultLauncher.launch(UCropIntent);
             } catch (IOException e)
             {

@@ -32,8 +32,6 @@ import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
@@ -50,13 +48,13 @@ public class PreviewCamera
     private static final int MAX_PREVIEW_WIDTH = 1920;
     private static final int MAX_PREVIEW_HEIGHT = 1080;
 
-    private Context m_Context;
-    private SurfaceTexture m_SurfaceTexture;
+    private final Context m_Context;
+    private final SurfaceTexture m_SurfaceTexture;
     private Handler m_BackgroundHandler;
     private Size m_PreviewSize;
     private String m_CameraId;
 
-    private Semaphore m_CameraOpenCloseLock = new Semaphore(1);
+    private final Semaphore m_CameraOpenCloseLock = new Semaphore(1);
     private CameraDevice m_CameraDevice;
 
     private CaptureRequest.Builder m_PreviewRequestBuilder;

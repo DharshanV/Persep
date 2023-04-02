@@ -177,10 +177,10 @@ public class FirebaseGeoqueries
     {
         List<Task<DocumentSnapshot>> tasks = new ArrayList<>(albumDocs.size());
 
-        for(DocumentSnapshot albumDoc : albumDocs)
+        for (DocumentSnapshot albumDoc : albumDocs)
         {
             List<DocumentReference> postRefs = (List<DocumentReference>) albumDoc.get(AlbumConstants.POSTS);
-            for(DocumentReference postRef : postRefs)
+            for (DocumentReference postRef : postRefs)
             {
                 tasks.add(postRef.get());
             }
@@ -204,14 +204,14 @@ public class FirebaseGeoqueries
             mapAlbumIDToPost.get(postAlbumID).add(postDoc);
         }
 
-        for(DocumentSnapshot albumDoc : albumDocs)
+        for (DocumentSnapshot albumDoc : albumDocs)
         {
             String albumID = albumDoc.getId();
 
             Album album = new Album(albumDoc.getId(), albumDoc.getData());
             List<DocumentSnapshot> albumPostDocs = mapAlbumIDToPost.get(albumID);
             assert albumPostDocs != null;
-            for(DocumentSnapshot postDoc : albumPostDocs)
+            for (DocumentSnapshot postDoc : albumPostDocs)
             {
                 album.AddPost(new Post(postDoc.getId(), postDoc.getData()));
             }
@@ -243,12 +243,12 @@ public class FirebaseGeoqueries
                 m_Listener.OnQueryResult(true, "", albumData);
 //                PrintData(albumDocs, postDocs);
 //                m_Listener.OnQueryResult(false, "", null);
-            })
-            .addOnFailureListener(e -> {
+            }).addOnFailureListener(e ->
+            {
                 m_Listener.OnQueryResult(false, "Query posts failed", null);
             });
-        })
-        .addOnFailureListener(e -> {
+        }).addOnFailureListener(e ->
+        {
             m_Listener.OnQueryResult(false, "Query albums failed", null);
         });
     }
@@ -258,7 +258,7 @@ public class FirebaseGeoqueries
         Log.d(QUERY_NEARBY_TAG, "===== Album Docs =====");
         for (DocumentSnapshot albumDoc : albumDocs)
         {
-            for(String tag : AlbumConstants.TAGS)
+            for (String tag : AlbumConstants.TAGS)
             {
                 Log.d(QUERY_NEARBY_TAG, tag + ": " + albumDoc.get(tag).toString());
             }
@@ -267,7 +267,7 @@ public class FirebaseGeoqueries
         Log.d(QUERY_NEARBY_TAG, "===== Post Docs =====");
         for (DocumentSnapshot postDoc : postDocs)
         {
-            for(String tag : PostConstants.TAGS)
+            for (String tag : PostConstants.TAGS)
             {
                 Log.d(QUERY_NEARBY_TAG, tag + ": " + postDoc.get(tag).toString());
             }

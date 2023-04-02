@@ -14,7 +14,7 @@ public class CameraView extends TextureView implements TextureView.SurfaceTextur
 {
     private HandlerThread m_BackgroundThread;
     private Handler m_BackgroundHandler;
-    private Context m_Context;
+    private final Context m_Context;
     private PreviewCamera m_PreviewCamera;
 
     private int m_WidthRatio = 0;

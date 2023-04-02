@@ -8,5 +8,5 @@ public class AlbumConstants
     public static final String LON = "lon";
     public static final String POSTS = "posts";
 
-    public static final String[] TAGS = { GEO_HASH, LAT, LON, POSTS };
+    public static final String[] TAGS = {GEO_HASH, LAT, LON, POSTS};
 }

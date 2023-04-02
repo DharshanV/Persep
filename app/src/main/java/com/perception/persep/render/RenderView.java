@@ -20,7 +20,7 @@ public class RenderView extends TextureView implements TextureView.SurfaceTextur
     private static final String TAG = "RenderView";
 
     private GLProducerThread m_GLThread = null;
-    private OpenGLRenderer m_Renderer;
+    private final OpenGLRenderer m_Renderer;
 
     public RenderView(Context context)
     {
@@ -51,7 +51,13 @@ public class RenderView extends TextureView implements TextureView.SurfaceTextur
         //Clean up running threads
         m_GLThread.SetShouldRender(false);
         m_GLThread.SetRunningFlag(false);
-        try {  m_GLThread.join(); } catch (InterruptedException e) { e.printStackTrace(); }
+        try
+        {
+            m_GLThread.join();
+        } catch (InterruptedException e)
+        {
+            e.printStackTrace();
+        }
         m_GLThread = null;
 
         System.gc();
@@ -65,7 +71,7 @@ public class RenderView extends TextureView implements TextureView.SurfaceTextur
 
     public void onPause()
     {
-        if(m_GLThread != null)
+        if (m_GLThread != null)
         {
             m_GLThread.SetShouldRender(false);
         }
@@ -73,7 +79,7 @@ public class RenderView extends TextureView implements TextureView.SurfaceTextur
 
     public void onResume()
     {
-        if(m_GLThread != null)
+        if (m_GLThread != null)
         {
             m_GLThread.SetShouldRender(true);
         }

@@ -13,6 +13,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
+
 import com.example.persep.R;
 import com.perception.persep.firebase_helpers.FirebaseUserAuthentication;
 
@@ -69,9 +70,12 @@ public class RegisterActivity extends AppCompatActivity implements FirebaseUserA
         m_RegisterButton = (Button) findViewById(R.id.register_button);
         m_RegisterTextView = (TextView) findViewById(R.id.register_message);
 
-        TextWatcher watcher = new TextWatcher() {
+        TextWatcher watcher = new TextWatcher()
+        {
             @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
+            public void beforeTextChanged(CharSequence s, int start, int count, int after)
+            {
+            }
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count)
@@ -81,7 +85,9 @@ public class RegisterActivity extends AppCompatActivity implements FirebaseUserA
             }
 
             @Override
-            public void afterTextChanged(Editable s) { }
+            public void afterTextChanged(Editable s)
+            {
+            }
         };
         m_Username.addTextChangedListener(watcher);
         m_Email.addTextChangedListener(watcher);
@@ -100,8 +106,7 @@ public class RegisterActivity extends AppCompatActivity implements FirebaseUserA
             {
                 DisplayMessage("Loading...");
                 m_UserAuth.RegisterNewUser(username, email, password);
-            }
-            else
+            } else
             {
                 m_RegisterButton.setEnabled(true);
             }
@@ -123,7 +128,11 @@ public class RegisterActivity extends AppCompatActivity implements FirebaseUserA
             final String regexPattern = "^(?=.{5,20}$)(?![_.])(?!.*[_.]{2})[a-zA-Z0-9._]+(?<![_.])$";
             isUsernameValid = Pattern.compile(regexPattern).matcher(username).matches();
         }
-        if (!isUsernameValid) {  DisplayMessage("Invalid username or already exists"); return false;  }
+        if (!isUsernameValid)
+        {
+            DisplayMessage("Invalid username or already exists");
+            return false;
+        }
 
         // Email
         boolean isEmailValid = false;
@@ -133,11 +142,19 @@ public class RegisterActivity extends AppCompatActivity implements FirebaseUserA
                     + "[^-][A-Za-z0-9-]+(\\.[A-Za-z0-9-]+)*(\\.[A-Za-z]{2,})$";
             isEmailValid = Pattern.compile(regexPattern).matcher(email).matches();
         }
-        if (!isEmailValid) { DisplayMessage("Invalid email or already exists"); return false; }
+        if (!isEmailValid)
+        {
+            DisplayMessage("Invalid email or already exists");
+            return false;
+        }
 
         // Password
         boolean isPasswordValid = !password.isEmpty() && password.length() >= 5;
-        if (!isPasswordValid) { DisplayMessage("Invalid password"); return false; }
+        if (!isPasswordValid)
+        {
+            DisplayMessage("Invalid password");
+            return false;
+        }
 
         return true;
     }
@@ -149,8 +166,7 @@ public class RegisterActivity extends AppCompatActivity implements FirebaseUserA
         {
             DisplayMessage("Successful! Logging in...");
             StartHomeActivity();
-        }
-        else
+        } else
         {
             DisplayMessage("Error: " + message);
             m_RegisterButton.setEnabled(true);

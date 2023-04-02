@@ -12,7 +12,9 @@ public class User implements Parcelable
     public String m_Username;
     public String m_Email;
 
-    public User() {}
+    public User()
+    {
+    }
 
     public User(Parcel in)
     {

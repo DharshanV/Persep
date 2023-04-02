@@ -24,14 +24,14 @@ public class AlbumManager implements Runnable, FirebaseGeoqueries.GeoqueryListen
         void onAlbumUpdate(List<Album> albums);
     }
 
-    private Context m_Context;
+    private final Context m_Context;
     private Listener m_Listener = null;
-    private List<Album> m_Albums;
-    private FirebaseGeoqueries m_FirebaseGeo;
+    private final List<Album> m_Albums;
+    private final FirebaseGeoqueries m_FirebaseGeo;
     private boolean m_IsQueryInProgress = false;
 
-    private double m_QueryLat = -33.92447747349893;
-    private double m_QueryLon = 151.2338687296112;
+    private final double m_QueryLat = -33.92447747349893;
+    private final double m_QueryLon = 151.2338687296112;
 
     private final long UPDATE_LOOP_INTERVAL = 5000; //update and notify every 5 secs
     Handler m_Handler;

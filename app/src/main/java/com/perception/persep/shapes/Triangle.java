@@ -8,14 +8,14 @@ import java.nio.FloatBuffer;
 
 public class Triangle
 {
-    private FloatBuffer m_VertexPosition;
-    private FloatBuffer m_VertexColor;
-    private float[] m_Transform = new float[16];
+    private final FloatBuffer m_VertexPosition;
+    private final FloatBuffer m_VertexColor;
+    private final float[] m_Transform = new float[16];
 
     static private final float[] triangleCoords = {
             -0.25f, -0.5f, 0.0f, // left
             0.25f, -0.5f, 0.0f, // right
-            0.0f,  0.5f, 0.0f  // top
+            0.0f, 0.5f, 0.0f  // top
     };
 
     static private final float[] triangleColor = {
@@ -37,9 +37,18 @@ public class Triangle
         Matrix.setIdentityM(m_Transform, 0);
     }
 
-    public FloatBuffer GetPositionBuffer() { return m_VertexPosition; }
+    public FloatBuffer GetPositionBuffer()
+    {
+        return m_VertexPosition;
+    }
 
-    public FloatBuffer GetColorBuffer() { return m_VertexColor; }
+    public FloatBuffer GetColorBuffer()
+    {
+        return m_VertexColor;
+    }
 
-    public float[] GetTransform() { return m_Transform; }
+    public float[] GetTransform()
+    {
+        return m_Transform;
+    }
 }
