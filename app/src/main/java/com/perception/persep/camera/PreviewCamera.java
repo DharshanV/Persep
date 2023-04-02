@@ -5,6 +5,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.ImageFormat;
+import android.graphics.Matrix;
 import android.graphics.SurfaceTexture;
 import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraCaptureSession;
@@ -125,8 +126,7 @@ public class PreviewCamera
                 }
 
                 StreamConfigurationMap map = characteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP);
-                Size largest = Collections.max(Arrays.asList(map.getOutputSizes(ImageFormat.JPEG)), new CompareSizesByArea());
-                m_PreviewSize = chooseOptimalSize(map.getOutputSizes(SurfaceTexture.class), width, height, largest);
+                m_PreviewSize = chooseOptimalSize(map.getOutputSizes(SurfaceTexture.class), height, width);
                 m_CameraId = cameraId;
                 return;
             }
@@ -136,48 +136,50 @@ public class PreviewCamera
         }
     }
 
-    static class CompareSizesByArea implements Comparator<Size>
+    private static Size chooseOptimalSize(Size[] sizes, int w, int h)
     {
-        @Override
-        public int compare(Size lhs, Size rhs)
-        {
-            return Long.signum((long) lhs.getWidth() * lhs.getHeight() -
-                    (long) rhs.getWidth() * rhs.getHeight());
-        }
-    }
+        // Use a very small tolerance because we want an exact match.
+        final double ASPECT_TOLERANCE = 0.1;
+        double targetRatio = (double) w / h;
+        if (sizes == null)
+            return null;
 
-    private static Size chooseOptimalSize(Size[] choices, int textureViewWidth, int textureViewHeight, Size aspectRatio)
-    {
-        List<Size> bigEnough = new ArrayList<>();
-        List<Size> notBigEnough = new ArrayList<>();
-        int w = aspectRatio.getWidth();
-        int h = aspectRatio.getHeight();
-        for (Size option : choices)
+        Size optimalSize = null;/*  w  w  w  .ja va  2 s .c  om*/
+
+        // Start with max value and refine as we iterate over available preview sizes. This is the
+        // minimum difference between view and camera height.
+        double minDiff = Double.MAX_VALUE;
+
+        // Try to find a preview size that matches aspect ratio and the target view size.
+        // Iterate over all available sizes and pick the largest size that can fit in the view and
+        // still maintain the aspect ratio.
+        for (Size size : sizes)
         {
-            if (option.getWidth() <= PreviewCamera.MAX_PREVIEW_WIDTH && option.getHeight() <= PreviewCamera.MAX_PREVIEW_HEIGHT &&
-                    option.getHeight() == option.getWidth() * h / w)
+            double ratio = (double) size.getWidth() / size.getHeight();
+            if (Math.abs(ratio - targetRatio) > ASPECT_TOLERANCE)
+                continue;
+            if (Math.abs(size.getHeight() - h) < minDiff)
             {
-                if (option.getWidth() >= textureViewWidth &&
-                        option.getHeight() >= textureViewHeight)
+                optimalSize = size;
+                minDiff = Math.abs(size.getHeight() - h);
+            }
+        }
+
+        // Cannot find preview size that matches the aspect ratio, ignore the requirement
+        if (optimalSize == null)
+        {
+            minDiff = Double.MAX_VALUE;
+            for (Size size : sizes)
+            {
+                if (Math.abs(size.getHeight() - h) < minDiff)
                 {
-                    bigEnough.add(option);
-                } else
-                {
-                    notBigEnough.add(option);
+                    optimalSize = size;
+                    minDiff = Math.abs(size.getHeight() - h);
                 }
             }
         }
 
-        if (bigEnough.size() > 0)
-        {
-            return Collections.min(bigEnough, new CompareSizesByArea());
-        } else if (notBigEnough.size() > 0)
-        {
-            return Collections.max(notBigEnough, new CompareSizesByArea());
-        } else
-        {
-            return choices[0];
-        }
+        return optimalSize;
     }
 
     @SuppressLint("MissingPermission")
@@ -287,6 +289,7 @@ public class PreviewCamera
                     byte[] bytes = new byte[buffer.capacity()];
                     buffer.get(bytes);
                     Bitmap bitmapImage = BitmapFactory.decodeByteArray(bytes, 0, bytes.length, null);
+                    bitmapImage = RotateBitmap(bitmapImage, 90);
                     bitmapImage.compress(Bitmap.CompressFormat.JPEG, 100, fileOutputSteam);
 
                     fileOutputSteam.flush();
@@ -337,5 +340,12 @@ public class PreviewCamera
         {
             e.printStackTrace();
         }
+    }
+
+    public static Bitmap RotateBitmap(Bitmap source, float angle)
+    {
+        Matrix matrix = new Matrix();
+        matrix.postRotate(angle);
+        return Bitmap.createBitmap(source, 0, 0, source.getWidth(), source.getHeight(), matrix, true);
     }
 }

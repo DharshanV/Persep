@@ -178,7 +178,7 @@ public class VR_Fragment extends Fragment
                 File previewCroppedFile = File.createTempFile("cameraPreview-cropped", ".jpg");
                 Uri savedPreviewUri = Uri.fromFile(file);
                 Uri croppedPreviewUri = Uri.fromFile(previewCroppedFile);
-                Intent UCropIntent = UCrop.of(savedPreviewUri, croppedPreviewUri).getIntent(getActivity());
+                Intent UCropIntent = UCrop.of(savedPreviewUri, croppedPreviewUri).withAspectRatio(16,9).getIntent(getActivity());
                 m_UCropActivityResultLauncher.launch(UCropIntent);
             } catch (IOException e)
             {
