@@ -10,7 +10,9 @@ import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.perception.persep.album_data.Album;
@@ -247,5 +249,16 @@ public class FirebaseQueries
                 Log.d(QUERY_NEARBY_TAG, tag + ": " + postDoc.get(tag).toString());
             }
         }
+    }
+
+    public void AddAlbumListener(EventListener<QuerySnapshot> listener)
+    {
+        m_Firestore.collection(AlbumConstants.COLLECTION_NAME).addSnapshotListener(listener);
+    }
+
+    public void RemoveAlbumListener()
+    {
+        ListenerRegistration registration = m_Firestore.collection(AlbumConstants.COLLECTION_NAME).addSnapshotListener((value, error) -> { });
+        registration.remove();
     }
 }

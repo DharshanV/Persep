@@ -6,9 +6,15 @@ import android.os.Handler;
 import android.util.Log;
 import android.widget.Toast;
 
+import androidx.annotation.Nullable;
+
 import com.firebase.geofire.GeoFireUtils;
 import com.firebase.geofire.GeoLocation;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentChange;
+import com.google.firebase.firestore.EventListener;
+import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.perception.persep.album_data.Album;
 import com.perception.persep.constants.QueryConstants;
 import com.perception.persep.firebase_helpers.FirebaseQueries;
@@ -17,9 +23,27 @@ import com.perception.persep.firebase_helpers.FirebaseUpdates;
 import java.util.ArrayList;
 import java.util.List;
 
-public class AlbumManager implements Runnable, FirebaseQueries.QueryListener, FirebaseUpdates.UpdatesListener, GPSSensor.Listener
+public class AlbumManager implements Runnable, FirebaseQueries.QueryListener, FirebaseUpdates.UpdatesListener, GPSSensor.Listener, EventListener<QuerySnapshot>
 {
     private static final String TAG = "AlbumManager";
+
+    @Override
+    public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error)
+    {
+        if (value == null || error != null) {
+            Log.d(TAG, "Album listener error!");
+            return;
+        }
+
+        for (DocumentChange dc : value.getDocumentChanges()) {
+            switch (dc.getType()) {
+                case ADDED:
+                case REMOVED:
+                case MODIFIED:
+                    break;
+            }
+        }
+    }
 
     public interface Listener
     {
@@ -75,11 +99,13 @@ public class AlbumManager implements Runnable, FirebaseQueries.QueryListener, Fi
     public void onPause()
     {
         m_Handler.removeCallbacks(this);
+//        FirebaseQueries.getInstance().RemoveAlbumListener();
     }
 
     public void onResume()
     {
         m_Handler.postDelayed(this, UPDATE_LOOP_INTERVAL);
+//        FirebaseQueries.getInstance().AddAlbumListener(this);
     }
 
     public void AddListener(Listener listener)
