@@ -8,6 +8,7 @@ import com.firebase.geofire.GeoLocation;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -60,7 +61,7 @@ public class FirebaseUpdates
         m_Firestore.collection(UserConstants.COLLECTION_NAME).document(user.getUid()).get().addOnSuccessListener(userDoc -> {
 
             // Upload post image to Firestore
-            StorageReference postImageFirestoreRef = m_FireStoreRef.child("images/" + UUID.randomUUID().toString());
+            StorageReference postImageFirestoreRef = m_FireStoreRef.child("images/" + UUID.randomUUID().toString() + ".jpg");
             postImageFirestoreRef.putFile(postImageURI).addOnSuccessListener(taskSnapshot -> {
                 // Get the uploaded image uri
                 postImageFirestoreRef.getDownloadUrl().addOnSuccessListener(uri -> {
@@ -97,18 +98,7 @@ public class FirebaseUpdates
                 albumData.put(AlbumConstants.GEO_HASH, GeoFireUtils.getGeoHashForLocation(postLocation));
                 albumData.put(AlbumConstants.LAT, lat);
                 albumData.put(AlbumConstants.LON, lon);
-                albumData.put(AlbumConstants.POSTS, Collections.emptyList());
-
-                m_Firestore.collection(AlbumConstants.COLLECTION_NAME).add(albumData).addOnSuccessListener(albumRef -> {
-                    albumRef.get().addOnSuccessListener(albumDoc -> {
-                        Log.d(ADD_NEARBY_TAG, "Successfully created new album with id: " + albumDoc.getId());
-                        AddPostToAlbum(userDoc, albumDoc, postImageURI);
-                    }).addOnFailureListener(e -> {
-                        m_Listener.OnUpdateResult(false, e.toString());
-                    });
-                }).addOnFailureListener(e -> {
-                    m_Listener.OnUpdateResult(false, e.toString());
-                });
+                AddPostToNewAlbum(userDoc, albumData, postImageURI);
             } else
             {
                 Log.d(ADD_NEARBY_TAG, "Found a closest album with id: " + closestAlbum.getId());
@@ -130,6 +120,29 @@ public class FirebaseUpdates
             Log.d(ADD_NEARBY_TAG, "Successfully created a new post with id: " + postRef.getId());
             albumDoc.getReference().update(AlbumConstants.POSTS, FieldValue.arrayUnion(postRef)).addOnSuccessListener(unused -> {
                 Log.d(ADD_NEARBY_TAG, "Successfully linked album against new post");
+                m_Listener.OnUpdateResult(true, "Successfully created all data and updates");
+            }).addOnFailureListener(e -> {
+                m_Listener.OnUpdateResult(false, e.toString());
+            });
+        }).addOnFailureListener(e -> {
+            m_Listener.OnUpdateResult(false, e.toString());
+        });
+    }
+
+    private void AddPostToNewAlbum(DocumentSnapshot userDoc, Map<String, Object> albumData , Uri postImageURI)
+    {
+        DocumentReference albumRef = m_Firestore.collection(AlbumConstants.COLLECTION_NAME).document();
+
+        Map<String, Object> postData = new HashMap<>();
+        postData.put(PostConstants.ALBUM_ID, albumRef.getId());
+        postData.put(PostConstants.IMAGE_URI, postImageURI.toString());
+        postData.put(PostConstants.USER, userDoc.getReference());
+
+        m_Firestore.collection(PostConstants.COLLECTION_NAME).add(postData).addOnSuccessListener(postRef -> {
+            Log.d(ADD_NEARBY_TAG, "Successfully created a new post with id: " + postRef.getId());
+            albumData.put(AlbumConstants.POSTS, FieldValue.arrayUnion(postRef));
+            albumRef.set(albumData).addOnSuccessListener(unused -> {
+                Log.d(ADD_NEARBY_TAG, "Successfully created new album with id: " + albumRef.getId());
                 m_Listener.OnUpdateResult(true, "Successfully created all data and updates");
             }).addOnFailureListener(e -> {
                 m_Listener.OnUpdateResult(false, e.toString());

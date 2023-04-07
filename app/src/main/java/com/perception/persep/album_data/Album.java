@@ -122,6 +122,10 @@ public class Album implements Parcelable
 
     public boolean ShouldUpdateTexture()
     {
+        if (m_Posts.size() == 1 && m_Posts.get(m_CurrPostIndex).m_Image != null) {
+            return true;
+        }
+
         if (m_CurrPostIndex != m_PrevPostIndex)
         {
             m_PrevPostIndex = m_CurrPostIndex;

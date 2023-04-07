@@ -20,6 +20,7 @@ import com.perception.persep.constants.PostConstants;
 import com.perception.persep.constants.QueryConstants;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
@@ -201,6 +202,13 @@ public class FirebaseQueries
         List<Task<QuerySnapshot>> albumQueryTasks = GetAlbumQueryTasks(queryCenter, ignoreAlbums);
         Tasks.whenAllSuccess(albumQueryTasks).addOnSuccessListener(albumsResult -> {
             List<DocumentSnapshot> albumDocs = OnQueryAlbums(albumsResult, queryCenter);
+
+            if (albumDocs.isEmpty())
+            {
+                Log.d(QUERY_NEARBY_TAG, "Early exiting, no nearby albums found...");
+                m_Listener.OnQueryResult(true, "", Collections.emptyList());
+                return;
+            }
 
             List<Task<DocumentSnapshot>> postQueryTasks = GetPostQueryTasks(albumDocs);
             Tasks.whenAllSuccess(postQueryTasks).addOnSuccessListener(postsResult -> {

@@ -112,6 +112,7 @@ public class OpenGLRenderer
 
                     double bearing = GeoLocationHelper.Heading(m_DeviceLat, m_DeviceLon, album.m_Lat, album.m_Lon);
                     double distance = GeoLocationHelper.Distance(m_DeviceLat, m_DeviceLon, album.m_Lat, album.m_Lon);
+                    distance = Math.max(3.0, distance);
 
                     float x = (float) (distance * Math.sin(bearing));
                     float z = (float) (distance * Math.cos(bearing));
@@ -158,7 +159,7 @@ public class OpenGLRenderer
         GLES30.glViewport(0, 0, m_Width, m_Height);
 
         float ratio = (float) m_Width / m_Height;
-        Matrix.frustumM(m_ProjectionMatrix, 0, -ratio, ratio, -1, 1, 3, 1000);
+        Matrix.frustumM(m_ProjectionMatrix, 0, -ratio, ratio, -1, 1, 2.0f, 100);
     }
 
     public void UpdateRotation(float[] rotationMatrix)
