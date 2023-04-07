@@ -20,7 +20,8 @@ import androidx.fragment.app.Fragment;
 
 import com.example.persep.R;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.perception.persep.album_data.Post;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.perception.persep.camera.CameraView;
 import com.perception.persep.data_gatherer.DataGathererManager;
 import com.perception.persep.render.RenderView;
@@ -55,10 +56,17 @@ public class VR_Fragment extends Fragment
                     if (result.getResultCode() == Activity.RESULT_OK)
                     {
                         Uri croppedImageUri = UCrop.getOutput(result.getData());
-                        if (croppedImageUri != null) {
-                            m_DataGathererManager.m_AlbumManger.AddPost(new Post(croppedImageUri));
-                        }
-                        else
+                        if (croppedImageUri != null)
+                        {
+                            FirebaseUser loggedInUser = FirebaseAuth.getInstance().getCurrentUser();
+                            if (loggedInUser != null)
+                            {
+                                m_DataGathererManager.m_AlbumManger.AddPost(loggedInUser, croppedImageUri);
+                            } else
+                            {
+                                Log.e(TAG, "Unable to find logged in user!");
+                            }
+                        } else
                         {
                             Log.e(TAG, "Cropped image uri is null!");
                         }

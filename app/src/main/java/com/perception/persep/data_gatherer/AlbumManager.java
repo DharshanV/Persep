@@ -1,13 +1,15 @@
 package com.perception.persep.data_gatherer;
 
 import android.content.Context;
+import android.net.Uri;
 import android.os.Handler;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.firebase.geofire.GeoFireUtils;
 import com.firebase.geofire.GeoLocation;
+import com.google.firebase.auth.FirebaseUser;
 import com.perception.persep.album_data.Album;
-import com.perception.persep.album_data.Post;
 import com.perception.persep.constants.QueryConstants;
 import com.perception.persep.firebase_helpers.FirebaseQueries;
 import com.perception.persep.firebase_helpers.FirebaseUpdates;
@@ -90,12 +92,14 @@ public class AlbumManager implements Runnable, FirebaseQueries.QueryListener, Fi
     @Override
     public void OnUpdateResult(boolean successful, String message)
     {
-
+        if (successful) {
+            Toast.makeText(m_Context, "Successfully created your post! Restart your app", Toast.LENGTH_LONG).show();
+        }
     }
 
-    public void AddPost(Post post)
+    public void AddPost(FirebaseUser user, Uri postImageURI)
     {
-        m_FirebaseUpdates.AddPost(post, m_QueryLat, m_QueryLon);
+        m_FirebaseUpdates.AddPost(user, postImageURI, m_QueryLat, m_QueryLon);
     }
 
     private void UpdateAlbums(List<Album> albums)

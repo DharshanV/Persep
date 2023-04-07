@@ -1,10 +1,28 @@
 package com.perception.persep.firebase_helpers;
 
-import com.google.firebase.firestore.DocumentReference;
+import android.net.Uri;
+import android.util.Log;
+
+import com.firebase.geofire.GeoFireUtils;
+import com.firebase.geofire.GeoLocation;
+import com.google.android.gms.tasks.Task;
+import com.google.android.gms.tasks.Tasks;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.perception.persep.album_data.Post;
+import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.perception.persep.constants.AlbumConstants;
 import com.perception.persep.constants.PostConstants;
+import com.perception.persep.constants.UserConstants;
+
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 public class FirebaseUpdates
 {
@@ -19,11 +37,13 @@ public class FirebaseUpdates
 
     public FirebaseUpdates.UpdatesListener m_Listener = null;
 
-    private final FirebaseFirestore m_FirebaseDB;
+    private final FirebaseFirestore m_Firestore;
+    private final StorageReference m_FireStoreRef;
 
     public FirebaseUpdates()
     {
-        m_FirebaseDB = FirebaseFirestore.getInstance();
+        m_Firestore = FirebaseFirestore.getInstance();
+        m_FireStoreRef = FirebaseStorage.getInstance().getReference();
     }
 
     public static FirebaseUpdates getInstance()
@@ -32,35 +52,90 @@ public class FirebaseUpdates
         return m_Instance;
     }
 
-    public void AddPost(Post post, double lat, double lon)
+    public void AddPost(FirebaseUser user, Uri postImageURI, double lat, double lon)
     {
-//        Log.d(ADD_NEARBY_TAG, "===== AddPost =====");
-//        GeoLocation postLocation = new GeoLocation(lat, lon);
-//
-//        List<Task<QuerySnapshot>> queryAlbumTasks = GetAlbumQueryTasks(postLocation);
-//
-//        Tasks.whenAllComplete(queryAlbumTasks).addOnCompleteListener(t -> {
-//            DocumentSnapshot closestAlbum = OnQueryClosestAlbum(queryAlbumTasks, postLocation);
-//
-//            if (closestAlbum == null) {
-//                Log.d(ADD_NEARBY_TAG, "No nearby album, creating a new one...");
-//                Map<String, Object> data = new HashMap<>();
-//
-//                m_FirebaseDB.collection(AlbumConstants.COLLECTION_NAME).add(data).addOnSuccessListener(documentReference -> {
-//                }).addOnFailureListener(e -> { });
-//            }
-//            else {
-//                Log.d(ADD_NEARBY_TAG, "Found an album, adding post to it...");
-//                AddPostToAlbum(closestAlbum, post);
-//            }
-//        }).addOnFailureListener(e -> { });
+        Log.d(ADD_NEARBY_TAG, "===== AddPost =====");
+
+        // Get the user data
+        m_Firestore.collection(UserConstants.COLLECTION_NAME).document(user.getUid()).get().addOnSuccessListener(userDoc -> {
+
+            // Upload post image to Firestore
+            StorageReference postImageFirestoreRef = m_FireStoreRef.child("images/" + UUID.randomUUID().toString());
+            postImageFirestoreRef.putFile(postImageURI).addOnSuccessListener(taskSnapshot -> {
+                // Get the uploaded image uri
+                postImageFirestoreRef.getDownloadUrl().addOnSuccessListener(uri -> {
+                    // Create a Post album with the appropriate data
+                    Log.d(ADD_NEARBY_TAG, "Successfully uploaded image: " + uri.toString());
+                    TryAddPostToClosestAlbum(userDoc, uri, lat, lon);
+                }).addOnFailureListener(e -> {
+                    m_Listener.OnUpdateResult(false, e.toString());
+                });
+            }).addOnFailureListener(e -> {
+                m_Listener.OnUpdateResult(false, e.toString());
+            });
+
+        }).addOnFailureListener(e -> {
+            m_Listener.OnUpdateResult(false, e.toString());
+        });
     }
 
-    private void AddPostToAlbum(DocumentSnapshot albumDoc, Post post)
+    private void TryAddPostToClosestAlbum(DocumentSnapshot userDoc, Uri postImageURI, double lat, double lon)
     {
-        DocumentReference postRef = m_FirebaseDB.collection(PostConstants.COLLECTION_NAME).document(post.m_PostID);
-        postRef.set(post.getMap()).addOnSuccessListener(unused -> {
+        GeoLocation postLocation = new GeoLocation(lat, lon);
 
+        FirebaseQueries firebaseQueries = FirebaseQueries.getInstance();
+
+        List<Task<QuerySnapshot>> queryAlbumTasks = firebaseQueries.GetAlbumQueryTasks(postLocation, null);
+
+        Tasks.whenAllComplete(queryAlbumTasks).addOnCompleteListener(t -> {
+            DocumentSnapshot closestAlbum = firebaseQueries.OnQueryClosestAlbum(queryAlbumTasks, postLocation);
+
+            if (closestAlbum == null)
+            {
+                Log.d(ADD_NEARBY_TAG, "No nearby album, creating a new one...");
+                Map<String, Object> albumData = new HashMap<>();
+                albumData.put(AlbumConstants.GEO_HASH, GeoFireUtils.getGeoHashForLocation(postLocation));
+                albumData.put(AlbumConstants.LAT, lat);
+                albumData.put(AlbumConstants.LON, lon);
+                albumData.put(AlbumConstants.POSTS, Collections.emptyList());
+
+                m_Firestore.collection(AlbumConstants.COLLECTION_NAME).add(albumData).addOnSuccessListener(albumRef -> {
+                    albumRef.get().addOnSuccessListener(albumDoc -> {
+                        Log.d(ADD_NEARBY_TAG, "Successfully created new album with id: " + albumDoc.getId());
+                        AddPostToAlbum(userDoc, albumDoc, postImageURI);
+                    }).addOnFailureListener(e -> {
+                        m_Listener.OnUpdateResult(false, e.toString());
+                    });
+                }).addOnFailureListener(e -> {
+                    m_Listener.OnUpdateResult(false, e.toString());
+                });
+            } else
+            {
+                Log.d(ADD_NEARBY_TAG, "Found a closest album with id: " + closestAlbum.getId());
+                AddPostToAlbum(userDoc, closestAlbum, postImageURI);
+            }
+        }).addOnFailureListener(e -> {
+            m_Listener.OnUpdateResult(false, e.toString());
+        });
+    }
+
+    private void AddPostToAlbum(DocumentSnapshot userDoc, DocumentSnapshot albumDoc, Uri postImageURI)
+    {
+        Map<String, Object> postData = new HashMap<>();
+        postData.put(PostConstants.ALBUM_ID, albumDoc.getId());
+        postData.put(PostConstants.IMAGE_URI, postImageURI.toString());
+        postData.put(PostConstants.USER, userDoc.getReference());
+
+        m_Firestore.collection(PostConstants.COLLECTION_NAME).add(postData).addOnSuccessListener(postRef -> {
+            Log.d(ADD_NEARBY_TAG, "Successfully created a new post with id: " + postRef.getId());
+            albumDoc.getReference().update(AlbumConstants.POSTS, FieldValue.arrayUnion(postRef)).addOnSuccessListener(unused -> {
+                Log.d(ADD_NEARBY_TAG, "Successfully linked album against new post");
+                m_Listener.OnUpdateResult(true, "Successfully created all data and updates");
+            }).addOnFailureListener(e -> {
+                m_Listener.OnUpdateResult(false, e.toString());
+            });
+        }).addOnFailureListener(e -> {
+            m_Listener.OnUpdateResult(false, e.toString());
         });
     }
 }

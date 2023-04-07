@@ -37,11 +37,11 @@ public class FirebaseQueries
     public QueryListener m_Listener = null;
 
     // Database
-    private final FirebaseFirestore m_FirebaseDB;
+    private final FirebaseFirestore m_Firestore;
 
     public FirebaseQueries()
     {
-        m_FirebaseDB = FirebaseFirestore.getInstance();
+        m_Firestore = FirebaseFirestore.getInstance();
     }
 
     public static FirebaseQueries getInstance()
@@ -77,7 +77,7 @@ public class FirebaseQueries
         return albumDocSnapshots;
     }
 
-    private DocumentSnapshot OnQueryClosestAlbum(List<Task<QuerySnapshot>> tasks, GeoLocation queryCenter)
+    public DocumentSnapshot OnQueryClosestAlbum(List<Task<QuerySnapshot>> tasks, GeoLocation queryCenter)
     {
         double closestDist = Double.MAX_VALUE;
         DocumentSnapshot closestAlbumDoc = null;
@@ -117,14 +117,14 @@ public class FirebaseQueries
         return postDocSnapshots;
     }
 
-    private List<Task<QuerySnapshot>> GetAlbumQueryTasks(GeoLocation queryCenter, List<String> ignoreAlbums)
+    public List<Task<QuerySnapshot>> GetAlbumQueryTasks(GeoLocation queryCenter, List<String> ignoreAlbums)
     {
         List<Task<QuerySnapshot>> tasks = new ArrayList<>();
 
         List<GeoQueryBounds> queryBounds = GeoFireUtils.getGeoHashQueryBounds(queryCenter, QueryConstants.MAX_QUERY_RADIUS);
         for (GeoQueryBounds bound : queryBounds)
         {
-            Query query = m_FirebaseDB.collection(AlbumConstants.COLLECTION_NAME);
+            Query query = m_Firestore.collection(AlbumConstants.COLLECTION_NAME);
             if (ignoreAlbums != null && !ignoreAlbums.isEmpty())
             {
                 Log.d(QUERY_NEARBY_TAG, "Ignore albums: " + ignoreAlbums.toString());
