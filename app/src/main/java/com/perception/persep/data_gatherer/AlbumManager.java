@@ -17,7 +17,7 @@ import com.perception.persep.firebase_helpers.FirebaseUpdates;
 import java.util.ArrayList;
 import java.util.List;
 
-public class AlbumManager implements Runnable, FirebaseQueries.QueryListener, FirebaseUpdates.UpdatesListener
+public class AlbumManager implements Runnable, FirebaseQueries.QueryListener, FirebaseUpdates.UpdatesListener, GPSSensor.Listener
 {
     private static final String TAG = "AlbumManager";
 
@@ -33,8 +33,9 @@ public class AlbumManager implements Runnable, FirebaseQueries.QueryListener, Fi
     private final FirebaseUpdates m_FirebaseUpdates;
     private boolean m_IsQueryInProgress = false;
 
-    private final double m_QueryLat = -33.92447747349893;
-    private final double m_QueryLon = 151.2338687296112;
+    private double m_QueryLat = 0.0;
+    private double m_QueryLon = 0.0;
+    private boolean m_IsLocationInit = false;
 
     private final long UPDATE_LOOP_INTERVAL = 5000; //update and notify every 5 secs
     Handler m_Handler;
@@ -55,12 +56,20 @@ public class AlbumManager implements Runnable, FirebaseQueries.QueryListener, Fi
     {
         m_Handler.postDelayed(this, UPDATE_LOOP_INTERVAL);
 
-        if (!m_IsQueryInProgress && m_Listener != null)
+        if (m_IsLocationInit && !m_IsQueryInProgress && m_Listener != null)
         {
             List<String> ignoreAlbums = GetAlbumsToIgnore();
             m_FirebaseQueries.QueryNearbyAlbums(m_QueryLat, m_QueryLon, ignoreAlbums);
             m_IsQueryInProgress = true;
         }
+    }
+
+    @Override
+    public void onLocationChanged(double lat, double lon)
+    {
+        m_QueryLat = lat;
+        m_QueryLon = lon;
+        m_IsLocationInit = true;
     }
 
     public void onPause()
@@ -92,7 +101,8 @@ public class AlbumManager implements Runnable, FirebaseQueries.QueryListener, Fi
     @Override
     public void OnUpdateResult(boolean successful, String message)
     {
-        if (successful) {
+        if (successful)
+        {
             Toast.makeText(m_Context, "Successfully created your post! Restart your app", Toast.LENGTH_LONG).show();
         }
     }
@@ -126,6 +136,7 @@ public class AlbumManager implements Runnable, FirebaseQueries.QueryListener, Fi
     private void RemoveInvalidAlbums()
     {
         GeoLocation queryLocation = new GeoLocation(m_QueryLat, m_QueryLon);
+        ArrayList<Integer> albumIdxToRemove = new ArrayList<>();
         for (int i = 0; i < m_Albums.size(); i++)
         {
             Album album = m_Albums.get(i);
@@ -135,8 +146,13 @@ public class AlbumManager implements Runnable, FirebaseQueries.QueryListener, Fi
             if (distanceInM >= QueryConstants.MAX_QUERY_RADIUS)
             {
                 Log.d(TAG, "Remove album with ID: " + album.m_AlbumID);
-                m_Albums.remove(i);
+                albumIdxToRemove.add(i);
             }
+        }
+
+        for (Integer albumToRemove : albumIdxToRemove)
+        {
+            m_Albums.remove(albumToRemove);
         }
     }
 }

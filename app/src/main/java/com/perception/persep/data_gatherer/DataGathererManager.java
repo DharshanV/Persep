@@ -54,6 +54,6 @@ public class DataGathererManager
 
     public void AddAlbumListener(AlbumManager.Listener listener)
     {
-//        m_AlbumManger.AddListener(listener);
+        m_AlbumManger.AddListener(listener);
     }
 }

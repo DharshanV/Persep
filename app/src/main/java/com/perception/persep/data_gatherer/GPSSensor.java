@@ -17,6 +17,8 @@ import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
 
+import java.util.ArrayList;
+
 public class GPSSensor
 {
     private static final String TAG = "GPSSensor";
@@ -26,7 +28,7 @@ public class GPSSensor
         void onLocationChanged(double lat, double lon);
     }
 
-    private Listener m_Listener;
+    private final ArrayList<Listener> m_Listeners = new ArrayList<>();
 
     boolean m_IsLocationServiceEnabled = false;
     private FusedLocationProviderClient m_FusedLocationProvider = null;
@@ -66,11 +68,14 @@ public class GPSSensor
                     @Override
                     public void onLocationResult(@NonNull LocationResult locationResult)
                     {
-                        if (m_Listener != null)
+                        if (!m_Listeners.isEmpty())
                         {
                             Location location = locationResult.getLastLocation();
                             UpdateBestLocation(location);
-                            m_Listener.onLocationChanged(m_BestLocation.getLatitude(), m_BestLocation.getLongitude());
+                            for (Listener listener : m_Listeners)
+                            {
+                                listener.onLocationChanged(m_BestLocation.getLatitude(), m_BestLocation.getLongitude());
+                            }
                         }
                     }
                 };
@@ -118,7 +123,7 @@ public class GPSSensor
     @SuppressLint("MissingPermission")
     public void AddListener(GPSSensor.Listener listener)
     {
-        m_Listener = listener;
+        m_Listeners.add(listener);
 
         if (m_FusedLocationProvider != null)
         {
@@ -127,7 +132,10 @@ public class GPSSensor
                 if (location != null)
                 {
                     UpdateBestLocation(location);
-                    m_Listener.onLocationChanged(m_BestLocation.getLatitude(), m_BestLocation.getLongitude());
+                    for (Listener listener1 : m_Listeners)
+                    {
+                        listener1.onLocationChanged(m_BestLocation.getLatitude(), m_BestLocation.getLongitude());
+                    }
                 }
             });
         }
