@@ -1,11 +1,19 @@
 package com.perception.persep.fragments;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.persep.R;
 
@@ -16,6 +24,7 @@ import com.example.persep.R;
  */
 public class Home_Fragment_1 extends Fragment
 {
+    private static final String TAG = "Home_Fragment_1";
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -25,6 +34,8 @@ public class Home_Fragment_1 extends Fragment
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
+
+    private RecyclerView recyclerView;
 
     public Home_Fragment_1()
     {
@@ -66,5 +77,52 @@ public class Home_Fragment_1 extends Fragment
                              Bundle savedInstanceState)
     {
         return inflater.inflate(R.layout.fragment_home__1, container, false);
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState)
+    {
+        recyclerView = view.findViewById(R.id.recycleView);
+        recyclerView.setHasFixedSize(true);
+        recyclerView.setLayoutManager(new LinearLayoutManager(view.getContext()));
+        recyclerView.setAdapter(new RandomNumListAdapter(1234));
+
+//        recyclerView.addOnItemTouchListener(new RecyclerView.OnItemTouchListener() {
+//            int lastX = 0;
+//            @Override
+//            public boolean onInterceptTouchEvent(@NonNull RecyclerView rv, @NonNull MotionEvent e) {
+//                switch (e.getAction()) {
+//                    case MotionEvent.ACTION_DOWN:
+//                        lastX = (int) e.getX();
+//                        break;
+//                    case MotionEvent.ACTION_MOVE:
+//                        boolean isScrollingRight = e.getX() < lastX;
+//                        if (isScrollingRight) {
+////                            viewPager.setUserInputEnabled(true);
+//                            Log.d(TAG, "ViewPager: True");
+//                        } else {
+////                            viewPager.setUserInputEnabled(false);
+//                            Log.d(TAG, "ViewPager: false");
+//                        }
+//                        break;
+//                    case MotionEvent.ACTION_UP:
+//                        lastX = 0;
+//                        Log.d(TAG, "ViewPager: True");
+////                        viewPager.setUserInputEnabled(true);
+//                        break;
+//                }
+//                return false;
+//            }
+//
+//            @Override
+//            public void onTouchEvent(@NonNull RecyclerView rv, @NonNull MotionEvent e) {
+//            }
+//
+//            @Override
+//            public void onRequestDisallowInterceptTouchEvent(boolean disallowIntercept) {
+//
+//            }
+//        });
+        super.onViewCreated(view, savedInstanceState);
     }
 }
