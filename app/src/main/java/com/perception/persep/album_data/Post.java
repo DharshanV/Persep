@@ -4,6 +4,7 @@ import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.util.Log;
+import android.widget.ImageView;
 
 import com.perception.persep.constants.PostConstants;
 import com.squareup.picasso.Picasso;
@@ -41,14 +42,22 @@ public class Post implements Target
         m_PostID = postID;
     }
 
-    public Post(String postID, Map<String, Object> data)
+    public Post(String postID, Map<String, Object> data, boolean loadNow)
     {
         m_PostID = postID;
         m_AlbumID = (String) data.get(PostConstants.ALBUM_ID);
         m_ImageURI = (String) data.get(PostConstants.IMAGE_URI);
 
-        Log.d(PostLoadImage, "Loading image: " + m_ImageURI);
-        Picasso.get().load(m_ImageURI).resize(PostConstants.IMAGE_WIDTH, PostConstants.IMAGE_HEIGHT).noFade().into(this);
+        if (loadNow) {
+            Log.d(PostLoadImage, "Loading image to post: " + m_ImageURI);
+            Picasso.get().load(m_ImageURI).resize(PostConstants.IMAGE_WIDTH, PostConstants.IMAGE_HEIGHT).noFade().into(this);
+        }
+    }
+
+    public void loadNow(ImageView imageView)
+    {
+        Log.d(PostLoadImage, "Loading image to imageview: " + m_ImageURI);
+        Picasso.get().load(m_ImageURI).resize(PostConstants.IMAGE_WIDTH, PostConstants.IMAGE_HEIGHT).into(imageView);
     }
 
     public Map<String, Object> getMap()

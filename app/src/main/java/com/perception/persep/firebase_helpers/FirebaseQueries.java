@@ -8,6 +8,7 @@ import com.firebase.geofire.GeoLocation;
 import com.firebase.geofire.GeoQueryBounds;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
@@ -20,6 +21,7 @@ import com.perception.persep.album_data.Post;
 import com.perception.persep.constants.AlbumConstants;
 import com.perception.persep.constants.PostConstants;
 import com.perception.persep.constants.QueryConstants;
+import com.perception.persep.constants.UserConstants;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -186,7 +188,7 @@ public class FirebaseQueries
             assert albumPostDocs != null;
             for (DocumentSnapshot postDoc : albumPostDocs)
             {
-                album.AddPost(new Post(postDoc.getId(), postDoc.getData()));
+                album.AddPost(new Post(postDoc.getId(), postDoc.getData(), true));
             }
             albums.add(album);
         }
@@ -233,9 +235,33 @@ public class FirebaseQueries
         });
     }
 
-    public void QueryUserPosts(UserPostsQueryListener listener)
+    public void QueryUserPosts(FirebaseUser user, UserPostsQueryListener listener)
     {
+        m_Firestore.collection(UserConstants.COLLECTION_NAME).document(user.getUid()).get().addOnSuccessListener(userDoc -> {
+            List<DocumentReference> userDocPostRefs = (List<DocumentReference>) userDoc.get(UserConstants.POSTS);
 
+            if (userDocPostRefs == null || userDocPostRefs.isEmpty()) return;
+
+            List<Task<DocumentSnapshot>> postQueryTasks = new ArrayList<>(userDocPostRefs.size());
+            for (DocumentReference postRef : userDocPostRefs)
+            {
+                postQueryTasks.add(postRef.get());
+            }
+
+            Tasks.whenAllSuccess(postQueryTasks).addOnSuccessListener(postsResult -> {
+                List<Post> userPosts = new ArrayList<>(postsResult.size());
+                for (Object postObj : postsResult)
+                {
+                    DocumentSnapshot postDoc = (DocumentSnapshot) postObj;
+                    userPosts.add(new Post(postDoc.getId(), postDoc.getData(), false));
+                }
+                listener.OnQueryResult(true, "Success", userPosts);
+            }).addOnFailureListener(e -> {
+                listener.OnQueryResult(false, "Failed", null);
+            });
+        }).addOnFailureListener(e -> {
+            listener.OnQueryResult(false, "Failed", null);
+        });
     }
 
     private void PrintData(List<DocumentSnapshot> albumDocs, List<DocumentSnapshot> postDocs)
