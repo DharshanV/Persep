@@ -7,14 +7,14 @@ import androidx.lifecycle.Lifecycle;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 import androidx.viewpager2.widget.ViewPager2;
 
-import com.perception.persep.fragments.Home_Fragment_1;
+import com.perception.persep.fragments.UserFeed_Fragment;
 import com.perception.persep.fragments.VR_Fragment;
 
 import java.util.HashMap;
 
 public class SlidePagerAdapter extends FragmentStateAdapter
 {
-    public static final int HOME_FRAGMENT_1 = 0;
+    public static final int USERFEED_FRAGMENT_1 = 0;
     public static final int VR_FRAGMENT_INDEX = 1;
     public static final int MIDDLE_PAGE_INDEX = 1;
     public static final int NUM_PAGES = 2;
@@ -36,7 +36,7 @@ public class SlidePagerAdapter extends FragmentStateAdapter
         switch (position)
         {
             case 0:
-                fragment = new Home_Fragment_1();
+                fragment = new UserFeed_Fragment();
                 break;
             case 1:
                 fragment = new VR_Fragment(m_ViewPager);

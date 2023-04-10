@@ -3,15 +3,12 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.perception.persep.fragments.Home_Fragment_3">
+    tools:context="com.perception.persep.fragments.UserFeed_Fragment">
 
-    <TextView
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recycleView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:gravity="center"
-        android:background="@color/purple_200"
-        android:textColor="@color/white"
-        android:textSize="32sp"
-        android:text="Fragment 3" />
+        android:nestedScrollingEnabled="false"/>
 
 </FrameLayout>

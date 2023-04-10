@@ -20,7 +20,7 @@ public class RandomNumListAdapter extends RecyclerView.Adapter<RecyclerViewHolde
 
     @Override
     public int getItemViewType(final int position) {
-        return R.layout.temp;
+        return R.layout.userfeed_view_holder;
     }
 
     @NonNull
