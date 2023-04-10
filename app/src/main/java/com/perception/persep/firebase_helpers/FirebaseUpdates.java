@@ -17,6 +17,7 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.perception.persep.constants.AlbumConstants;
 import com.perception.persep.constants.PostConstants;
+import com.perception.persep.constants.QueryConstants;
 import com.perception.persep.constants.UserConstants;
 
 import java.util.Collections;
@@ -86,10 +87,10 @@ public class FirebaseUpdates
 
         FirebaseQueries firebaseQueries = FirebaseQueries.getInstance();
 
-        List<Task<QuerySnapshot>> queryAlbumTasks = firebaseQueries.GetAlbumQueryTasks(postLocation, null);
+        List<Task<QuerySnapshot>> queryAlbumTasks = firebaseQueries.GetAlbumQueryTasks(postLocation, null, QueryConstants.MAX_ADD_POST_RADIUS);
 
         Tasks.whenAllComplete(queryAlbumTasks).addOnCompleteListener(t -> {
-            DocumentSnapshot closestAlbum = firebaseQueries.OnQueryClosestAlbum(queryAlbumTasks, postLocation);
+            DocumentSnapshot closestAlbum = firebaseQueries.OnQueryClosestAlbum(queryAlbumTasks, postLocation, QueryConstants.MAX_ADD_POST_RADIUS);
 
             if (closestAlbum == null)
             {
