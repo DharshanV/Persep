@@ -1,5 +1,6 @@
 package com.perception.persep.fragments;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -7,7 +8,9 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.GestureDetector;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
@@ -17,6 +20,7 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
+import androidx.viewpager2.widget.ViewPager2;
 
 import com.example.persep.R;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -43,6 +47,15 @@ public class VR_Fragment extends Fragment
 
     // widgets
     private FloatingActionButton m_TakePhotoButton = null;
+
+    GestureDetector m_GestureDetector;
+    ViewPager2 m_ViewPager;
+    private boolean m_EnableViewPager = true;
+
+    public VR_Fragment(ViewPager2 viewPager)
+    {
+        m_ViewPager = viewPager;
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState)
@@ -167,11 +180,16 @@ public class VR_Fragment extends Fragment
         if (m_DataGathererManager != null) m_DataGathererManager.onResume();
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
     {
         View view = inflater.inflate(R.layout.vr_fragment, container, false);
         m_VRLayout = view.findViewById(R.id.vr_root_layout);
+
+        m_GestureDetector = new GestureDetector(getActivity(), new MyGestureListener());
+        m_VRLayout.setOnTouchListener((v, event) -> m_GestureDetector.onTouchEvent(event));
+
         InitWidgets(view);
         TryInitializeFragment();
         return view;
@@ -231,5 +249,37 @@ public class VR_Fragment extends Fragment
         {
             throw new RuntimeException("Unable to get manifest permission", e);
         }
+    }
+
+    class MyGestureListener extends GestureDetector.SimpleOnGestureListener
+    {
+        @Override
+        public boolean onDown(MotionEvent event) {
+//            Log.d(TAG,"onDown: ");
+            return true;
+        }
+
+        @Override
+        public boolean onDoubleTap(MotionEvent e)
+        {
+            Log.d(TAG, "onDoubleTap: ");
+            m_EnableViewPager = !m_EnableViewPager;
+            m_ViewPager.setUserInputEnabled(m_EnableViewPager);
+            return true;
+        }
+//
+//        @Override
+//        public boolean onScroll(MotionEvent e1, MotionEvent e2,
+//                                float distanceX, float distanceY) {
+//            Log.d(TAG, "onScroll: ");
+//            return true;
+//        }
+//
+//        @Override
+//        public boolean onFling(MotionEvent event1, MotionEvent event2,
+//                               float velocityX, float velocityY) {
+//            Log.d(TAG, "onFling: ");
+//            return true;
+//        }
     }
 }
