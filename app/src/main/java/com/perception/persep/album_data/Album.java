@@ -15,7 +15,7 @@ import java.util.TimerTask;
 
 public class Album implements Parcelable
 {
-    private final List<Post> m_Posts = new ArrayList<>();
+    public final List<Post> m_Posts = new ArrayList<>();
 
     public String m_AlbumID;
     public String m_GeoHash;

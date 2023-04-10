@@ -10,40 +10,32 @@ import androidx.annotation.Nullable;
 
 import com.firebase.geofire.GeoFireUtils;
 import com.firebase.geofire.GeoLocation;
+import com.google.android.gms.tasks.Task;
+import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentChange;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.perception.persep.album_data.Album;
+import com.perception.persep.album_data.Post;
+import com.perception.persep.constants.AlbumConstants;
 import com.perception.persep.constants.QueryConstants;
 import com.perception.persep.firebase_helpers.FirebaseQueries;
 import com.perception.persep.firebase_helpers.FirebaseUpdates;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class AlbumManager implements Runnable, FirebaseQueries.QueryListener, FirebaseUpdates.UpdatesListener, GPSSensor.Listener, EventListener<QuerySnapshot>
 {
     private static final String TAG = "AlbumManager";
-
-    @Override
-    public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error)
-    {
-        if (value == null || error != null) {
-            Log.d(TAG, "Album listener error!");
-            return;
-        }
-
-        for (DocumentChange dc : value.getDocumentChanges()) {
-            switch (dc.getType()) {
-                case ADDED:
-                case REMOVED:
-                case MODIFIED:
-                    break;
-            }
-        }
-    }
 
     public interface Listener
     {
@@ -52,7 +44,12 @@ public class AlbumManager implements Runnable, FirebaseQueries.QueryListener, Fi
 
     private final Context m_Context;
     private Listener m_Listener = null;
+
+    ReadWriteLock readWriteLock = new ReentrantReadWriteLock();
+    Lock m_AlbumWriteLock = readWriteLock.writeLock();
+    Lock m_AlbumReadLock = readWriteLock.readLock();
     private final List<Album> m_Albums;
+
     private final FirebaseQueries m_FirebaseQueries;
     private final FirebaseUpdates m_FirebaseUpdates;
     private boolean m_IsQueryInProgress = false;
@@ -99,13 +96,13 @@ public class AlbumManager implements Runnable, FirebaseQueries.QueryListener, Fi
     public void onPause()
     {
         m_Handler.removeCallbacks(this);
-//        FirebaseQueries.getInstance().RemoveAlbumListener();
+        FirebaseQueries.getInstance().RemoveAlbumListener();
     }
 
     public void onResume()
     {
         m_Handler.postDelayed(this, UPDATE_LOOP_INTERVAL);
-//        FirebaseQueries.getInstance().AddAlbumListener(this);
+        FirebaseQueries.getInstance().AddAlbumListener(this);
     }
 
     public void AddListener(Listener listener)
@@ -140,12 +137,81 @@ public class AlbumManager implements Runnable, FirebaseQueries.QueryListener, Fi
 
     private void UpdateAlbums(List<Album> albums)
     {
+        m_AlbumWriteLock.lock();
         RemoveInvalidAlbums();
         m_Albums.addAll(albums);
+        m_AlbumWriteLock.unlock();
 
         if (m_Listener != null)
         {
+            m_AlbumReadLock.lock();
             m_Listener.onAlbumUpdate(m_Albums);
+            m_AlbumReadLock.unlock();
+        }
+    }
+
+    private void UpdateAlbumModify(Album album, QueryDocumentSnapshot albumDoc)
+    {
+        List<DocumentReference> albumDocPostRefs = (List<DocumentReference>) albumDoc.get(AlbumConstants.POSTS);
+        List<Task<DocumentSnapshot>> postQueryTasks = new ArrayList<>(albumDocPostRefs.size());
+        for (DocumentReference postRef : albumDocPostRefs)
+        {
+            postQueryTasks.add(postRef.get());
+        }
+
+        Tasks.whenAllSuccess(postQueryTasks).addOnSuccessListener(postsResult -> {
+            for (Object postObj : postsResult)
+            {
+                DocumentSnapshot postDoc = (DocumentSnapshot) postObj;
+                if (postDoc == null || album == null) continue;
+
+                boolean albumContainsPost = false;
+                for (Post post : album.m_Posts)
+                {
+                    if (post.m_PostID.equals(postDoc.getId()))
+                    {
+                        albumContainsPost = true;
+                        break;
+                    }
+                }
+
+                if (!albumContainsPost)
+                {
+                    album.AddPost(new Post(postDoc.getId(), postDoc.getData()));
+                }
+            }
+        });
+    }
+
+    @Override
+    public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error)
+    {
+        if (value == null || error != null)
+        {
+            Log.d(TAG, "Album listener error!");
+            return;
+        }
+
+        for (DocumentChange dc : value.getDocumentChanges())
+        {
+            switch (dc.getType())
+            {
+                case ADDED:
+                case REMOVED:
+                    return;
+                case MODIFIED:
+                    m_AlbumReadLock.lock();
+                    for (Album album : m_Albums)
+                    {
+                        QueryDocumentSnapshot albumDoc = dc.getDocument();
+                        if (album.m_AlbumID.equals(albumDoc.getId()))
+                        {
+                            UpdateAlbumModify(album, albumDoc);
+                        }
+                    }
+                    m_AlbumReadLock.unlock();
+                    return;
+            }
         }
     }
 
