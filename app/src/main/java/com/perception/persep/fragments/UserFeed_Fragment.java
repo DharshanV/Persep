@@ -12,12 +12,13 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.persep.R;
+import com.perception.persep.adapters.UserFeedAdapter;
 
 public class UserFeed_Fragment extends Fragment
 {
     private static final String TAG = "UserFeed_Fragment";
 
-    private RecyclerView recyclerView;
+    private RecyclerView m_UserFeedRecycleView;
 
     public UserFeed_Fragment()
     {
@@ -33,9 +34,9 @@ public class UserFeed_Fragment extends Fragment
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState)
     {
-        recyclerView = view.findViewById(R.id.recycleView);
-        recyclerView.setLayoutManager(new LinearLayoutManager(view.getContext()));
-        recyclerView.setAdapter(new RandomNumListAdapter(1234));
+        m_UserFeedRecycleView = view.findViewById(R.id.user_feed_recycle_view);
+        m_UserFeedRecycleView.setLayoutManager(new LinearLayoutManager(view.getContext()));
+        m_UserFeedRecycleView.setAdapter(new UserFeedAdapter());
         super.onViewCreated(view, savedInstanceState);
     }
 }
