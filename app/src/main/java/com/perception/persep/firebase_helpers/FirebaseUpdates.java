@@ -124,6 +124,7 @@ public class FirebaseUpdates
             }).addOnFailureListener(e -> {
                 m_Listener.OnUpdateResult(false, e.toString());
             });
+            userDoc.getReference().update(UserConstants.POSTS, FieldValue.arrayUnion(postRef));
         }).addOnFailureListener(e -> {
             m_Listener.OnUpdateResult(false, e.toString());
         });
@@ -147,6 +148,7 @@ public class FirebaseUpdates
             }).addOnFailureListener(e -> {
                 m_Listener.OnUpdateResult(false, e.toString());
             });
+            userDoc.getReference().update(UserConstants.POSTS, FieldValue.arrayUnion(postRef));
         }).addOnFailureListener(e -> {
             m_Listener.OnUpdateResult(false, e.toString());
         });

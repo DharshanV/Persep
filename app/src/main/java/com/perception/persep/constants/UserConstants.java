@@ -6,4 +6,5 @@ public class UserConstants
     public static final String EMAIL = "email";
     public static final String USER_ID = "user_id";
     public static final String USERNAME = "username";
+    public static final String POSTS = "posts";
 }
