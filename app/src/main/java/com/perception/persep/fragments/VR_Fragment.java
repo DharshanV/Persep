@@ -122,18 +122,18 @@ public class VR_Fragment extends Fragment
             return;
         }
 
-//        m_CameraView = new CameraView(getActivity());
-//        m_VRLayout.addView(m_CameraView);
-//
-//        m_RenderView = new RenderView(getActivity());
-//        m_VRLayout.addView(m_RenderView);
-//        m_RenderView.setOpaque(false);
-//
-//        m_DataGathererManager = new DataGathererManager(getActivity());
-//        m_DataGathererManager.AddGyroscopeListener(m_RenderView);
-//        m_DataGathererManager.AddGPSListener(m_RenderView);
-//        m_DataGathererManager.AddGPSListener(m_DataGathererManager.m_AlbumManger);
-//        m_DataGathererManager.AddAlbumListener(m_RenderView);
+        m_CameraView = new CameraView(getActivity());
+        m_VRLayout.addView(m_CameraView);
+
+        m_RenderView = new RenderView(getActivity());
+        m_VRLayout.addView(m_RenderView);
+        m_RenderView.setOpaque(false);
+
+        m_DataGathererManager = new DataGathererManager(getActivity());
+        m_DataGathererManager.AddGyroscopeListener(m_RenderView);
+        m_DataGathererManager.AddGPSListener(m_RenderView);
+        m_DataGathererManager.AddGPSListener(m_DataGathererManager.m_AlbumManger);
+        m_DataGathererManager.AddAlbumListener(m_RenderView);
     }
 
     @Override

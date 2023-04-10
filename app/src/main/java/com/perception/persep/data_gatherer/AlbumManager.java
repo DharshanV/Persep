@@ -171,7 +171,7 @@ public class AlbumManager implements Runnable, FirebaseQueries.AlbumQueryListene
 
                 if (!albumContainsPost)
                 {
-                    album.AddPost(new Post(postDoc.getId(), postDoc.getData()));
+                    album.AddPost(new Post(postDoc.getId(), postDoc.getData(), true));
                 }
             }
         });
