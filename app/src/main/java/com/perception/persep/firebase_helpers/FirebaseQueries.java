@@ -32,12 +32,12 @@ public class FirebaseQueries
 
     private static FirebaseQueries m_Instance = null;
 
-    public interface QueryListener
+    public interface AlbumQueryListener
     {
         void OnQueryResult(boolean successful, String message, List<Album> albums);
     }
 
-    public QueryListener m_Listener = null;
+    public AlbumQueryListener m_AlbumQueryListener = null;
 
     // Database
     private final FirebaseFirestore m_Firestore;
@@ -193,7 +193,7 @@ public class FirebaseQueries
 
     public void QueryNearbyAlbums(double lat, double lon, List<String> ignoreAlbums)
     {
-        if (m_Listener == null)
+        if (m_AlbumQueryListener == null)
         {
             return;
         }
@@ -208,7 +208,7 @@ public class FirebaseQueries
             if (albumDocs.isEmpty())
             {
                 Log.d(QUERY_NEARBY_TAG, "Early exiting, no nearby albums found...");
-                m_Listener.OnQueryResult(true, "", Collections.emptyList());
+                m_AlbumQueryListener.OnQueryResult(true, "", Collections.emptyList());
                 return;
             }
 
@@ -217,16 +217,16 @@ public class FirebaseQueries
                 List<DocumentSnapshot> postDocs = OnQueryPosts(postsResult);
 
                 List<Album> albumData = GetConvertedData(albumDocs, postDocs);
-                m_Listener.OnQueryResult(true, "", albumData);
+                m_AlbumQueryListener.OnQueryResult(true, "", albumData);
 //                PrintData(albumDocs, postDocs);
 //                m_Listener.OnQueryResult(false, "", null);
             }).addOnFailureListener(e ->
             {
-                m_Listener.OnQueryResult(false, "Query posts failed", null);
+                m_AlbumQueryListener.OnQueryResult(false, "Query posts failed", null);
             });
         }).addOnFailureListener(e ->
         {
-            m_Listener.OnQueryResult(false, "Query albums failed", null);
+            m_AlbumQueryListener.OnQueryResult(false, "Query albums failed", null);
         });
     }
 

@@ -33,7 +33,7 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-public class AlbumManager implements Runnable, FirebaseQueries.QueryListener, FirebaseUpdates.UpdatesListener, GPSSensor.Listener, EventListener<QuerySnapshot>
+public class AlbumManager implements Runnable, FirebaseQueries.AlbumQueryListener, FirebaseUpdates.UpdatesListener, GPSSensor.Listener, EventListener<QuerySnapshot>
 {
     private static final String TAG = "AlbumManager";
 
@@ -67,7 +67,7 @@ public class AlbumManager implements Runnable, FirebaseQueries.QueryListener, Fi
         m_Handler = new Handler();
         m_FirebaseQueries = FirebaseQueries.getInstance();
         m_FirebaseUpdates = FirebaseUpdates.getInstance();
-        m_FirebaseQueries.m_Listener = this;
+        m_FirebaseQueries.m_AlbumQueryListener = this;
         m_FirebaseUpdates.m_Listener = this;
         m_Albums = new ArrayList<>();
     }
