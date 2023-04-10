@@ -37,8 +37,6 @@ public class FirebaseUpdates
         void OnUpdateResult(boolean successful, String message);
     }
 
-    public FirebaseUpdates.UpdatesListener m_Listener = null;
-
     private final FirebaseFirestore m_Firestore;
     private final StorageReference m_FireStoreRef;
 
@@ -54,7 +52,7 @@ public class FirebaseUpdates
         return m_Instance;
     }
 
-    public void AddPost(FirebaseUser user, Uri postImageURI, double lat, double lon)
+    public void AddPost(FirebaseUser user, Uri postImageURI, double lat, double lon, UpdatesListener listener)
     {
         Log.d(ADD_NEARBY_TAG, "===== AddPost =====");
 
@@ -68,20 +66,20 @@ public class FirebaseUpdates
                 postImageFirestoreRef.getDownloadUrl().addOnSuccessListener(uri -> {
                     // Create a Post album with the appropriate data
                     Log.d(ADD_NEARBY_TAG, "Successfully uploaded image: " + uri.toString());
-                    TryAddPostToClosestAlbum(userDoc, uri, lat, lon);
+                    TryAddPostToClosestAlbum(userDoc, uri, lat, lon, listener);
                 }).addOnFailureListener(e -> {
-                    m_Listener.OnUpdateResult(false, e.toString());
+                    listener.OnUpdateResult(false, e.toString());
                 });
             }).addOnFailureListener(e -> {
-                m_Listener.OnUpdateResult(false, e.toString());
+                listener.OnUpdateResult(false, e.toString());
             });
 
         }).addOnFailureListener(e -> {
-            m_Listener.OnUpdateResult(false, e.toString());
+            listener.OnUpdateResult(false, e.toString());
         });
     }
 
-    private void TryAddPostToClosestAlbum(DocumentSnapshot userDoc, Uri postImageURI, double lat, double lon)
+    private void TryAddPostToClosestAlbum(DocumentSnapshot userDoc, Uri postImageURI, double lat, double lon, UpdatesListener listener)
     {
         GeoLocation postLocation = new GeoLocation(lat, lon);
 
@@ -99,18 +97,18 @@ public class FirebaseUpdates
                 albumData.put(AlbumConstants.GEO_HASH, GeoFireUtils.getGeoHashForLocation(postLocation));
                 albumData.put(AlbumConstants.LAT, lat);
                 albumData.put(AlbumConstants.LON, lon);
-                AddPostToNewAlbum(userDoc, albumData, postImageURI);
+                AddPostToNewAlbum(userDoc, albumData, postImageURI, listener);
             } else
             {
                 Log.d(ADD_NEARBY_TAG, "Found a closest album with id: " + closestAlbum.getId());
-                AddPostToAlbum(userDoc, closestAlbum, postImageURI);
+                AddPostToAlbum(userDoc, closestAlbum, postImageURI, listener);
             }
         }).addOnFailureListener(e -> {
-            m_Listener.OnUpdateResult(false, e.toString());
+            listener.OnUpdateResult(false, e.toString());
         });
     }
 
-    private void AddPostToAlbum(DocumentSnapshot userDoc, DocumentSnapshot albumDoc, Uri postImageURI)
+    private void AddPostToAlbum(DocumentSnapshot userDoc, DocumentSnapshot albumDoc, Uri postImageURI, UpdatesListener listener)
     {
         Map<String, Object> postData = new HashMap<>();
         postData.put(PostConstants.ALBUM_ID, albumDoc.getId());
@@ -121,17 +119,17 @@ public class FirebaseUpdates
             Log.d(ADD_NEARBY_TAG, "Successfully created a new post with id: " + postRef.getId());
             albumDoc.getReference().update(AlbumConstants.POSTS, FieldValue.arrayUnion(postRef)).addOnSuccessListener(unused -> {
                 Log.d(ADD_NEARBY_TAG, "Successfully linked album against new post");
-                m_Listener.OnUpdateResult(true, "Successfully created all data and updates");
+                listener.OnUpdateResult(true, "Successfully created all data and updates");
             }).addOnFailureListener(e -> {
-                m_Listener.OnUpdateResult(false, e.toString());
+                listener.OnUpdateResult(false, e.toString());
             });
             userDoc.getReference().update(UserConstants.POSTS, FieldValue.arrayUnion(postRef));
         }).addOnFailureListener(e -> {
-            m_Listener.OnUpdateResult(false, e.toString());
+            listener.OnUpdateResult(false, e.toString());
         });
     }
 
-    private void AddPostToNewAlbum(DocumentSnapshot userDoc, Map<String, Object> albumData , Uri postImageURI)
+    private void AddPostToNewAlbum(DocumentSnapshot userDoc, Map<String, Object> albumData , Uri postImageURI, UpdatesListener listener)
     {
         DocumentReference albumRef = m_Firestore.collection(AlbumConstants.COLLECTION_NAME).document();
 
@@ -145,13 +143,13 @@ public class FirebaseUpdates
             albumData.put(AlbumConstants.POSTS, FieldValue.arrayUnion(postRef));
             albumRef.set(albumData).addOnSuccessListener(unused -> {
                 Log.d(ADD_NEARBY_TAG, "Successfully created new album with id: " + albumRef.getId());
-                m_Listener.OnUpdateResult(true, "Successfully created all data and updates");
+                listener.OnUpdateResult(true, "Successfully created all data and updates");
             }).addOnFailureListener(e -> {
-                m_Listener.OnUpdateResult(false, e.toString());
+                listener.OnUpdateResult(false, e.toString());
             });
             userDoc.getReference().update(UserConstants.POSTS, FieldValue.arrayUnion(postRef));
         }).addOnFailureListener(e -> {
-            m_Listener.OnUpdateResult(false, e.toString());
+            listener.OnUpdateResult(false, e.toString());
         });
     }
 }

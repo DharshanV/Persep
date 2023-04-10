@@ -37,7 +37,10 @@ public class FirebaseQueries
         void OnQueryResult(boolean successful, String message, List<Album> albums);
     }
 
-    public AlbumQueryListener m_AlbumQueryListener = null;
+    public interface UserPostsQueryListener
+    {
+        void OnQueryResult(boolean successful, String message, List<Post> posts);
+    }
 
     // Database
     private final FirebaseFirestore m_Firestore;
@@ -191,9 +194,9 @@ public class FirebaseQueries
         return albums;
     }
 
-    public void QueryNearbyAlbums(double lat, double lon, List<String> ignoreAlbums)
+    public void QueryNearbyAlbums(double lat, double lon, List<String> ignoreAlbums, AlbumQueryListener listener)
     {
-        if (m_AlbumQueryListener == null)
+        if (listener == null)
         {
             return;
         }
@@ -208,7 +211,7 @@ public class FirebaseQueries
             if (albumDocs.isEmpty())
             {
                 Log.d(QUERY_NEARBY_TAG, "Early exiting, no nearby albums found...");
-                m_AlbumQueryListener.OnQueryResult(true, "", Collections.emptyList());
+                listener.OnQueryResult(true, "", Collections.emptyList());
                 return;
             }
 
@@ -217,17 +220,22 @@ public class FirebaseQueries
                 List<DocumentSnapshot> postDocs = OnQueryPosts(postsResult);
 
                 List<Album> albumData = GetConvertedData(albumDocs, postDocs);
-                m_AlbumQueryListener.OnQueryResult(true, "", albumData);
+                listener.OnQueryResult(true, "", albumData);
 //                PrintData(albumDocs, postDocs);
 //                m_Listener.OnQueryResult(false, "", null);
             }).addOnFailureListener(e ->
             {
-                m_AlbumQueryListener.OnQueryResult(false, "Query posts failed", null);
+                listener.OnQueryResult(false, "Query posts failed", null);
             });
         }).addOnFailureListener(e ->
         {
-            m_AlbumQueryListener.OnQueryResult(false, "Query albums failed", null);
+            listener.OnQueryResult(false, "Query albums failed", null);
         });
+    }
+
+    public void QueryUserPosts(UserPostsQueryListener listener)
+    {
+
     }
 
     private void PrintData(List<DocumentSnapshot> albumDocs, List<DocumentSnapshot> postDocs)

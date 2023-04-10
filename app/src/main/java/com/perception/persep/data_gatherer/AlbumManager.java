@@ -50,8 +50,6 @@ public class AlbumManager implements Runnable, FirebaseQueries.AlbumQueryListene
     Lock m_AlbumReadLock = readWriteLock.readLock();
     private final List<Album> m_Albums;
 
-    private final FirebaseQueries m_FirebaseQueries;
-    private final FirebaseUpdates m_FirebaseUpdates;
     private boolean m_IsQueryInProgress = false;
 
     private double m_QueryLat = 0.0;
@@ -65,10 +63,6 @@ public class AlbumManager implements Runnable, FirebaseQueries.AlbumQueryListene
     {
         m_Context = context;
         m_Handler = new Handler();
-        m_FirebaseQueries = FirebaseQueries.getInstance();
-        m_FirebaseUpdates = FirebaseUpdates.getInstance();
-        m_FirebaseQueries.m_AlbumQueryListener = this;
-        m_FirebaseUpdates.m_Listener = this;
         m_Albums = new ArrayList<>();
     }
 
@@ -80,7 +74,7 @@ public class AlbumManager implements Runnable, FirebaseQueries.AlbumQueryListene
         if (m_IsLocationInit && !m_IsQueryInProgress && m_Listener != null)
         {
             List<String> ignoreAlbums = GetAlbumsToIgnore();
-            m_FirebaseQueries.QueryNearbyAlbums(m_QueryLat, m_QueryLon, ignoreAlbums);
+            FirebaseQueries.getInstance().QueryNearbyAlbums(m_QueryLat, m_QueryLon, ignoreAlbums, this);
             m_IsQueryInProgress = true;
         }
     }
@@ -126,13 +120,13 @@ public class AlbumManager implements Runnable, FirebaseQueries.AlbumQueryListene
     {
         if (successful)
         {
-            Toast.makeText(m_Context, "Successfully created your post! Restart your app", Toast.LENGTH_LONG).show();
+            Toast.makeText(m_Context, "Successfully created your post!", Toast.LENGTH_LONG).show();
         }
     }
 
     public void AddPost(FirebaseUser user, Uri postImageURI)
     {
-        m_FirebaseUpdates.AddPost(user, postImageURI, m_QueryLat, m_QueryLon);
+        FirebaseUpdates.getInstance().AddPost(user, postImageURI, m_QueryLat, m_QueryLon, this);
     }
 
     private void UpdateAlbums(List<Album> albums)
