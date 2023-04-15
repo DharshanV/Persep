@@ -1,10 +1,11 @@
 package com.perception.persep.adapters;
 
-import android.util.Log;
+import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -48,8 +49,10 @@ public class UserFeedAdapter extends RecyclerView.Adapter<UserFeedAdapter.UserFe
     public void onBindViewHolder(@NonNull UserFeedViewHolder holder, int position)
     {
         Post post = m_UserPosts.get(position);
-        if (post != null) {
-            post.loadNow(holder.postImage);
+        if (post != null)
+        {
+            post.loadNow(holder.m_PostImage);
+            holder.setLike(post.m_Likes);
         }
     }
 
@@ -68,12 +71,22 @@ public class UserFeedAdapter extends RecyclerView.Adapter<UserFeedAdapter.UserFe
 
     public class UserFeedViewHolder extends RecyclerView.ViewHolder
     {
-        public ImageView postImage;
+        private Context m_Context;
+        public ImageView m_PostImage;
+        public TextView m_PostLikeCount;
 
         public UserFeedViewHolder(@NonNull View itemView)
         {
             super(itemView);
-            postImage = itemView.findViewById(R.id.user_feed_post_image);
+            m_PostImage = itemView.findViewById(R.id.user_feed_post_image);
+            m_PostLikeCount = itemView.findViewById(R.id.user_post_like_count);
+            m_Context = itemView.getContext();
+        }
+
+        public void setLike(long likes)
+        {
+            String textViewString = m_Context.getString(R.string.user_post_likes, likes);
+            m_PostLikeCount.setText(textViewString);
         }
     }
 }

@@ -24,7 +24,7 @@ public class Post implements Target
     public String m_AlbumID;
     public String m_ImageURI;
     public Bitmap m_Image;
-    public int m_Likes = 0;
+    public long m_Likes = 0;
     public boolean m_IsImageLoaded = false;
 
     public Post()
@@ -55,7 +55,7 @@ public class Post implements Target
         if (imageURI != null) m_ImageURI = (String) imageURI;
 
         Object likes = data.get(PostConstants.LIKES);
-        if (likes != null) m_Likes = (Integer)likes;
+        if (likes != null) m_Likes = (Long)likes;
 
         if (loadNow && !m_ImageURI.isEmpty()) {
             Log.d(PostLoadImage, "Loading image to post: " + m_ImageURI);
