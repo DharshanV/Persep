@@ -26,6 +26,7 @@ import com.example.persep.R;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.perception.persep.album_data.Album;
 import com.perception.persep.camera.CameraView;
 import com.perception.persep.data_gatherer.DataGathererManager;
 import com.perception.persep.render.RenderView;
@@ -51,6 +52,10 @@ public class VR_Fragment extends Fragment
     GestureDetector m_GestureDetector;
     ViewPager2 m_ViewPager;
     private boolean m_EnableViewPager = true;
+    private boolean m_IsInteractingWithPost = false;
+    private Album m_InteractingAlbum = null;
+    private int m_ViewWidth = 1;
+    private int m_ViewHeight = 1;
 
     public VR_Fragment(ViewPager2 viewPager)
     {
@@ -122,8 +127,8 @@ public class VR_Fragment extends Fragment
             return;
         }
 
-        m_CameraView = new CameraView(getActivity());
-        m_VRLayout.addView(m_CameraView);
+//        m_CameraView = new CameraView(getActivity());
+//        m_VRLayout.addView(m_CameraView);
 
         m_RenderView = new RenderView(getActivity());
         m_VRLayout.addView(m_RenderView);
@@ -187,8 +192,12 @@ public class VR_Fragment extends Fragment
         View view = inflater.inflate(R.layout.vr_fragment, container, false);
         m_VRLayout = view.findViewById(R.id.vr_root_layout);
 
-        m_GestureDetector = new GestureDetector(getActivity(), new MyGestureListener());
-        m_VRLayout.setOnTouchListener((v, event) -> m_GestureDetector.onTouchEvent(event));
+        m_GestureDetector = new VR_Fragment_GestureDetector(getActivity(), new VR_Fragment_GestureListener());
+        m_VRLayout.setOnTouchListener((v, event) -> {
+            m_ViewWidth = v.getWidth();
+            m_ViewHeight = v.getHeight();
+            return m_GestureDetector.onTouchEvent(event);
+        });
 
         InitWidgets(view);
         TryInitializeFragment();
@@ -251,35 +260,56 @@ public class VR_Fragment extends Fragment
         }
     }
 
-    class MyGestureListener extends GestureDetector.SimpleOnGestureListener
+    private Album rayCast(MotionEvent event)
+    {
+        float x = 2f * (event.getX() / m_ViewWidth) - 1f;
+        float y = -2f * (event.getY() / m_ViewHeight) + 1f;
+        return m_RenderView.rayCast(x, y);
+    }
+
+    class VR_Fragment_GestureListener extends GestureDetector.SimpleOnGestureListener implements VR_Fragment_GestureDetector.Listener
     {
         @Override
-        public boolean onDown(MotionEvent event) {
-//            Log.d(TAG,"onDown: ");
+        public boolean onDown(MotionEvent event)
+        {
+            m_InteractingAlbum = rayCast(event);
+            if (m_InteractingAlbum != null)
+            {
+                m_ViewPager.setUserInputEnabled(false);
+                m_IsInteractingWithPost = true;
+            }
             return true;
         }
 
         @Override
-        public boolean onDoubleTap(MotionEvent e)
+        public boolean onDoubleTap(MotionEvent event)
         {
-            Log.d(TAG, "onDoubleTap: ");
-            m_EnableViewPager = !m_EnableViewPager;
-            m_ViewPager.setUserInputEnabled(m_EnableViewPager);
+            m_InteractingAlbum = rayCast(event);
+            if (m_InteractingAlbum != null)
+            {
+                Log.d(TAG, "Like post with id: " + m_InteractingAlbum.getCurrentPost().m_PostID);
+            }
             return true;
         }
-//
-//        @Override
-//        public boolean onScroll(MotionEvent e1, MotionEvent e2,
-//                                float distanceX, float distanceY) {
-//            Log.d(TAG, "onScroll: ");
-//            return true;
-//        }
-//
-//        @Override
-//        public boolean onFling(MotionEvent event1, MotionEvent event2,
-//                               float velocityX, float velocityY) {
-//            Log.d(TAG, "onFling: ");
-//            return true;
-//        }
+
+        @Override
+        public boolean onFling(MotionEvent event1, MotionEvent event2,
+                               float velocityX, float velocityY)
+        {
+            if (m_IsInteractingWithPost && m_InteractingAlbum != null)
+            {
+            }
+            return true;
+        }
+
+        @Override
+        public void onUp(MotionEvent ev)
+        {
+            if (m_IsInteractingWithPost)
+            {
+                m_ViewPager.setUserInputEnabled(true);
+                m_IsInteractingWithPost = false;
+            }
+        }
     }
 }

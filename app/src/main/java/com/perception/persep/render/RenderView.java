@@ -110,4 +110,10 @@ public class RenderView extends TextureView implements TextureView.SurfaceTextur
     {
         m_Renderer.onAlbumUpdate(albums);
     }
+
+
+    public Album rayCast(float x, float y)
+    {
+        return m_Renderer.rayCast(x, y);
+    }
 }

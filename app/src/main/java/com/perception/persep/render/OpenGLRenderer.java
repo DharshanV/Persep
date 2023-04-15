@@ -12,6 +12,8 @@ import com.perception.persep.constants.QueryConstants;
 import com.perception.persep.math_helpers.GeoLocationHelper;
 import com.perception.persep.shapes.AlbumModel;
 
+import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
+
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -31,6 +33,9 @@ public class OpenGLRenderer
     private final float[] m_ModelMatrix = new float[16];
     private final float[] m_ProjectionMatrix = new float[16];
     private final float[] m_ViewMatrix = new float[16];
+    private final float[] m_ScreenToOpenGLMatrix = new float[16];
+    private final float[] m_Near = {0, 0, 0, 0};
+    private final float[] m_Far = {0, 0, 0, 0};
 
     // N(+z): <0,0,1>, S(-z): <0,0,-1>, W(+x): <1,0,0>, E(-x): <-1,0,0>
     private float[] m_OrientationMatrix = new float[16];
@@ -40,6 +45,7 @@ public class OpenGLRenderer
     private final float[] m_AlbumRotMatrix = new float[16];
 
     private final Map<Album, Integer> m_Albums = new HashMap<>();
+    private final Map<Album, float[]> m_AlbumTransforms = new HashMap<>();
     private final int[] m_AlbumTextureIDs = new int[QueryConstants.MAX_QUERY_COUNT];
     private final List<Integer> m_UnusedTextureIndex = new LinkedList<>();
 
@@ -50,9 +56,16 @@ public class OpenGLRenderer
     private double m_DeviceLon = 0;
     private boolean m_DeviceCoordInit = false;
 
+    private final Vector3D[] ALBUM_SURFACE_VERT = new Vector3D[4];
+
     OpenGLRenderer(Context context)
     {
         m_Context = context;
+
+        ALBUM_SURFACE_VERT[0] = new Vector3D(0.020064, -0.400567, 0.541449);
+        ALBUM_SURFACE_VERT[1] = new Vector3D(0.020064, 0.400567, 0.541449);
+        ALBUM_SURFACE_VERT[2] = new Vector3D(0.020064, 0.400567, -0.541449);
+        ALBUM_SURFACE_VERT[3] = new Vector3D(0.020064, -0.400567, -0.541449);
 
         Matrix.setIdentityM(m_ModelMatrix, 0);
         Matrix.setIdentityM(m_ProjectionMatrix, 0);
@@ -103,7 +116,7 @@ public class OpenGLRenderer
                     int albumTextureID = m_AlbumTextureIDs[textureIndex];
                     if (album.ShouldUpdateTexture())
                     {
-                        Bitmap image = album.getCurrentPostBitmap();
+                        Bitmap image = album.getCurrentPost().m_Image;
                         if (image != null)
                         {
                             m_AlbumModel.UpdateSurfaceTexture(albumTextureID, image);
@@ -133,6 +146,14 @@ public class OpenGLRenderer
                     // Scale the model based on distance
                     float scale = (float) Math.exp(length / 75);
                     Matrix.scaleM(m_ModelMatrix, 0, scale, scale, scale);
+                    float[] albumTransform = m_AlbumTransforms.get(album);
+                    if (albumTransform != null)
+                    {
+                        System.arraycopy(m_ModelMatrix, 0, albumTransform, 0, m_ModelMatrix.length);
+                    } else
+                    {
+                        m_AlbumTransforms.put(album, m_ModelMatrix.clone());
+                    }
 
                     m_AlbumModel.SetMVP(m_ModelMatrix, m_ViewMatrix, m_ProjectionMatrix);
                     m_AlbumModel.DrawFrame();
@@ -160,6 +181,10 @@ public class OpenGLRenderer
 
         float ratio = (float) m_Width / m_Height;
         Matrix.frustumM(m_ProjectionMatrix, 0, -ratio, ratio, -1, 1, 2.0f, 100);
+
+        // https://stackoverflow.com/questions/7692988/opengl-math-projecting-screen-space-to-world-space-coords
+        Matrix.multiplyMM(m_ScreenToOpenGLMatrix, 0, m_ViewMatrix, 0, m_ProjectionMatrix, 0);
+        Matrix.invertM(m_ScreenToOpenGLMatrix, 0, m_ScreenToOpenGLMatrix, 0);
     }
 
     public void UpdateRotation(float[] rotationMatrix)
@@ -214,5 +239,91 @@ public class OpenGLRenderer
         }
 
         m_DataUpdateWriteLock.unlock();
+    }
+
+
+    private Vector3D getWorldTriVert(float[] transform, Vector3D vert)
+    {
+        float[] result = new float[4];
+        result[0] = (float) vert.getX();
+        result[1] = (float) vert.getY();
+        result[2] = (float) vert.getZ();
+        result[3] = 1.0f;
+        Matrix.multiplyMV(result, 0, transform, 0, result, 0);
+        return new Vector3D(result[0], result[1], result[2]);
+    }
+
+    private boolean intersectRayWithAlbumSurface(Vector3D rayDir, float[] albumTransform)
+    {
+        Vector3D V0 = getWorldTriVert(albumTransform, ALBUM_SURFACE_VERT[0]);
+        Vector3D V1 = getWorldTriVert(albumTransform, ALBUM_SURFACE_VERT[1]);
+        Vector3D V3 = getWorldTriVert(albumTransform, ALBUM_SURFACE_VERT[3]);
+
+        Vector3D E0 = V1.subtract(V0);
+        Vector3D E1 = V3.subtract(V0);
+        Vector3D N = E0.crossProduct(E1);
+
+        Vector3D dir = rayDir.negate();
+
+        double NdotDir = N.dotProduct(dir);
+
+        if (Math.abs(NdotDir) < 1e-6f) return false;
+
+        double t = -N.dotProduct(V0.negate()) / NdotDir;
+        Vector3D hitPoint = dir.scalarMultiply(t);
+
+        Vector3D hitVec = hitPoint.subtract(V0);
+        double u = hitVec.dotProduct(E0);
+        double v = hitVec.dotProduct(E1);
+
+        return (u >= 0.0f && u <= E0.dotProduct(E0) && v >= 0.0f && v <= E1.dotProduct(E1));
+    }
+
+    public Album rayCast(float x, float y)
+    {
+        m_Near[0] = x;
+        m_Near[1] = y;
+        m_Near[2] = -1;
+        m_Near[3] = 1;
+
+        m_Far[0] = x;
+        m_Far[1] = y;
+        m_Far[2] = 1;
+        m_Far[3] = 1;
+
+        Matrix.multiplyMV(m_Near, 0, m_ScreenToOpenGLMatrix, 0, m_Near, 0);
+        Matrix.multiplyMV(m_Far, 0, m_ScreenToOpenGLMatrix, 0, m_Far, 0);
+
+        m_Near[0] /= m_Near[3];
+        m_Near[1] /= m_Near[3];
+        m_Near[2] /= m_Near[3];
+
+        m_Far[0] /= m_Far[3];
+        m_Far[1] /= m_Far[3];
+        m_Far[2] /= m_Far[3];
+
+        Vector3D near = new Vector3D(m_Near[0], m_Near[1], m_Near[2]);
+        Vector3D far = new Vector3D(m_Far[0], m_Far[1], m_Far[2]);
+
+        Vector3D rayDir = (far.subtract(near)).normalize();
+
+        m_DataUpdateReadLock.lock();
+        for (Album album : m_Albums.keySet())
+        {
+            float[] albumTransform = m_AlbumTransforms.get(album);
+            if (albumTransform != null && albumTransform.length == 16)
+            {
+                if (intersectRayWithAlbumSurface(rayDir, albumTransform))
+                {
+                    m_DataUpdateReadLock.unlock();
+                    return album;
+                }
+            } else
+            {
+                m_AlbumTransforms.remove(album);
+            }
+        }
+        m_DataUpdateReadLock.unlock();
+        return null;
     }
 }

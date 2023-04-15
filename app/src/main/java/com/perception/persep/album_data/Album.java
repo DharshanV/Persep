@@ -134,8 +134,8 @@ public class Album implements Parcelable
         return false;
     }
 
-    public Bitmap getCurrentPostBitmap()
+    public Post getCurrentPost()
     {
-        return m_Posts.get(m_CurrPostIndex).m_Image;
+        return m_Posts.get(m_CurrPostIndex);
     }
 }
