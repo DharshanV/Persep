@@ -13,6 +13,7 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.firestore.WriteBatch;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.perception.persep.constants.AlbumConstants;
@@ -77,6 +78,22 @@ public class FirebaseUpdates
         }).addOnFailureListener(e -> {
             listener.OnUpdateResult(false, e.toString());
         });
+    }
+
+    public void likePost(FirebaseUser user, String postID)
+    {
+        m_Firestore.collection(PostConstants.COLLECTION_NAME).document(postID).get().addOnSuccessListener(postSnapshot -> {
+            List<String> postUsersLiked = (List<String>) postSnapshot.get(PostConstants.USERS_LIKED);
+            if (postUsersLiked != null && postUsersLiked.contains(user.getUid())) {
+                return;
+            }
+
+            WriteBatch batch = m_Firestore.batch();
+            DocumentReference postRef = postSnapshot.getReference();
+            postRef.update(PostConstants.LIKES, FieldValue.increment(1));
+            postRef.update(PostConstants.USERS_LIKED, FieldValue.arrayUnion(user.getUid()));
+            batch.commit();
+        }).addOnFailureListener(Throwable::printStackTrace);
     }
 
     private void TryAddPostToClosestAlbum(DocumentSnapshot userDoc, Uri postImageURI, double lat, double lon, UpdatesListener listener)

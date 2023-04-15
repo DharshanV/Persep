@@ -6,7 +6,9 @@ import android.net.Uri;
 import android.util.Log;
 import android.widget.ImageView;
 
+import com.google.firebase.auth.FirebaseUser;
 import com.perception.persep.constants.PostConstants;
+import com.perception.persep.firebase_helpers.FirebaseUpdates;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 
@@ -22,6 +24,7 @@ public class Post implements Target
     public String m_AlbumID;
     public String m_ImageURI;
     public Bitmap m_Image;
+    public int m_Likes = 0;
     public boolean m_IsImageLoaded = false;
 
     public Post()
@@ -45,10 +48,16 @@ public class Post implements Target
     public Post(String postID, Map<String, Object> data, boolean loadNow)
     {
         m_PostID = postID;
-        m_AlbumID = (String) data.get(PostConstants.ALBUM_ID);
-        m_ImageURI = (String) data.get(PostConstants.IMAGE_URI);
+        Object albumID = data.get(PostConstants.ALBUM_ID);
+        if (albumID != null) m_AlbumID = (String) albumID;
 
-        if (loadNow) {
+        Object imageURI = data.get(PostConstants.IMAGE_URI);
+        if (imageURI != null) m_ImageURI = (String) imageURI;
+
+        Object likes = data.get(PostConstants.LIKES);
+        if (likes != null) m_Likes = (Integer)likes;
+
+        if (loadNow && !m_ImageURI.isEmpty()) {
             Log.d(PostLoadImage, "Loading image to post: " + m_ImageURI);
             Picasso.get().load(m_ImageURI).resize(PostConstants.IMAGE_WIDTH, PostConstants.IMAGE_HEIGHT).noFade().into(this);
         }
@@ -60,11 +69,17 @@ public class Post implements Target
         Picasso.get().load(m_ImageURI).resize(PostConstants.IMAGE_WIDTH, PostConstants.IMAGE_HEIGHT).into(imageView);
     }
 
+    public void like(FirebaseUser user)
+    {
+        FirebaseUpdates.getInstance().likePost(user, m_PostID);
+    }
+
     public Map<String, Object> getMap()
     {
         Map<String, Object> post = new HashMap<>();
         post.put(PostConstants.ALBUM_ID, m_AlbumID);
         post.put(PostConstants.IMAGE_URI, m_ImageURI);
+        post.put(PostConstants.LIKES, m_Likes);
         return post;
     }
 
@@ -95,7 +110,8 @@ public class Post implements Target
                 "m_PostID='" + m_PostID + '\'' +
                 ", m_AlbumID='" + m_AlbumID + '\'' +
                 ", m_ImageURI='" + m_ImageURI + '\'' +
-                ", m_Image=" + m_Image +
+                ", m_Image=" + m_Image + '\'' +
+                ", m_Likes=" + m_Likes +
                 '}';
     }
 }

@@ -287,7 +287,8 @@ public class VR_Fragment extends Fragment
             m_InteractingAlbum = rayCast(event);
             if (m_InteractingAlbum != null)
             {
-                Log.d(TAG, "Like post with id: " + m_InteractingAlbum.getCurrentPost().m_PostID);
+                FirebaseUser loggedInUser = FirebaseAuth.getInstance().getCurrentUser();
+                m_InteractingAlbum.getCurrentPost().like(loggedInUser);
             }
             return true;
         }
