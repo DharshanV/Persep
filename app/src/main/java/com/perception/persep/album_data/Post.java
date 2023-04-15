@@ -69,9 +69,9 @@ public class Post implements Target
         Picasso.get().load(m_ImageURI).resize(PostConstants.IMAGE_WIDTH, PostConstants.IMAGE_HEIGHT).into(imageView);
     }
 
-    public void like(FirebaseUser user)
+    public void like(FirebaseUser user, FirebaseUpdates.PostLikeListener listener)
     {
-        FirebaseUpdates.getInstance().likePost(user, m_PostID);
+        FirebaseUpdates.getInstance().likePost(user, m_PostID, listener);
     }
 
     public Map<String, Object> getMap()

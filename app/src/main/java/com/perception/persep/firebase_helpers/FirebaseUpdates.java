@@ -21,7 +21,6 @@ import com.perception.persep.constants.PostConstants;
 import com.perception.persep.constants.QueryConstants;
 import com.perception.persep.constants.UserConstants;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -36,6 +35,11 @@ public class FirebaseUpdates
     public interface UpdatesListener
     {
         void OnUpdateResult(boolean successful, String message);
+    }
+
+    public interface PostLikeListener
+    {
+        void OnLikeUpdate(boolean successful);
     }
 
     private final FirebaseFirestore m_Firestore;
@@ -80,11 +84,12 @@ public class FirebaseUpdates
         });
     }
 
-    public void likePost(FirebaseUser user, String postID)
+    public void likePost(FirebaseUser user, String postID, PostLikeListener listener)
     {
         m_Firestore.collection(PostConstants.COLLECTION_NAME).document(postID).get().addOnSuccessListener(postSnapshot -> {
             List<String> postUsersLiked = (List<String>) postSnapshot.get(PostConstants.USERS_LIKED);
-            if (postUsersLiked != null && postUsersLiked.contains(user.getUid())) {
+            if (postUsersLiked != null && postUsersLiked.contains(user.getUid()))
+            {
                 return;
             }
 
@@ -92,7 +97,9 @@ public class FirebaseUpdates
             DocumentReference postRef = postSnapshot.getReference();
             postRef.update(PostConstants.LIKES, FieldValue.increment(1));
             postRef.update(PostConstants.USERS_LIKED, FieldValue.arrayUnion(user.getUid()));
-            batch.commit();
+            batch.commit()
+                    .addOnSuccessListener(unused -> listener.OnLikeUpdate(true))
+                    .addOnFailureListener(e -> listener.OnLikeUpdate(false));
         }).addOnFailureListener(Throwable::printStackTrace);
     }
 
@@ -146,7 +153,7 @@ public class FirebaseUpdates
         });
     }
 
-    private void AddPostToNewAlbum(DocumentSnapshot userDoc, Map<String, Object> albumData , Uri postImageURI, UpdatesListener listener)
+    private void AddPostToNewAlbum(DocumentSnapshot userDoc, Map<String, Object> albumData, Uri postImageURI, UpdatesListener listener)
     {
         DocumentReference albumRef = m_Firestore.collection(AlbumConstants.COLLECTION_NAME).document();
 

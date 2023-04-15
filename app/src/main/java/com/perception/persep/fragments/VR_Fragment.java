@@ -14,6 +14,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
+import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -288,7 +289,9 @@ public class VR_Fragment extends Fragment
             if (m_InteractingAlbum != null)
             {
                 FirebaseUser loggedInUser = FirebaseAuth.getInstance().getCurrentUser();
-                m_InteractingAlbum.getCurrentPost().like(loggedInUser);
+                m_InteractingAlbum.getCurrentPost().like(loggedInUser, successful -> {
+                    if (successful) Toast.makeText(getContext(), "Liked post!", Toast.LENGTH_LONG).show();
+                });
             }
             return true;
         }
