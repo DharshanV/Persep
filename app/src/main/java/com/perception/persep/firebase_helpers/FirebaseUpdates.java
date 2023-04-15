@@ -93,8 +93,9 @@ public class FirebaseUpdates
                 return;
             }
 
-            WriteBatch batch = m_Firestore.batch();
             DocumentReference postRef = postSnapshot.getReference();
+
+            WriteBatch batch = m_Firestore.batch();
             postRef.update(PostConstants.LIKES, FieldValue.increment(1));
             postRef.update(PostConstants.USERS_LIKED, FieldValue.arrayUnion(user.getUid()));
             batch.commit()
@@ -141,6 +142,8 @@ public class FirebaseUpdates
 
         m_Firestore.collection(PostConstants.COLLECTION_NAME).add(postData).addOnSuccessListener(postRef -> {
             Log.d(ADD_NEARBY_TAG, "Successfully created a new post with id: " + postRef.getId());
+
+            WriteBatch batch = m_Firestore.batch();
             albumDoc.getReference().update(AlbumConstants.POSTS, FieldValue.arrayUnion(postRef)).addOnSuccessListener(unused -> {
                 Log.d(ADD_NEARBY_TAG, "Successfully linked album against new post");
                 listener.OnUpdateResult(true, "Successfully created all data and updates");
@@ -148,6 +151,7 @@ public class FirebaseUpdates
                 listener.OnUpdateResult(false, e.toString());
             });
             userDoc.getReference().update(UserConstants.POSTS, FieldValue.arrayUnion(postRef));
+            batch.commit();
         }).addOnFailureListener(e -> {
             listener.OnUpdateResult(false, e.toString());
         });
@@ -165,6 +169,8 @@ public class FirebaseUpdates
         m_Firestore.collection(PostConstants.COLLECTION_NAME).add(postData).addOnSuccessListener(postRef -> {
             Log.d(ADD_NEARBY_TAG, "Successfully created a new post with id: " + postRef.getId());
             albumData.put(AlbumConstants.POSTS, FieldValue.arrayUnion(postRef));
+
+            WriteBatch batch = m_Firestore.batch();
             albumRef.set(albumData).addOnSuccessListener(unused -> {
                 Log.d(ADD_NEARBY_TAG, "Successfully created new album with id: " + albumRef.getId());
                 listener.OnUpdateResult(true, "Successfully created all data and updates");
@@ -172,6 +178,7 @@ public class FirebaseUpdates
                 listener.OnUpdateResult(false, e.toString());
             });
             userDoc.getReference().update(UserConstants.POSTS, FieldValue.arrayUnion(postRef));
+            batch.commit();
         }).addOnFailureListener(e -> {
             listener.OnUpdateResult(false, e.toString());
         });
