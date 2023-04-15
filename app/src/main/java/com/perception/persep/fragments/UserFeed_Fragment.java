@@ -23,9 +23,9 @@ public class UserFeed_Fragment extends Fragment
 {
     private static final String TAG = "UserFeed_Fragment";
 
-    private RecyclerView m_UserFeedRecycleView;
     private SwipeRefreshLayout m_SwipeRefreshLayout;
-    private Timer m_RefreshTimer;
+    private final Timer m_RefreshTimer;
+    private UserFeedAdapter m_UserFeedAdapter;
 
     public UserFeed_Fragment()
     {
@@ -42,15 +42,17 @@ public class UserFeed_Fragment extends Fragment
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState)
     {
-        m_UserFeedRecycleView = view.findViewById(R.id.user_feed_recycle_view);
-        m_UserFeedRecycleView.setLayoutManager(new LinearLayoutManager(view.getContext()));
-        m_UserFeedRecycleView.setAdapter(new UserFeedAdapter());
+        RecyclerView userFeedRecycleView = view.findViewById(R.id.user_feed_recycle_view);
+        userFeedRecycleView.setLayoutManager(new LinearLayoutManager(view.getContext()));
+        m_UserFeedAdapter = new UserFeedAdapter();
+        userFeedRecycleView.setAdapter(m_UserFeedAdapter);
 
         m_SwipeRefreshLayout = view.findViewById(R.id.user_feed_swipe_refresh_layout);
         m_SwipeRefreshLayout.setOnRefreshListener(() -> {
             Log.d(TAG, "Refresh...");
             m_SwipeRefreshLayout.setRefreshing(false);
             m_SwipeRefreshLayout.setEnabled(false);
+            m_UserFeedAdapter.refresh();
             m_RefreshTimer.schedule(new TimerTask()
             {
                 @Override

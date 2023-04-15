@@ -1,6 +1,7 @@
 package com.perception.persep.adapters;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,9 +12,16 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.persep.R;
+import com.google.android.gms.tasks.Task;
+import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.perception.persep.album_data.Post;
+import com.perception.persep.constants.PostConstants;
+import com.perception.persep.constants.UserConstants;
 import com.perception.persep.firebase_helpers.FirebaseQueries;
 
 import java.util.ArrayList;
@@ -29,6 +37,59 @@ public class UserFeedAdapter extends RecyclerView.Adapter<UserFeedAdapter.UserFe
     {
         FirebaseUser loggedInUser = FirebaseAuth.getInstance().getCurrentUser();
         FirebaseQueries.getInstance().QueryUserPosts(loggedInUser, this);
+    }
+
+    public void refresh()
+    {
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        FirebaseFirestore.getInstance().collection(UserConstants.COLLECTION_NAME).document(user.getUid()).get().addOnSuccessListener(userDoc -> {
+            List<DocumentReference> userDocPostRefs = (List<DocumentReference>) userDoc.get(UserConstants.POSTS);
+
+            if (userDocPostRefs == null || userDocPostRefs.isEmpty()) return;
+
+            List<Task<DocumentSnapshot>> postQueryTasks = new ArrayList<>(userDocPostRefs.size());
+            for (DocumentReference postRef : userDocPostRefs)
+            {
+                postQueryTasks.add(postRef.get());
+            }
+
+            Tasks.whenAllSuccess(postQueryTasks).addOnSuccessListener(postsResult -> {
+                for (Object postObj : postsResult)
+                {
+                    DocumentSnapshot postDoc = (DocumentSnapshot) postObj;
+                    int index = findPostIndex(postDoc.getId());
+                    if (index != -1) {
+                        Object postDocLikes = postDoc.get(PostConstants.LIKES);
+                        long incomingPostLikes = 0;
+                        if (postDocLikes != null) incomingPostLikes = (Long)postDoc.get(PostConstants.LIKES);
+
+                        Post currPost = m_UserPosts.get(index);
+                        if (currPost.m_Likes != incomingPostLikes) {
+                            currPost.m_Likes = incomingPostLikes;
+                            this.notifyItemChanged(index, currPost.m_Likes);
+                        }
+                    }
+                    else {
+                        m_UserPosts.add(new Post(postDoc.getId(), postDoc.getData(), false));
+                        this.notifyItemInserted(m_UserPosts.size() - 1);
+                    }
+                }
+            });
+        });
+
+    }
+
+    private int findPostIndex(String postDocID)
+    {
+        for (int i = 0; i < m_UserPosts.size(); i++)
+        {
+            Post post = m_UserPosts.get(i);
+            if (post.m_PostID.equals(postDocID))
+            {
+                return i;
+            }
+        }
+        return -1;
     }
 
     @Override
@@ -54,6 +115,18 @@ public class UserFeedAdapter extends RecyclerView.Adapter<UserFeedAdapter.UserFe
             post.loadNow(holder.m_PostImage);
             holder.setLike(post.m_Likes);
         }
+    }
+
+    @Override
+    public void onBindViewHolder(@NonNull UserFeedViewHolder holder, int position, @NonNull List<Object> payloads)
+    {
+        if (!payloads.isEmpty())
+        {
+            long postLike = (Long)payloads.get(0);
+            holder.setLike(postLike);
+            return;
+        }
+        super.onBindViewHolder(holder, position, payloads);
     }
 
     @Override
