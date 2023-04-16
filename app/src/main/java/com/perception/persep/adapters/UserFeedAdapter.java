@@ -116,6 +116,7 @@ public class UserFeedAdapter extends RecyclerView.Adapter<UserFeedAdapter.UserFe
         {
             post.loadNow(holder.m_PostImage);
             holder.setLike(post.m_Likes);
+            holder.m_PostGeoLocation.setText(post.m_GeoLocation);
         }
     }
 
@@ -150,12 +151,14 @@ public class UserFeedAdapter extends RecyclerView.Adapter<UserFeedAdapter.UserFe
         private Context m_Context;
         public ImageView m_PostImage;
         public TextView m_PostLikeCount;
+        public TextView m_PostGeoLocation;
 
         public UserFeedViewHolder(@NonNull View itemView)
         {
             super(itemView);
             m_PostImage = itemView.findViewById(R.id.user_feed_post_image);
             m_PostLikeCount = itemView.findViewById(R.id.user_post_like_count);
+            m_PostGeoLocation = itemView.findViewById(R.id.user_post_geo_location);
             m_Context = itemView.getContext();
         }
 

@@ -26,6 +26,7 @@ public class Post implements Target
     public String m_ImageURI;
     public Bitmap m_Image;
     public long m_Likes = 0;
+    public String m_GeoLocation;
     public Timestamp m_TimeCreated;
     public Timestamp m_TimeModified;
 
@@ -55,6 +56,7 @@ public class Post implements Target
         m_AlbumID = (String) data.get(PostConstants.ALBUM_ID);
         m_ImageURI = (String) data.get(PostConstants.IMAGE_URI);
         m_Likes = (Long) data.get(PostConstants.LIKES);
+        m_GeoLocation = (String) data.get(PostConstants.GEO_LOCATION);
         m_TimeCreated = (Timestamp) data.get(PostConstants.TIME_CREATED);
         m_TimeModified = (Timestamp) data.get(PostConstants.TIME_MODIFIED);
 
@@ -113,7 +115,8 @@ public class Post implements Target
                 ", m_AlbumID='" + m_AlbumID + '\'' +
                 ", m_ImageURI='" + m_ImageURI + '\'' +
                 ", m_Image=" + m_Image + '\'' +
-                ", m_Likes=" + m_Likes +
+                ", m_Likes=" + m_Likes + '\'' +
+                "  m_GeoLocation" + m_GeoLocation +
                 '}';
     }
 }

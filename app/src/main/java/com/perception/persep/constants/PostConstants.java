@@ -8,6 +8,7 @@ public class PostConstants
     public static final String USER = "user";
     public static final String LIKES = "likes";
     public static final String USERS_LIKED = "users_liked";
+    public static final String GEO_LOCATION = "geo_location";
     public static final String TIME_CREATED = "time_created";
     public static final String TIME_MODIFIED = "time_modified";
 

@@ -35,4 +35,17 @@
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintTop_toBottomOf="@id/user_feed_post_image" />
 
+    <TextView
+        android:id="@+id/user_post_geo_location"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Unknown"
+        android:textColor="@color/black"
+        android:textSize="15sp"
+        android:textStyle="italic"
+        android:layout_marginRight="15dp"
+        android:paddingVertical="10dp"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/user_feed_post_image" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,5 +1,7 @@
 package com.perception.persep.firebase_helpers;
 
+import android.location.Address;
+import android.location.Geocoder;
 import android.net.Uri;
 import android.util.Log;
 
@@ -17,11 +19,13 @@ import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.WriteBatch;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
+import com.perception.persep.activities.HomeActivity;
 import com.perception.persep.constants.AlbumConstants;
 import com.perception.persep.constants.PostConstants;
 import com.perception.persep.constants.QueryConstants;
 import com.perception.persep.constants.UserConstants;
 
+import java.io.IOException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -122,11 +126,11 @@ public class FirebaseUpdates
             {
                 Log.d(ADD_NEARBY_TAG, "No nearby album, creating a new one...");
                 Map<String, Object> albumData = CreateNewAlbumData(postLocation, lat, lon);
-                AddPostToNewAlbum(userDoc, albumData, postImageURI, listener);
+                AddPostToNewAlbum(userDoc, albumData, lat, lon, postImageURI, listener);
             } else
             {
                 Log.d(ADD_NEARBY_TAG, "Found a closest album with id: " + closestAlbum.getId());
-                AddPostToAlbum(userDoc, closestAlbum, postImageURI, listener);
+                AddPostToAlbum(userDoc, closestAlbum, lat, lon, postImageURI, listener);
             }
         }).addOnFailureListener(e -> {
             listener.OnUpdateResult(false, e.toString());
@@ -146,7 +150,7 @@ public class FirebaseUpdates
         return albumData;
     }
 
-    private Map<String, Object> CreateNewPostData(DocumentSnapshot userDoc, String albumID, Uri postImageURI)
+    private Map<String, Object> CreateNewPostData(DocumentSnapshot userDoc, String albumID, double lat, double lon, Uri postImageURI)
     {
         Map<String, Object> postData = new HashMap<>();
         postData.put(PostConstants.ALBUM_ID, albumID);
@@ -154,15 +158,37 @@ public class FirebaseUpdates
         postData.put(PostConstants.USER, userDoc.getReference());
         postData.put(PostConstants.LIKES, 0);
         postData.put(PostConstants.USERS_LIKED, Collections.emptyList());
+        postData.put(PostConstants.GEO_LOCATION, GetPostGeoLocation(lat, lon));
         Timestamp now = Timestamp.now();
         postData.put(PostConstants.TIME_CREATED, now);
         postData.put(PostConstants.TIME_MODIFIED, now);
         return postData;
     }
 
-    private void AddPostToAlbum(DocumentSnapshot userDoc, DocumentSnapshot albumDoc, Uri postImageURI, UpdatesListener listener)
+    private String GetPostGeoLocation(double lat, double lon)
     {
-        Map<String, Object> postData = CreateNewPostData(userDoc, albumDoc.getId(), postImageURI);
+        Geocoder geocoder = new Geocoder(HomeActivity.getHomeActivityContext());
+        try
+        {
+            List<Address> addresses = geocoder.getFromLocation(lat, lon, 1);
+            if (!addresses.isEmpty())
+            {
+                Address address = addresses.get(0);
+                String city = address.getLocality() != null ? address.getLocality() : "";
+                String state = address.getAdminArea() != null ? address.getAdminArea() : "";
+                if (state.isEmpty()) return city;
+                else return city + ", " + state;
+            }
+        } catch (IOException e)
+        {
+            return "Unknown";
+        }
+        return "Unknown";
+    }
+
+    private void AddPostToAlbum(DocumentSnapshot userDoc, DocumentSnapshot albumDoc, double lat, double lon, Uri postImageURI, UpdatesListener listener)
+    {
+        Map<String, Object> postData = CreateNewPostData(userDoc, albumDoc.getId(), lat, lon, postImageURI);
         m_Firestore.collection(PostConstants.COLLECTION_NAME).add(postData).addOnSuccessListener(postRef -> {
             Log.d(ADD_NEARBY_TAG, "Successfully created a new post with id: " + postRef.getId());
 
@@ -181,11 +207,11 @@ public class FirebaseUpdates
         });
     }
 
-    private void AddPostToNewAlbum(DocumentSnapshot userDoc, Map<String, Object> albumData, Uri postImageURI, UpdatesListener listener)
+    private void AddPostToNewAlbum(DocumentSnapshot userDoc, Map<String, Object> albumData, double lat, double lon, Uri postImageURI, UpdatesListener listener)
     {
         DocumentReference albumRef = m_Firestore.collection(AlbumConstants.COLLECTION_NAME).document();
 
-        Map<String, Object> postData = CreateNewPostData(userDoc, albumRef.getId(), postImageURI);
+        Map<String, Object> postData = CreateNewPostData(userDoc, albumRef.getId(), lat, lon, postImageURI);
         m_Firestore.collection(PostConstants.COLLECTION_NAME).add(postData).addOnSuccessListener(postRef -> {
             Log.d(ADD_NEARBY_TAG, "Successfully created a new post with id: " + postRef.getId());
             albumData.put(AlbumConstants.POSTS, FieldValue.arrayUnion(postRef));

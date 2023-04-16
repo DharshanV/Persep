@@ -18,6 +18,8 @@ public class HomeActivity extends AppCompatActivity
 {
     private static final String TAG = "HomeActivity";
 
+    public static HomeActivity m_HomeActivityInstance;
+
     ViewPager2 m_ViewPager;
     SlidePagerAdapter m_SlidePagerAdapter;
 
@@ -27,6 +29,7 @@ public class HomeActivity extends AppCompatActivity
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
+        m_HomeActivityInstance = this;
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
 
@@ -52,5 +55,10 @@ public class HomeActivity extends AppCompatActivity
             return;
         }
         m_ViewPager.setCurrentItem(currentPageIndex + (currentPageIndex < SlidePagerAdapter.MIDDLE_PAGE_INDEX ? 1 : -1));
+    }
+
+    public static Context getHomeActivityContext()
+    {
+        return m_HomeActivityInstance.getApplicationContext();
     }
 }
