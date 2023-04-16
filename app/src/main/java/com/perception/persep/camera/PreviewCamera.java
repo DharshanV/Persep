@@ -64,6 +64,7 @@ public class PreviewCamera
     private CaptureRequest m_TakePictureRequest;
 
     private CameraCaptureSession m_CaptureSession;
+    private ImageReader m_ImageReader = null;
 
     private final CameraDevice.StateCallback m_StateCallback = new CameraDevice.StateCallback()
     {
@@ -249,7 +250,7 @@ public class PreviewCamera
                 public void onConfigureFailed(@NonNull CameraCaptureSession cameraCaptureSession)
                 {
                 }
-            }, null);
+            }, m_BackgroundHandler);
         } catch (CameraAccessException e)
         {
             e.printStackTrace();
@@ -261,22 +262,28 @@ public class PreviewCamera
             m_CaptureSession.close();
             m_CaptureSession = null;
         }
+        if (m_ImageReader != null) {
+            m_ImageReader.close();;
+            m_ImageReader = null;
+        }
     }
 
     public void TakeAndSavePreview(TakePictureListener listener)
     {
         try
         {
-            ImageReader imageReader = ImageReader.newInstance(m_PreviewSize.getWidth(), m_PreviewSize.getHeight(), ImageFormat.JPEG, 1);
+            if (m_ImageReader == null) {
+                m_ImageReader = ImageReader.newInstance(m_PreviewSize.getWidth(), m_PreviewSize.getHeight(), ImageFormat.JPEG, 1);
+            }
             m_SurfaceTexture.setDefaultBufferSize(m_PreviewSize.getWidth(), m_PreviewSize.getHeight());
             Surface previewSurface = new Surface(m_SurfaceTexture);
 
             List<Surface> outputSurfaces = new ArrayList<>(2);
-            outputSurfaces.add(imageReader.getSurface());
+            outputSurfaces.add(m_ImageReader.getSurface());
             outputSurfaces.add(previewSurface);
 
             m_TakePictureRequestBuilder = m_CameraDevice.createCaptureRequest(CameraDevice.TEMPLATE_STILL_CAPTURE);
-            m_TakePictureRequestBuilder.addTarget(imageReader.getSurface());
+            m_TakePictureRequestBuilder.addTarget(m_ImageReader.getSurface());
             m_TakePictureRequestBuilder.set(CaptureRequest.CONTROL_MODE, CameraMetadata.CONTROL_MODE_AUTO);
 
             ImageReader.OnImageAvailableListener imageAvailableListener = reader -> {
@@ -303,7 +310,7 @@ public class PreviewCamera
                 }
                 image.close();
             };
-            imageReader.setOnImageAvailableListener(imageAvailableListener, m_BackgroundHandler);
+            m_ImageReader.setOnImageAvailableListener(imageAvailableListener, null);
 
             CameraCaptureSession.CaptureCallback captureCallback = new CameraCaptureSession.CaptureCallback()
             {
@@ -324,7 +331,7 @@ public class PreviewCamera
                         try
                         {
                             m_TakePictureRequest = m_TakePictureRequestBuilder.build();
-                            session.capture(m_TakePictureRequest, captureCallback, m_BackgroundHandler);
+                            session.capture(m_TakePictureRequest, captureCallback, null);
                         } catch (CameraAccessException e)
                         {
                             e.printStackTrace();
@@ -336,7 +343,7 @@ public class PreviewCamera
                 public void onConfigureFailed(@NonNull CameraCaptureSession session)
                 {
                 }
-            }, m_BackgroundHandler);
+            }, null);
         } catch (CameraAccessException e)
         {
             e.printStackTrace();

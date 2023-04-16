@@ -131,15 +131,15 @@ public class VR_Fragment extends Fragment
         m_CameraView = new CameraView(getActivity());
         m_VRLayout.addView(m_CameraView, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
 
-//        m_RenderView = new RenderView(getActivity());
-//        m_VRLayout.addView(m_RenderView, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
-//        m_RenderView.setOpaque(false);
+        m_RenderView = new RenderView(getActivity());
+        m_VRLayout.addView(m_RenderView, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        m_RenderView.setOpaque(false);
 
-//        m_DataGathererManager = new DataGathererManager(getActivity());
-//        m_DataGathererManager.AddGyroscopeListener(m_RenderView);
-//        m_DataGathererManager.AddGPSListener(m_RenderView);
-//        m_DataGathererManager.AddGPSListener(m_DataGathererManager.m_AlbumManger);
-//        m_DataGathererManager.AddAlbumListener(m_RenderView);
+        m_DataGathererManager = new DataGathererManager(getActivity());
+        m_DataGathererManager.AddGyroscopeListener(m_RenderView);
+        m_DataGathererManager.AddGPSListener(m_RenderView);
+        m_DataGathererManager.AddGPSListener(m_DataGathererManager.m_AlbumManger);
+        m_DataGathererManager.AddAlbumListener(m_RenderView);
     }
 
     @Override
