@@ -121,21 +121,21 @@ public class CameraView extends TextureView implements TextureView.SurfaceTextur
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec)
     {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-        int width = MeasureSpec.getSize(widthMeasureSpec);
-        int height = MeasureSpec.getSize(heightMeasureSpec);
-        if (0 == m_WidthRatio || 0 == m_HeightRatio)
-        {
-            setMeasuredDimension(width, height);
-        } else
-        {
-            if (width < height * m_WidthRatio / m_HeightRatio)
-            {
-                setMeasuredDimension(height * m_WidthRatio / m_HeightRatio, height);
-            } else
-            {
-                setMeasuredDimension(width, width * m_HeightRatio / m_WidthRatio);
-            }
-        }
+//        int width = MeasureSpec.getSize(widthMeasureSpec);
+//        int height = MeasureSpec.getSize(heightMeasureSpec);
+//        if (0 == m_WidthRatio || 0 == m_HeightRatio)
+//        {
+//            setMeasuredDimension(width, height);
+//        } else
+//        {
+//            if (width < height * m_WidthRatio / m_HeightRatio)
+//            {
+//                setMeasuredDimension(height * m_WidthRatio / m_HeightRatio, height);
+//            } else
+//            {
+//                setMeasuredDimension(width, width * m_HeightRatio / m_WidthRatio);
+//            }
+//        }
     }
 
 }

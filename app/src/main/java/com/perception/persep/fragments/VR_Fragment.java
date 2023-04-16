@@ -129,7 +129,7 @@ public class VR_Fragment extends Fragment
         }
 
         m_CameraView = new CameraView(getActivity());
-        m_VRLayout.addView(m_CameraView);
+        m_VRLayout.addView(m_CameraView, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
 
         m_RenderView = new RenderView(getActivity());
         m_VRLayout.addView(m_RenderView, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
@@ -241,7 +241,7 @@ public class VR_Fragment extends Fragment
                     Log.d(TAG, "Permission is not granted: " + permission);
                     return false;
                 }
-                Log.d(TAG, "Permission already granted: " + permission);
+                Log.d(TAG, "Permission granted: " + permission);
             }
         }
         return true;
