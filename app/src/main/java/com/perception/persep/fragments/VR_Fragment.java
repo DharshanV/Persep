@@ -270,6 +270,9 @@ public class VR_Fragment extends Fragment
 
     class VR_Fragment_GestureListener extends GestureDetector.SimpleOnGestureListener implements VR_Fragment_GestureDetector.Listener
     {
+        private double m_SwipeDistanceCovered = 0;
+        private long m_SwipeTimeSpent = 0;
+
         @Override
         public boolean onDown(MotionEvent event)
         {
@@ -290,18 +293,20 @@ public class VR_Fragment extends Fragment
             {
                 FirebaseUser loggedInUser = FirebaseAuth.getInstance().getCurrentUser();
                 m_InteractingAlbum.getCurrentPost().like(loggedInUser, successful -> {
-                    if (successful) Toast.makeText(getContext(), "Liked post!", Toast.LENGTH_LONG).show();
+                    if (successful)
+                        Toast.makeText(getContext(), "Liked post!", Toast.LENGTH_LONG).show();
                 });
             }
             return true;
         }
 
         @Override
-        public boolean onFling(MotionEvent event1, MotionEvent event2,
-                               float velocityX, float velocityY)
+        public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY)
         {
-            if (m_IsInteractingWithPost && m_InteractingAlbum != null)
+            if (m_IsInteractingWithPost)
             {
+                m_SwipeDistanceCovered += distanceX;
+                m_SwipeTimeSpent += e2.getEventTime() - e1.getEventTime();
             }
             return true;
         }
@@ -311,6 +316,13 @@ public class VR_Fragment extends Fragment
         {
             if (m_IsInteractingWithPost)
             {
+                if (m_InteractingAlbum != null && m_SwipeTimeSpent != 0)
+                {
+                    double velocity = m_SwipeDistanceCovered / m_SwipeTimeSpent;
+                    m_InteractingAlbum.updatePostIndex(velocity > 0);
+                    m_SwipeDistanceCovered = 0;
+                    m_SwipeTimeSpent = 0;
+                }
                 m_ViewPager.setUserInputEnabled(true);
                 m_IsInteractingWithPost = false;
             }

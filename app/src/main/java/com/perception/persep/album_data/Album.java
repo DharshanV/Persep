@@ -1,6 +1,5 @@
 package com.perception.persep.album_data;
 
-import android.graphics.Bitmap;
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -9,8 +8,10 @@ import com.perception.persep.constants.AlbumConstants;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -24,9 +25,13 @@ public class Album implements Parcelable
     public double m_Lon;
     public Timestamp m_TimeCreated;
     public Timestamp m_TimeModified;
+    private Set<Integer> m_PendingPostUpdate = new HashSet<>();
 
     private int m_CurrPostIndex = 0;
     private int m_PrevPostIndex = 0;
+    private Timer m_UpdatePostTimer;
+    private PostUpdateIndexTask m_PostUpdateTimerTask;
+    private final int TASK_START_DELAY = 5000; // 5 secs
 
     public Album(String albumID, double lat, double lon)
     {
@@ -50,14 +55,9 @@ public class Album implements Parcelable
         m_TimeCreated = (Timestamp) data.get(AlbumConstants.TIME_CREATED);
         m_TimeModified = (Timestamp) data.get(AlbumConstants.TIME_MODIFIED);
 
-        new Timer().scheduleAtFixedRate(new TimerTask()
-        {
-            @Override
-            public void run()
-            {
-                m_CurrPostIndex = (m_CurrPostIndex + 1) % m_Posts.size();
-            }
-        }, 1000, 2000);
+        m_UpdatePostTimer = new Timer();
+        m_PostUpdateTimerTask = new PostUpdateIndexTask();
+        m_UpdatePostTimer.scheduleAtFixedRate(m_PostUpdateTimerTask, TASK_START_DELAY, TASK_START_DELAY);
     }
 
     @Override
@@ -124,11 +124,19 @@ public class Album implements Parcelable
     public void AddPost(Post post)
     {
         m_Posts.add(post);
+        m_PendingPostUpdate.add(m_Posts.size() - 1);
     }
 
     public boolean ShouldUpdateTexture()
     {
-        if (m_Posts.size() == 1 && m_Posts.get(m_CurrPostIndex).m_Image != null) {
+        if (m_Posts.size() == 1 && m_Posts.get(m_CurrPostIndex).m_Image != null)
+        {
+            return true;
+        }
+
+        if (m_PendingPostUpdate.contains(m_CurrPostIndex))
+        {
+            m_PendingPostUpdate.remove(m_CurrPostIndex);
             return true;
         }
 
@@ -143,5 +151,31 @@ public class Album implements Parcelable
     public Post getCurrentPost()
     {
         return m_Posts.get(m_CurrPostIndex);
+    }
+
+    public void updatePostIndex(boolean next)
+    {
+        if (next) m_CurrPostIndex = mod(m_CurrPostIndex + 1, m_Posts.size());
+        else m_CurrPostIndex = mod(m_CurrPostIndex - 1, m_Posts.size());
+
+        m_PostUpdateTimerTask.cancel();
+        m_PostUpdateTimerTask = new PostUpdateIndexTask();
+        m_UpdatePostTimer.scheduleAtFixedRate(m_PostUpdateTimerTask, TASK_START_DELAY, TASK_START_DELAY);
+    }
+
+    int mod(int a, int b)
+    {
+        int ret = a % b;
+        if (ret < 0) ret += b;
+        return ret;
+    }
+
+    class PostUpdateIndexTask extends TimerTask
+    {
+        @Override
+        public void run()
+        {
+            m_CurrPostIndex = mod(m_CurrPostIndex + 1, m_Posts.size());
+        }
     }
 }
