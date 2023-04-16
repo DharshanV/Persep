@@ -128,8 +128,8 @@ public class VR_Fragment extends Fragment
             return;
         }
 
-//        m_CameraView = new CameraView(getActivity());
-//        m_VRLayout.addView(m_CameraView);
+        m_CameraView = new CameraView(getActivity());
+        m_VRLayout.addView(m_CameraView);
 
         m_RenderView = new RenderView(getActivity());
         m_VRLayout.addView(m_RenderView);

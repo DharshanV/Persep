@@ -25,7 +25,6 @@ import com.perception.persep.constants.UserConstants;
 import com.perception.persep.firebase_helpers.FirebaseQueries;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 
 public class UserFeedAdapter extends RecyclerView.Adapter<UserFeedAdapter.UserFeedViewHolder> implements FirebaseQueries.UserPostsQueryListener
@@ -55,6 +54,7 @@ public class UserFeedAdapter extends RecyclerView.Adapter<UserFeedAdapter.UserFe
             }
 
             Tasks.whenAllSuccess(postQueryTasks).addOnSuccessListener(postsResult -> {
+                // Check for if post has been modified or added
                 for (Object postObj : postsResult)
                 {
                     DocumentSnapshot postDoc = (DocumentSnapshot) postObj;
@@ -70,6 +70,10 @@ public class UserFeedAdapter extends RecyclerView.Adapter<UserFeedAdapter.UserFe
                             this.notifyItemChanged(index, currPost.m_Likes);
                             currPost.m_TimeModified = postDocTimeModified;
                         }
+                    } else
+                    {
+                        m_UserPosts.add(0, new Post(postDoc.getId(), postDoc.getData(), false));
+                        this.notifyItemInserted(0);
                     }
                 }
             });
