@@ -132,7 +132,7 @@ public class VR_Fragment extends Fragment
         m_VRLayout.addView(m_CameraView);
 
         m_RenderView = new RenderView(getActivity());
-        m_VRLayout.addView(m_RenderView);
+        m_VRLayout.addView(m_RenderView, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
         m_RenderView.setOpaque(false);
 
         m_DataGathererManager = new DataGathererManager(getActivity());

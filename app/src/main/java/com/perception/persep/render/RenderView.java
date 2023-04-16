@@ -40,7 +40,7 @@ public class RenderView extends TextureView implements TextureView.SurfaceTextur
     @Override
     public void onSurfaceTextureSizeChanged(@NonNull SurfaceTexture surface, int width, int height)
     {
-        m_Renderer.Resize(width, height);
+        m_GLThread.Resize(width, height);
     }
 
     @Override

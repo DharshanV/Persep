@@ -23,8 +23,8 @@ public class GLProducerThread extends Thread
     private final AtomicBoolean m_ShouldRender;
     private final SurfaceTexture m_SurfaceTexture;
     private OpenGLRenderer m_Renderer;
-    private final int m_SurfaceWidth;
-    private final int m_SurfaceHeight;
+    private int m_SurfaceWidth;
+    private int m_SurfaceHeight;
 
     private EGL10 m_Egl;
     private EGLDisplay m_EglDisplay = EGL10.EGL_NO_DISPLAY;
@@ -157,6 +157,12 @@ public class GLProducerThread extends Thread
 
         DestroyGLContext();
         Trace.endSection();
+    }
+
+    public void Resize(int width, int height)
+    {
+        m_SurfaceWidth = width;
+        m_SurfaceHeight = height;
     }
 
     public void SetShouldRender(boolean shouldRender)
