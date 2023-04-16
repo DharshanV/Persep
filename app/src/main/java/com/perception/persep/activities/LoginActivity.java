@@ -7,6 +7,7 @@ import android.util.Log;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -72,8 +73,11 @@ public class LoginActivity extends AppCompatActivity implements FirebaseUserAuth
     {
         if (successful)
         {
-            Log.d(TAG, "Login successfully: " + user.toString());
+            Toast.makeText(getApplicationContext(), "Login successfully: " + user.toString(), Toast.LENGTH_LONG).show();
             StartHomeActivity();
+        } else
+        {
+            Toast.makeText(getApplicationContext(), "Error logging in. Please try again...", Toast.LENGTH_LONG).show();
         }
     }
 }
