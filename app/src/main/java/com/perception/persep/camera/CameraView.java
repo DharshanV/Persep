@@ -12,10 +12,13 @@ import androidx.annotation.NonNull;
 //https://github.com/yushulx/android-camera-preview/tree/master/camera2/app/src/main/java/com/dynamsoft/camera2
 public class CameraView extends TextureView implements TextureView.SurfaceTextureListener
 {
+    private static final String TAG = "PreviewCamera";
+
     private HandlerThread m_BackgroundThread;
     private Handler m_BackgroundHandler;
     private final Context m_Context;
     private PreviewCamera m_PreviewCamera;
+    private Size m_TextureSize;
 
     private int m_WidthRatio = 0;
     private int m_HeightRatio = 0;
@@ -29,7 +32,9 @@ public class CameraView extends TextureView implements TextureView.SurfaceTextur
 
     public void onPause()
     {
-        m_PreviewCamera.CloseCamera();
+        if (m_PreviewCamera != null) {
+            m_PreviewCamera.CloseCamera();
+        }
         StopBackgroundThread();
     }
 
@@ -38,7 +43,12 @@ public class CameraView extends TextureView implements TextureView.SurfaceTextur
         StartBackgroundThread();
         if (isAvailable() && m_PreviewCamera != null)
         {
+            int width = m_TextureSize.getWidth();
+            int height = m_TextureSize.getHeight();
+            m_PreviewCamera.SetupCamera(width, height);
+            Size previewSize = m_PreviewCamera.GetPreviewSize();
             m_PreviewCamera.OpenCamera(m_BackgroundHandler);
+            setAspectRatio(previewSize.getHeight(), previewSize.getWidth());
         }
     }
 
@@ -54,11 +64,12 @@ public class CameraView extends TextureView implements TextureView.SurfaceTextur
     public void onSurfaceTextureAvailable(@NonNull SurfaceTexture surface, int width, int height)
     {
         StartBackgroundThread();
+        m_TextureSize = new Size(width, height);
         m_PreviewCamera = new PreviewCamera(m_Context, surface);
         m_PreviewCamera.SetupCamera(width, height);
         Size previewSize = m_PreviewCamera.GetPreviewSize();
-        setAspectRatio(previewSize.getHeight(), previewSize.getWidth());
         m_PreviewCamera.OpenCamera(m_BackgroundHandler);
+        setAspectRatio(previewSize.getHeight(), previewSize.getWidth());
     }
 
     @Override
@@ -94,9 +105,9 @@ public class CameraView extends TextureView implements TextureView.SurfaceTextur
 
     private void StopBackgroundThread()
     {
+        m_BackgroundThread.quitSafely();
         try
         {
-            m_BackgroundThread.quitSafely();
             m_BackgroundThread.join();
             m_BackgroundThread = null;
             m_BackgroundHandler = null;

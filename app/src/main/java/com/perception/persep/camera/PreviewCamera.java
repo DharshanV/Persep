@@ -19,6 +19,7 @@ import android.hardware.camera2.params.StreamConfigurationMap;
 import android.media.Image;
 import android.media.ImageReader;
 import android.os.Handler;
+import android.os.HandlerThread;
 import android.util.Log;
 import android.util.Size;
 import android.view.Surface;
@@ -58,7 +59,6 @@ public class PreviewCamera
     private CameraDevice m_CameraDevice;
 
     private CaptureRequest.Builder m_PreviewRequestBuilder;
-    private CaptureRequest m_PreviewRequest;
 
     private CaptureRequest.Builder m_TakePictureRequestBuilder;
     private CaptureRequest m_TakePictureRequest;
@@ -72,9 +72,9 @@ public class PreviewCamera
         public void onOpened(@NonNull CameraDevice cameraDevice)
         {
             Log.d(TAG, "Camera opened");
-            m_CameraOpenCloseLock.release();
             m_CameraDevice = cameraDevice;
             CreateCameraPreviewSession();
+            m_CameraOpenCloseLock.release();
         }
 
         @Override
@@ -204,11 +204,7 @@ public class PreviewCamera
         try
         {
             m_CameraOpenCloseLock.acquire();
-            if (m_CaptureSession != null)
-            {
-                m_CaptureSession.close();
-                m_CaptureSession = null;
-            }
+            ClosePreviewSession();
             if (m_CameraDevice != null)
             {
                 m_CameraDevice.close();
@@ -225,6 +221,7 @@ public class PreviewCamera
     {
         try
         {
+            ClosePreviewSession();
             m_SurfaceTexture.setDefaultBufferSize(m_PreviewSize.getWidth(), m_PreviewSize.getHeight());
             Surface previewSurface = new Surface(m_SurfaceTexture);
 
@@ -239,9 +236,8 @@ public class PreviewCamera
                     {
                         try
                         {
-                            m_PreviewRequest = m_PreviewRequestBuilder.build();
                             m_CaptureSession = cameraCaptureSession;
-                            m_CaptureSession.setRepeatingRequest(m_PreviewRequest, null, m_BackgroundHandler);
+                            m_CaptureSession.setRepeatingRequest(m_PreviewRequestBuilder.build(), null, m_BackgroundHandler);
                         } catch (CameraAccessException e)
                         {
                             e.printStackTrace();
@@ -257,6 +253,13 @@ public class PreviewCamera
         } catch (CameraAccessException e)
         {
             e.printStackTrace();
+        }
+    }
+
+    private void ClosePreviewSession() {
+        if (m_CaptureSession != null) {
+            m_CaptureSession.close();
+            m_CaptureSession = null;
         }
     }
 
