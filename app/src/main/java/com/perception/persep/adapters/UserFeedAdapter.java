@@ -1,7 +1,6 @@
 package com.perception.persep.adapters;
 
 import android.content.Context;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,6 +13,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.persep.R;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
+import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
@@ -57,21 +57,18 @@ public class UserFeedAdapter extends RecyclerView.Adapter<UserFeedAdapter.UserFe
                 for (Object postObj : postsResult)
                 {
                     DocumentSnapshot postDoc = (DocumentSnapshot) postObj;
-                    int index = findPostIndex(postDoc.getId());
-                    if (index != -1) {
-                        Object postDocLikes = postDoc.get(PostConstants.LIKES);
-                        long incomingPostLikes = 0;
-                        if (postDocLikes != null) incomingPostLikes = (Long)postDoc.get(PostConstants.LIKES);
+                    Timestamp postDocTimeModified = (Timestamp) postDoc.get(PostConstants.TIME_MODIFIED);
 
+                    int index = findPostIndex(postDoc.getId());
+                    if (index != -1)
+                    {
                         Post currPost = m_UserPosts.get(index);
-                        if (currPost.m_Likes != incomingPostLikes) {
-                            currPost.m_Likes = incomingPostLikes;
+                        if (postDocTimeModified != currPost.m_TimeModified)
+                        {
+                            currPost.m_Likes = (Long) postDoc.get(PostConstants.LIKES);
                             this.notifyItemChanged(index, currPost.m_Likes);
+                            currPost.m_TimeModified = postDocTimeModified;
                         }
-                    }
-                    else {
-                        m_UserPosts.add(new Post(postDoc.getId(), postDoc.getData(), false));
-                        this.notifyItemInserted(m_UserPosts.size() - 1);
                     }
                 }
             });
@@ -122,7 +119,7 @@ public class UserFeedAdapter extends RecyclerView.Adapter<UserFeedAdapter.UserFe
     {
         if (!payloads.isEmpty())
         {
-            long postLike = (Long)payloads.get(0);
+            long postLike = (Long) payloads.get(0);
             holder.setLike(postLike);
             return;
         }

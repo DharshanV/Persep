@@ -100,6 +100,7 @@ public class FirebaseUpdates
             WriteBatch batch = m_Firestore.batch();
             postRef.update(PostConstants.LIKES, FieldValue.increment(1));
             postRef.update(PostConstants.USERS_LIKED, FieldValue.arrayUnion(user.getUid()));
+            postRef.update(PostConstants.TIME_MODIFIED, Timestamp.now());
             batch.commit()
                     .addOnSuccessListener(unused -> listener.OnLikeUpdate(true))
                     .addOnFailureListener(e -> listener.OnLikeUpdate(false));
