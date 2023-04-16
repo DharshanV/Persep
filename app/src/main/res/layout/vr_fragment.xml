@@ -12,4 +12,16 @@
         android:layout_gravity="center|bottom"
         android:layout_marginBottom="10dp"
         android:id="@+id/vr_button_take_photo"/>
+
+    <ImageButton
+        android:id="@+id/toggle_vr_button"
+        android:layout_width="50dp"
+        android:layout_height="55dp"
+        android:background="@android:color/transparent"
+        android:scaleType="fitXY"
+        android:src="@drawable/card_outline"
+        android:layout_marginTop="30dp"
+        android:layout_marginRight="10dp"
+        android:layout_gravity="right|top"
+        android:translationZ="30dp"/>
 </FrameLayout>

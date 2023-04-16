@@ -73,17 +73,17 @@ public class GLProducerThread extends Thread
         }
 
         int[] configAttribs = {
-            EGL10.EGL_BUFFER_SIZE, 32,
-            EGL10.EGL_ALPHA_SIZE, 8,
-            EGL10.EGL_BLUE_SIZE, 8,
-            EGL10.EGL_GREEN_SIZE, 8,
-            EGL10.EGL_RED_SIZE, 8,
-            EGL10.EGL_DEPTH_SIZE, 24,
-            EGL10.EGL_SAMPLE_BUFFERS, 1,
-            EGL10.EGL_SAMPLES, 4,
-            EGL10.EGL_RENDERABLE_TYPE, EGL_OPENGL_ES2_BIT,
-            EGL10.EGL_SURFACE_TYPE, EGL10.EGL_WINDOW_BIT,
-            EGL10.EGL_NONE
+                EGL10.EGL_BUFFER_SIZE, 32,
+                EGL10.EGL_ALPHA_SIZE, 8,
+                EGL10.EGL_BLUE_SIZE, 8,
+                EGL10.EGL_GREEN_SIZE, 8,
+                EGL10.EGL_RED_SIZE, 8,
+                EGL10.EGL_DEPTH_SIZE, 24,
+                EGL10.EGL_SAMPLE_BUFFERS, 1,
+                EGL10.EGL_SAMPLES, 4,
+                EGL10.EGL_RENDERABLE_TYPE, EGL_OPENGL_ES2_BIT,
+                EGL10.EGL_SURFACE_TYPE, EGL10.EGL_WINDOW_BIT,
+                EGL10.EGL_NONE
         };
 
         int[] numConfigs = new int[1];
@@ -137,15 +137,11 @@ public class GLProducerThread extends Thread
 
         while (m_RunningFlag != null && m_RunningFlag.get())
         {
-            if (m_ShouldRender != null && m_ShouldRender.get())
+            if (m_Renderer != null)
             {
-                Trace.beginSection("GL_Thread_Render");
-                if (m_Renderer != null)
-                {
-                    m_Renderer.DrawFrame(m_DeltaTime);
-                    m_Egl.eglSwapBuffers(m_EglDisplay, m_EglSurface);
-                }
-                Trace.endSection();
+                if (m_ShouldRender != null && m_ShouldRender.get()) m_Renderer.DrawFrame();
+                else m_Renderer.DrawClear();
+                m_Egl.eglSwapBuffers(m_EglDisplay, m_EglSurface);
             }
             try
             {

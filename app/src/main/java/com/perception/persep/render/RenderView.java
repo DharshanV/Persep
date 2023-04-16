@@ -77,11 +77,11 @@ public class RenderView extends TextureView implements TextureView.SurfaceTextur
         }
     }
 
-    public void onResume()
+    public void onResume(boolean shouldRender)
     {
         if (m_GLThread != null)
         {
-            m_GLThread.SetShouldRender(true);
+            m_GLThread.SetShouldRender(shouldRender);
         }
     }
 
@@ -91,6 +91,14 @@ public class RenderView extends TextureView implements TextureView.SurfaceTextur
 
     public void onStop()
     {
+    }
+
+    public void ShouldRender(boolean value)
+    {
+        if (m_GLThread != null)
+        {
+            m_GLThread.SetShouldRender(value);
+        }
     }
 
     @Override

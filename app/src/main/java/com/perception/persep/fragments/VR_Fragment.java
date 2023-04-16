@@ -14,6 +14,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
+import android.widget.ImageButton;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -49,6 +50,8 @@ public class VR_Fragment extends Fragment
 
     // widgets
     private FloatingActionButton m_TakePhotoButton = null;
+    private ImageButton m_ToggleVRButton = null;
+    private boolean m_VRRenderState = true;
 
     GestureDetector m_GestureDetector;
     ViewPager2 m_ViewPager;
@@ -181,7 +184,7 @@ public class VR_Fragment extends Fragment
         Log.d(TAG, "Resumed");
         super.onResume();
 
-        if (m_RenderView != null) m_RenderView.onResume();
+        if (m_RenderView != null) m_RenderView.onResume(m_VRRenderState);
         if (m_CameraView != null) m_CameraView.onResume();
         if (m_DataGathererManager != null) m_DataGathererManager.onResume();
     }
@@ -197,7 +200,11 @@ public class VR_Fragment extends Fragment
         m_VRLayout.setOnTouchListener((v, event) -> {
             m_ViewWidth = v.getWidth();
             m_ViewHeight = v.getHeight();
-            return m_GestureDetector.onTouchEvent(event);
+            if (m_VRRenderState)
+            {
+                return m_GestureDetector.onTouchEvent(event);
+            }
+            return true;
         });
 
         InitWidgets(view);
@@ -210,6 +217,13 @@ public class VR_Fragment extends Fragment
         m_TakePhotoButton = view.findViewById(R.id.vr_button_take_photo);
         m_TakePhotoButton.setOnClickListener(v -> {
             if (m_CameraView != null) TakePhoto();
+        });
+
+        m_ToggleVRButton = view.findViewById(R.id.toggle_vr_button);
+        m_ToggleVRButton.setOnClickListener(v -> {
+            m_VRRenderState = !m_VRRenderState;
+            m_RenderView.ShouldRender(m_VRRenderState);
+            v.setBackgroundResource(m_VRRenderState ? R.drawable.card_outline : R.drawable.card_off_outline);
         });
     }
 
@@ -263,9 +277,13 @@ public class VR_Fragment extends Fragment
 
     private Album rayCast(MotionEvent event)
     {
-        float x = 2f * (event.getX() / m_ViewWidth) - 1f;
-        float y = -2f * (event.getY() / m_ViewHeight) + 1f;
-        return m_RenderView.rayCast(x, y);
+        if (m_RenderView != null)
+        {
+            float x = 2f * (event.getX() / m_ViewWidth) - 1f;
+            float y = -2f * (event.getY() / m_ViewHeight) + 1f;
+            return m_RenderView.rayCast(x, y);
+        }
+        return null;
     }
 
     class VR_Fragment_GestureListener extends GestureDetector.SimpleOnGestureListener implements VR_Fragment_GestureDetector.Listener

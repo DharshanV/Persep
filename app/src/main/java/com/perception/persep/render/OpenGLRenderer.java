@@ -97,10 +97,8 @@ public class OpenGLRenderer
         GLES30.glDepthMask(true);
     }
 
-    public void DrawFrame(float deltaTime)
+    public void DrawFrame()
     {
-        Trace.beginSection("gl_draw_frame");
-
         GLES30.glClear(GLES30.GL_COLOR_BUFFER_BIT | GLES30.GL_DEPTH_BUFFER_BIT);
 
         if (!m_DeviceCoordInit) return;
@@ -168,8 +166,11 @@ public class OpenGLRenderer
             }
         }
         m_DataUpdateReadLock.unlock();
+    }
 
-        Trace.endSection();
+    public void DrawClear()
+    {
+        GLES30.glClear(GLES30.GL_COLOR_BUFFER_BIT | GLES30.GL_DEPTH_BUFFER_BIT);
     }
 
     public void Resize(int width, int height)
