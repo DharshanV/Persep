@@ -39,10 +39,10 @@ public class GPSSensor
     private HandlerThread m_SensorThread;
 
     // The minimum distance between updates in meters
-    private static final long MIN_DISTANCE_BW_UPDATES = 10;
+    private static final long MIN_DISTANCE_BW_UPDATES = 5;
 
     // The minimum time between updates in milliseconds
-    private static final long MIN_TIME_BW_UPDATES = 0;
+    private static final long MIN_TIME_BW_UPDATES = 1000;
 
     public GPSSensor(Context context)
     {
