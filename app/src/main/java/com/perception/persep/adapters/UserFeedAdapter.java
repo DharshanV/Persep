@@ -25,6 +25,7 @@ import com.perception.persep.constants.UserConstants;
 import com.perception.persep.firebase_helpers.FirebaseQueries;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 public class UserFeedAdapter extends RecyclerView.Adapter<UserFeedAdapter.UserFeedViewHolder> implements FirebaseQueries.UserPostsQueryListener
@@ -136,6 +137,7 @@ public class UserFeedAdapter extends RecyclerView.Adapter<UserFeedAdapter.UserFe
     public void OnQueryResult(boolean successful, String message, List<Post> posts)
     {
         m_UserPosts = posts;
+        m_UserPosts.sort((o1, o2) -> o2.m_TimeCreated.compareTo(o1.m_TimeCreated));
         this.notifyDataSetChanged();
     }
 
