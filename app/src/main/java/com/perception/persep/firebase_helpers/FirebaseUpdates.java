@@ -7,6 +7,7 @@ import com.firebase.geofire.GeoFireUtils;
 import com.firebase.geofire.GeoLocation;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
+import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -21,6 +22,7 @@ import com.perception.persep.constants.PostConstants;
 import com.perception.persep.constants.QueryConstants;
 import com.perception.persep.constants.UserConstants;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -118,10 +120,7 @@ public class FirebaseUpdates
             if (closestAlbum == null)
             {
                 Log.d(ADD_NEARBY_TAG, "No nearby album, creating a new one...");
-                Map<String, Object> albumData = new HashMap<>();
-                albumData.put(AlbumConstants.GEO_HASH, GeoFireUtils.getGeoHashForLocation(postLocation));
-                albumData.put(AlbumConstants.LAT, lat);
-                albumData.put(AlbumConstants.LON, lon);
+                Map<String, Object> albumData = CreateNewAlbumData(postLocation, lat, lon);
                 AddPostToNewAlbum(userDoc, albumData, postImageURI, listener);
             } else
             {
@@ -133,13 +132,36 @@ public class FirebaseUpdates
         });
     }
 
-    private void AddPostToAlbum(DocumentSnapshot userDoc, DocumentSnapshot albumDoc, Uri postImageURI, UpdatesListener listener)
+    private Map<String, Object> CreateNewAlbumData(GeoLocation postLocation, double lat, double lon)
+    {
+        Map<String, Object> albumData = new HashMap<>();
+        albumData.put(AlbumConstants.GEO_HASH, GeoFireUtils.getGeoHashForLocation(postLocation));
+        albumData.put(AlbumConstants.LAT, lat);
+        albumData.put(AlbumConstants.LON, lon);
+        albumData.put(AlbumConstants.POSTS, Collections.emptyList());
+        Timestamp now = Timestamp.now();
+        albumData.put(AlbumConstants.TIME_CREATED, now);
+        albumData.put(AlbumConstants.TIME_MODIFIED, now);
+        return albumData;
+    }
+
+    private Map<String, Object> CreateNewPostData(DocumentSnapshot userDoc, String albumID, Uri postImageURI)
     {
         Map<String, Object> postData = new HashMap<>();
-        postData.put(PostConstants.ALBUM_ID, albumDoc.getId());
+        postData.put(PostConstants.ALBUM_ID, albumID);
         postData.put(PostConstants.IMAGE_URI, postImageURI.toString());
         postData.put(PostConstants.USER, userDoc.getReference());
+        postData.put(PostConstants.LIKES, 0);
+        postData.put(PostConstants.USERS_LIKED, Collections.emptyList());
+        Timestamp now = Timestamp.now();
+        postData.put(PostConstants.TIME_CREATED, now);
+        postData.put(PostConstants.TIME_MODIFIED, now);
+        return postData;
+    }
 
+    private void AddPostToAlbum(DocumentSnapshot userDoc, DocumentSnapshot albumDoc, Uri postImageURI, UpdatesListener listener)
+    {
+        Map<String, Object> postData = CreateNewPostData(userDoc, albumDoc.getId(), postImageURI);
         m_Firestore.collection(PostConstants.COLLECTION_NAME).add(postData).addOnSuccessListener(postRef -> {
             Log.d(ADD_NEARBY_TAG, "Successfully created a new post with id: " + postRef.getId());
 
@@ -150,6 +172,7 @@ public class FirebaseUpdates
             }).addOnFailureListener(e -> {
                 listener.OnUpdateResult(false, e.toString());
             });
+            albumDoc.getReference().update(AlbumConstants.TIME_MODIFIED, Timestamp.now());
             userDoc.getReference().update(UserConstants.POSTS, FieldValue.arrayUnion(postRef));
             batch.commit();
         }).addOnFailureListener(e -> {
@@ -161,11 +184,7 @@ public class FirebaseUpdates
     {
         DocumentReference albumRef = m_Firestore.collection(AlbumConstants.COLLECTION_NAME).document();
 
-        Map<String, Object> postData = new HashMap<>();
-        postData.put(PostConstants.ALBUM_ID, albumRef.getId());
-        postData.put(PostConstants.IMAGE_URI, postImageURI.toString());
-        postData.put(PostConstants.USER, userDoc.getReference());
-
+        Map<String, Object> postData = CreateNewPostData(userDoc, albumRef.getId(), postImageURI);
         m_Firestore.collection(PostConstants.COLLECTION_NAME).add(postData).addOnSuccessListener(postRef -> {
             Log.d(ADD_NEARBY_TAG, "Successfully created a new post with id: " + postRef.getId());
             albumData.put(AlbumConstants.POSTS, FieldValue.arrayUnion(postRef));

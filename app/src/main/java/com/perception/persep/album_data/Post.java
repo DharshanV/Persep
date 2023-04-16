@@ -6,6 +6,7 @@ import android.net.Uri;
 import android.util.Log;
 import android.widget.ImageView;
 
+import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseUser;
 import com.perception.persep.constants.PostConstants;
 import com.perception.persep.firebase_helpers.FirebaseUpdates;
@@ -25,6 +26,9 @@ public class Post implements Target
     public String m_ImageURI;
     public Bitmap m_Image;
     public long m_Likes = 0;
+    public Timestamp m_TimeCreated;
+    public Timestamp m_TimeModified;
+
     public boolean m_IsImageLoaded = false;
 
     public Post()
@@ -48,16 +52,14 @@ public class Post implements Target
     public Post(String postID, Map<String, Object> data, boolean loadNow)
     {
         m_PostID = postID;
-        Object albumID = data.get(PostConstants.ALBUM_ID);
-        if (albumID != null) m_AlbumID = (String) albumID;
+        m_AlbumID = (String) data.get(PostConstants.ALBUM_ID);
+        m_ImageURI = (String) data.get(PostConstants.IMAGE_URI);
+        m_Likes = (Long) data.get(PostConstants.LIKES);
+        m_TimeCreated = (Timestamp) data.get(PostConstants.TIME_CREATED);
+        m_TimeModified = (Timestamp) data.get(PostConstants.TIME_MODIFIED);
 
-        Object imageURI = data.get(PostConstants.IMAGE_URI);
-        if (imageURI != null) m_ImageURI = (String) imageURI;
-
-        Object likes = data.get(PostConstants.LIKES);
-        if (likes != null) m_Likes = (Long)likes;
-
-        if (loadNow && !m_ImageURI.isEmpty()) {
+        if (loadNow && !m_ImageURI.isEmpty())
+        {
             Log.d(PostLoadImage, "Loading image to post: " + m_ImageURI);
             Picasso.get().load(m_ImageURI).resize(PostConstants.IMAGE_WIDTH, PostConstants.IMAGE_HEIGHT).noFade().into(this);
         }

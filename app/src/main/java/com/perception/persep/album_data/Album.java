@@ -4,6 +4,7 @@ import android.graphics.Bitmap;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.google.firebase.Timestamp;
 import com.perception.persep.constants.AlbumConstants;
 
 import java.util.ArrayList;
@@ -21,6 +22,9 @@ public class Album implements Parcelable
     public String m_GeoHash;
     public double m_Lat;
     public double m_Lon;
+    public Timestamp m_TimeCreated;
+    public Timestamp m_TimeModified;
+
     private int m_CurrPostIndex = 0;
     private int m_PrevPostIndex = 0;
 
@@ -41,8 +45,10 @@ public class Album implements Parcelable
     {
         m_AlbumID = albumID;
         m_GeoHash = (String) data.get(AlbumConstants.GEO_HASH);
-        m_Lat = (double) data.get(AlbumConstants.LAT);
-        m_Lon = (double) data.get(AlbumConstants.LON);
+        m_Lat = (Double) data.get(AlbumConstants.LAT);
+        m_Lon = (Double) data.get(AlbumConstants.LON);
+        m_TimeCreated = (Timestamp) data.get(AlbumConstants.TIME_CREATED);
+        m_TimeModified = (Timestamp) data.get(AlbumConstants.TIME_MODIFIED);
 
         new Timer().scheduleAtFixedRate(new TimerTask()
         {
