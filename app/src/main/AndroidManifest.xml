@@ -43,7 +43,6 @@
         <activity
             android:name="com.perception.persep.activities.RegisterActivity"
             android:exported="true"
-            android:noHistory="true"
             android:screenOrientation="portrait"
             tools:ignore="LockedOrientationActivity"
             android:windowSoftInputMode="adjustPan">
@@ -51,7 +50,6 @@
         <activity
             android:name="com.perception.persep.activities.SplashScreenActivity"
             android:exported="true"
-            android:noHistory="true"
             android:screenOrientation="portrait"
             tools:ignore="LockedOrientationActivity"
             android:windowSoftInputMode="adjustPan">

@@ -1,20 +1,8 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Base application theme. -->
     <style name="Theme.Persep" parent="Theme.MaterialComponents.DayNight.DarkActionBar">
-        <!-- Primary brand color. -->
-        <item name="colorPrimary">#F3F3F3</item>
-        <item name="colorPrimaryVariant">#F1E4E8</item>
-        <item name="colorOnPrimary">#656565</item>
-        <!-- Secondary brand color. -->
-        <item name="colorSecondary">#454B66</item>
-        <item name="colorSecondaryVariant">#2D2D34</item>
-        <item name="colorOnSecondary">?attr/colorOnPrimary</item>
-        <!-- Status bar color. -->
-        <item name="android:statusBarColor" tools:targetApi="l">?attr/colorPrimaryVariant</item>
-        <!-- Customize your theme here. -->
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
         <item name="android:windowFullscreen">true</item>
-        <item name="backgroundColor">?attr/colorPrimary</item>
+        <item name="android:windowContentOverlay">@null</item>
     </style>
 </resources>
