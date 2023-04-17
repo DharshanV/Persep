@@ -56,7 +56,6 @@ public class LoginActivity extends AppCompatActivity
         TextView signUpTextView = findViewById(R.id.textview_signup);
         signUpTextView.setOnClickListener(v -> {
             startActivity(new Intent(LoginActivity.this, RegisterActivity.class));
-            finish();
         });
     }
 

@@ -146,7 +146,9 @@ public class RegisterActivity extends AppCompatActivity
     {
         Log.d(TAG, "Starting home activity.");
         new Handler().postDelayed(() -> {
-            startActivity(new Intent(RegisterActivity.this, HomeActivity.class));
+            Intent intent = new Intent(RegisterActivity.this, HomeActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(intent);
             finish();
         }, HOME_ACTIVITY_DELAY_MS);
     }
