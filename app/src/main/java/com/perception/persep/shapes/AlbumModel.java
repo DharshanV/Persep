@@ -29,7 +29,6 @@ public class AlbumModel
     static private final int[] m_NumOfIndices = new int[2];
 
     private final Shader[] m_Shaders = new Shader[2];
-    private final int[] m_TextureID = null;
 
     private static final String[] ALBUM_MODEL_PATH = {"album_frame.obj", "album_surface.obj"};
     private static final String[] ALBUM_FRAME_SHADER_PATH = {"album_frame.vert", "album_frame.frag"};
@@ -116,16 +115,6 @@ public class AlbumModel
     {
         m_Shaders[FRAME] = Shader.CreateShader(context, ALBUM_FRAME_SHADER_PATH[0], ALBUM_FRAME_SHADER_PATH[1]);
         m_Shaders[SURFACE] = Shader.CreateShader(context, ALBUM_SURFACE_SHADER_PATH[0], ALBUM_SURFACE_SHADER_PATH[1]);
-    }
-
-    public Shader GetFrameShader()
-    {
-        return m_Shaders[FRAME];
-    }
-
-    public Shader GetSurfaceShader()
-    {
-        return m_Shaders[SURFACE];
     }
 
     public void SetMVP(float[] M, float[] V, float[] P)

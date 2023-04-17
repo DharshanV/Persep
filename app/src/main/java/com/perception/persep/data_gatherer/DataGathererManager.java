@@ -1,29 +1,24 @@
 package com.perception.persep.data_gatherer;
 
 import android.content.Context;
+import android.net.Uri;
 import android.util.Log;
+
+import com.google.firebase.auth.FirebaseUser;
 
 public class DataGathererManager
 {
     private static final String TAG = "Data_Gatherer_Manager";
 
-    public RotationSensor m_RotationSensor;
-    public GPSSensor m_GPSSensor;
-    public AlbumManager m_AlbumManger;
+    private final RotationSensor m_RotationSensor;
+    private final GPSSensor m_GPSSensor;
+    private final AlbumManager m_AlbumManger;
 
     public DataGathererManager(Context context)
     {
         m_RotationSensor = new RotationSensor(context);
         m_GPSSensor = new GPSSensor(context);
         m_AlbumManger = new AlbumManager(context);
-    }
-
-    public void onStart()
-    {
-    }
-
-    public void onStop()
-    {
     }
 
     public void onPause()
@@ -42,7 +37,7 @@ public class DataGathererManager
         m_AlbumManger.onResume();
     }
 
-    public void AddGyroscopeListener(RotationSensor.Listener listener)
+    public void SetGyroscopeListener(RotationSensor.Listener listener)
     {
         m_RotationSensor.AddListener(listener);
     }
@@ -52,8 +47,18 @@ public class DataGathererManager
         m_GPSSensor.AddListener(listener);
     }
 
-    public void AddAlbumListener(AlbumManager.Listener listener)
+    public void SetAlbumListener(AlbumManager.Listener listener)
     {
-        m_AlbumManger.AddListener(listener);
+        m_AlbumManger.SetListener(listener);
+    }
+
+    public AlbumManager getAlbumManger()
+    {
+        return m_AlbumManger;
+    }
+
+    public void AddPost(FirebaseUser user, Uri imageUri)
+    {
+        m_AlbumManger.AddPost(user, imageUri);
     }
 }

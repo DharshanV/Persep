@@ -1,4 +1,4 @@
-package com.perception.persep.models;
+package com.perception.persep.user_data;
 
 import android.os.Parcel;
 import android.os.Parcelable;

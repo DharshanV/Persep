@@ -56,20 +56,20 @@ public class AlbumManager implements Runnable, FirebaseQueries.AlbumQueryListene
     private double m_QueryLon = 0.0;
     private boolean m_IsLocationInit = false;
 
-    private final long UPDATE_LOOP_INTERVAL = 5000; //update and notify every 5 secs
-    Handler m_Handler;
+    private final long UPDATE_LOOP_INTERVAL = 2500; //update and notify every 5 secs
+    private final Handler m_QueryNearbyAlbumHandler;
 
     AlbumManager(Context context)
     {
         m_Context = context;
-        m_Handler = new Handler();
+        m_QueryNearbyAlbumHandler = new Handler();
         m_Albums = new ArrayList<>();
     }
 
     @Override
     public void run()
     {
-        m_Handler.postDelayed(this, UPDATE_LOOP_INTERVAL);
+        m_QueryNearbyAlbumHandler.postDelayed(this, UPDATE_LOOP_INTERVAL);
 
         if (m_IsLocationInit && !m_IsQueryInProgress && m_Listener != null)
         {
@@ -89,17 +89,17 @@ public class AlbumManager implements Runnable, FirebaseQueries.AlbumQueryListene
 
     public void onPause()
     {
-        m_Handler.removeCallbacks(this);
+        m_QueryNearbyAlbumHandler.removeCallbacks(this);
         FirebaseQueries.getInstance().RemoveAlbumListener();
     }
 
     public void onResume()
     {
-        m_Handler.postDelayed(this, UPDATE_LOOP_INTERVAL);
+        m_QueryNearbyAlbumHandler.postDelayed(this, UPDATE_LOOP_INTERVAL);
         FirebaseQueries.getInstance().AddAlbumListener(this);
     }
 
-    public void AddListener(Listener listener)
+    public void SetListener(Listener listener)
     {
         m_Listener = listener;
     }
@@ -109,7 +109,7 @@ public class AlbumManager implements Runnable, FirebaseQueries.AlbumQueryListene
     {
         m_IsQueryInProgress = false;
 
-        if (successful && !albums.isEmpty())
+        if (successful && albums != null && !albums.isEmpty())
         {
             UpdateAlbums(albums);
         }
@@ -147,6 +147,8 @@ public class AlbumManager implements Runnable, FirebaseQueries.AlbumQueryListene
     private void UpdateAlbumModify(Album album, QueryDocumentSnapshot albumDoc)
     {
         List<DocumentReference> albumDocPostRefs = (List<DocumentReference>) albumDoc.get(AlbumConstants.POSTS);
+        if (albumDocPostRefs == null || albumDocPostRefs.isEmpty()) return;
+
         List<Task<DocumentSnapshot>> postQueryTasks = new ArrayList<>(albumDocPostRefs.size());
         for (DocumentReference postRef : albumDocPostRefs)
         {
@@ -188,30 +190,24 @@ public class AlbumManager implements Runnable, FirebaseQueries.AlbumQueryListene
 
         for (DocumentChange dc : value.getDocumentChanges())
         {
-            switch (dc.getType())
-            {
-                case ADDED:
-                case REMOVED:
-                    return;
-                case MODIFIED:
-                    m_AlbumReadLock.lock();
-                    for (Album album : m_Albums)
+            if (dc.getType() == DocumentChange.Type.MODIFIED) {
+                m_AlbumReadLock.lock();
+                for (Album album : m_Albums)
+                {
+                    QueryDocumentSnapshot albumDoc = dc.getDocument();
+                    if (album.m_AlbumID.equals(albumDoc.getId()))
                     {
-                        QueryDocumentSnapshot albumDoc = dc.getDocument();
-                        if (album.m_AlbumID.equals(albumDoc.getId()))
-                        {
-                            UpdateAlbumModify(album, albumDoc);
-                        }
+                        UpdateAlbumModify(album, albumDoc);
                     }
-                    m_AlbumReadLock.unlock();
-                    return;
+                }
+                m_AlbumReadLock.unlock();
             }
         }
     }
 
     private List<String> GetAlbumsToIgnore()
     {
-        List<String> result = new ArrayList<>();
+        List<String> result = new ArrayList<>(m_Albums.size());
         for (Album album : m_Albums)
         {
             result.add(album.m_GeoHash);
@@ -238,7 +234,7 @@ public class AlbumManager implements Runnable, FirebaseQueries.AlbumQueryListene
 
         for (Integer albumToRemove : albumIdxToRemove)
         {
-            m_Albums.remove(albumToRemove);
+            m_Albums.remove(albumToRemove.intValue());
         }
     }
 }

@@ -32,15 +32,7 @@ public class RotationSensor
     private HandlerThread m_SensorThread;
     private Handler m_SensorHandler;
 
-    private static final float LOW_PASS_FILTER_SENSITIVITY = 1 / 10F;
-    private final float[] m_RotationValue = null;
     private final float[] m_RotationMatrix = new float[16];
-
-    //Exponential Moving Average
-    private static final int EMA_LOOK_BACK = 20;
-    private static final float EMA_WEIGHT_MULTIPLIER = 2.0f / (EMA_LOOK_BACK + 1);
-    private float[] m_PrevRotationVector = new float[4];
-    private boolean m_FirstData = true;
 
     public RotationSensor(Context context)
     {
@@ -54,9 +46,6 @@ public class RotationSensor
             {
                 if (m_Listener != null && event.sensor.getType() == Sensor.TYPE_ROTATION_VECTOR)
                 {
-                    //Log.d(TAG, String.format("<%.2f, %.2f, %.2f, %.2f>", m_RotationValue[0], m_RotationValue[1], m_RotationValue[2], m_RotationValue[3]));
-//                    m_RotationValue = LowPassFilter(event.values.clone(), m_RotationValue);
-//                    UpdateAverage(m_RotationValue);
                     SensorManager.getRotationMatrixFromVector(m_RotationMatrix, event.values);
                     m_Listener.onRotationDelta(m_RotationMatrix);
                 }
@@ -67,37 +56,6 @@ public class RotationSensor
             {
             }
         };
-    }
-
-    private float[] GetSerpedRotationVector(float[] rotationVector, double t)
-    {
-        if (m_FirstData)
-        {
-            m_PrevRotationVector = rotationVector.clone();
-            m_FirstData = false;
-            return rotationVector;
-        }
-
-        float q0 = rotationVector[3];
-        float q1 = rotationVector[0];
-        float q2 = rotationVector[1];
-        float q3 = rotationVector[2];
-
-        Quaternion quaternion1 = Quaternion.of(m_PrevRotationVector[3], m_PrevRotationVector[0], m_PrevRotationVector[1], m_PrevRotationVector[2]);
-        Quaternion quaternion2 = Quaternion.of(q0, q1, q2, q3);
-        Slerp slerp = new Slerp(quaternion1, quaternion2);
-        Quaternion result = slerp.apply(t);
-
-        Log.d(TAG, Arrays.toString(m_PrevRotationVector));
-
-        m_PrevRotationVector = rotationVector.clone();
-        rotationVector[0] = (float) result.getX();
-        rotationVector[1] = (float) result.getY();
-        rotationVector[2] = (float) result.getZ();
-        rotationVector[3] = (float) result.getW();
-
-        Log.d(TAG, Arrays.toString(rotationVector));
-        return rotationVector;
     }
 
     public void RegisterSensor()
@@ -117,8 +75,10 @@ public class RotationSensor
         {
             try
             {
-                m_SensorThread.quitSafely();
-                m_SensorThread.join();
+                if (m_SensorThread != null) {
+                    m_SensorThread.quitSafely();
+                    m_SensorThread.join();
+                }
                 m_SensorThread = null;
                 m_SensorHandler = null;
             } catch (InterruptedException e)

@@ -1,13 +1,11 @@
 package com.perception.persep.album_data;
 
-import android.os.Parcel;
-import android.os.Parcelable;
+import androidx.annotation.NonNull;
 
 import com.google.firebase.Timestamp;
 import com.perception.persep.constants.AlbumConstants;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -15,7 +13,7 @@ import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 
-public class Album implements Parcelable
+public class Album
 {
     public final List<Post> m_Posts = new ArrayList<>();
 
@@ -25,26 +23,13 @@ public class Album implements Parcelable
     public double m_Lon;
     public Timestamp m_TimeCreated;
     public Timestamp m_TimeModified;
-    private Set<Integer> m_PendingPostUpdate = new HashSet<>();
+    private final Set<Integer> m_PendingPostUpdate = new HashSet<>();
 
     private int m_CurrPostIndex = 0;
     private int m_PrevPostIndex = 0;
     private Timer m_UpdatePostTimer;
     private PostUpdateIndexTask m_PostUpdateTimerTask;
     private final int TASK_START_DELAY = 5000; // 5 secs
-
-    public Album(String albumID, double lat, double lon)
-    {
-        m_AlbumID = albumID;
-        m_Lat = lat;
-        m_Lon = lon;
-    }
-
-    public Album(Parcel in)
-    {
-        m_Lat = in.readDouble();
-        m_Lon = in.readDouble();
-    }
 
     public Album(String albumID, Map<String, Object> data)
     {
@@ -63,6 +48,7 @@ public class Album implements Parcelable
     @Override
     public boolean equals(Object obj)
     {
+        if (getClass() != obj.getClass()) return false;
         Album otherAlbum = (Album) obj;
         return m_AlbumID.equals(otherAlbum.m_AlbumID);
     }
@@ -73,42 +59,7 @@ public class Album implements Parcelable
         return m_AlbumID.hashCode();
     }
 
-    public static final Creator<Album> CREATOR = new Creator<Album>()
-    {
-        @Override
-        public Album createFromParcel(Parcel in)
-        {
-            return new Album(in);
-        }
-
-        @Override
-        public Album[] newArray(int size)
-        {
-            return new Album[size];
-        }
-    };
-
-    public Map<String, Object> getMap()
-    {
-        Map<String, Object> user = new HashMap<>();
-        user.put(AlbumConstants.LAT, m_Lat);
-        user.put(AlbumConstants.LON, m_Lon);
-        return user;
-    }
-
-    @Override
-    public int describeContents()
-    {
-        return 0;
-    }
-
-    @Override
-    public void writeToParcel(Parcel dest, int flags)
-    {
-        dest.writeDouble(m_Lat);
-        dest.writeDouble(m_Lon);
-    }
-
+    @NonNull
     @Override
     public String toString()
     {
@@ -123,8 +74,10 @@ public class Album implements Parcelable
 
     public void AddPost(Post post)
     {
-        m_Posts.add(post);
-        m_PendingPostUpdate.add(m_Posts.size() - 1);
+        if (post != null) {
+            m_Posts.add(post);
+            m_PendingPostUpdate.add(m_Posts.size() - 1);
+        }
     }
 
     public boolean ShouldUpdateTexture()
@@ -163,7 +116,7 @@ public class Album implements Parcelable
         m_UpdatePostTimer.scheduleAtFixedRate(m_PostUpdateTimerTask, TASK_START_DELAY, TASK_START_DELAY);
     }
 
-    int mod(int a, int b)
+    static int mod(int a, int b)
     {
         int ret = a % b;
         if (ret < 0) ret += b;

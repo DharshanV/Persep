@@ -83,7 +83,7 @@ public class VR_Fragment extends Fragment
                             FirebaseUser loggedInUser = FirebaseAuth.getInstance().getCurrentUser();
                             if (loggedInUser != null)
                             {
-                                m_DataGathererManager.m_AlbumManger.AddPost(loggedInUser, croppedImageUri);
+                                m_DataGathererManager.AddPost(loggedInUser, croppedImageUri);
                             } else
                             {
                                 Log.e(TAG, "Unable to find logged in user!");
@@ -139,10 +139,10 @@ public class VR_Fragment extends Fragment
         m_RenderView.setOpaque(false);
 
         m_DataGathererManager = new DataGathererManager(getActivity());
-        m_DataGathererManager.AddGyroscopeListener(m_RenderView);
+        m_DataGathererManager.SetGyroscopeListener(m_RenderView);
         m_DataGathererManager.AddGPSListener(m_RenderView);
-        m_DataGathererManager.AddGPSListener(m_DataGathererManager.m_AlbumManger);
-        m_DataGathererManager.AddAlbumListener(m_RenderView);
+        m_DataGathererManager.AddGPSListener(m_DataGathererManager.getAlbumManger());
+        m_DataGathererManager.SetAlbumListener(m_RenderView);
     }
 
     @Override
@@ -153,7 +153,6 @@ public class VR_Fragment extends Fragment
 
         if (m_RenderView != null) m_RenderView.onStart();
         if (m_CameraView != null) m_CameraView.onStart();
-        if (m_DataGathererManager != null) m_DataGathererManager.onStart();
     }
 
     @Override
@@ -164,7 +163,6 @@ public class VR_Fragment extends Fragment
 
         if (m_RenderView != null) m_RenderView.onStop();
         if (m_CameraView != null) m_CameraView.onStop();
-        if (m_DataGathererManager != null) m_DataGathererManager.onStop();
     }
 
     @Override

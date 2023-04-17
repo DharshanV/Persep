@@ -30,7 +30,6 @@ public class UserFeed_Fragment extends Fragment
     private SwipeRefreshLayout m_SwipeRefreshLayout;
     private final Timer m_RefreshTimer;
     private UserFeedAdapter m_UserFeedAdapter;
-    private TextView m_UserFeedHeaderText;
 
     public UserFeed_Fragment()
     {
@@ -68,7 +67,7 @@ public class UserFeed_Fragment extends Fragment
             }, 5000);
         });
 
-        m_UserFeedHeaderText = view.findViewById(R.id.username_text_view);
+        TextView userFeedHeaderText = view.findViewById(R.id.username_text_view);
         String username = "Temp-Username";
         Context context = getContext();
         if (context != null) {
@@ -78,7 +77,7 @@ public class UserFeed_Fragment extends Fragment
                 username = context.getString(R.string.user_feed_username, firebaseUsername);
             }
         }
-        m_UserFeedHeaderText.setText(username);
+        userFeedHeaderText.setText(username);
         super.onViewCreated(view, savedInstanceState);
     }
 }

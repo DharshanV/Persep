@@ -36,12 +36,17 @@ public class UserFeedAdapter extends RecyclerView.Adapter<UserFeedAdapter.UserFe
     public UserFeedAdapter()
     {
         FirebaseUser loggedInUser = FirebaseAuth.getInstance().getCurrentUser();
-        FirebaseQueries.getInstance().QueryUserPosts(loggedInUser, this);
+        if (loggedInUser != null)
+        {
+            FirebaseQueries.getInstance().QueryUserPosts(loggedInUser, this);
+        }
     }
 
     public void refresh()
     {
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if (user == null) return;
+
         FirebaseFirestore.getInstance().collection(UserConstants.COLLECTION_NAME).document(user.getUid()).get().addOnSuccessListener(userDoc -> {
             List<DocumentReference> userDocPostRefs = (List<DocumentReference>) userDoc.get(UserConstants.POSTS);
 
@@ -141,16 +146,17 @@ public class UserFeedAdapter extends RecyclerView.Adapter<UserFeedAdapter.UserFe
     @Override
     public void OnQueryResult(boolean successful, String message, List<Post> posts)
     {
-        if (posts != null) {
+        if (posts != null)
+        {
             m_UserPosts = posts;
             m_UserPosts.sort((o1, o2) -> o2.m_TimeCreated.compareTo(o1.m_TimeCreated));
             this.notifyDataSetChanged();
         }
     }
 
-    public class UserFeedViewHolder extends RecyclerView.ViewHolder
+    public static class UserFeedViewHolder extends RecyclerView.ViewHolder
     {
-        private Context m_Context;
+        private final Context m_Context;
         public ImageView m_PostImage;
         public TextView m_PostLikeCount;
         public TextView m_PostGeoLocation;

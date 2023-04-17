@@ -2,9 +2,10 @@ package com.perception.persep.album_data;
 
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
-import android.net.Uri;
 import android.util.Log;
 import android.widget.ImageView;
+
+import androidx.annotation.NonNull;
 
 import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseUser;
@@ -13,9 +14,7 @@ import com.perception.persep.firebase_helpers.FirebaseUpdates;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 
-import java.util.HashMap;
 import java.util.Map;
-import java.util.UUID;
 
 public class Post implements Target
 {
@@ -31,24 +30,6 @@ public class Post implements Target
     public Timestamp m_TimeModified;
 
     public boolean m_IsImageLoaded = false;
-
-    public Post()
-    {
-        m_PostID = UUID.randomUUID().toString();
-    }
-
-    public Post(Uri imageURI)
-    {
-        m_PostID = UUID.randomUUID().toString();
-        m_ImageURI = imageURI.toString();
-        Log.d(PostLoadImage, "Loading image: " + m_ImageURI);
-        Picasso.get().load(m_ImageURI).resize(PostConstants.IMAGE_WIDTH, PostConstants.IMAGE_HEIGHT).noFade().into(this);
-    }
-
-    public Post(String postID)
-    {
-        m_PostID = postID;
-    }
 
     public Post(String postID, Map<String, Object> data, boolean loadNow)
     {
@@ -78,15 +59,6 @@ public class Post implements Target
         FirebaseUpdates.getInstance().likePost(user, m_PostID, listener);
     }
 
-    public Map<String, Object> getMap()
-    {
-        Map<String, Object> post = new HashMap<>();
-        post.put(PostConstants.ALBUM_ID, m_AlbumID);
-        post.put(PostConstants.IMAGE_URI, m_ImageURI);
-        post.put(PostConstants.LIKES, m_Likes);
-        return post;
-    }
-
     @Override
     public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from)
     {
@@ -104,9 +76,9 @@ public class Post implements Target
     @Override
     public void onPrepareLoad(Drawable placeHolderDrawable)
     {
-
     }
 
+    @NonNull
     @Override
     public String toString()
     {

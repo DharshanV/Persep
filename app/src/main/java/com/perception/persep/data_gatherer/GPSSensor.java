@@ -46,8 +46,8 @@ public class GPSSensor
 
     public GPSSensor(Context context)
     {
-        boolean isPermissionEnabled = true;
-        isPermissionEnabled &= ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED;
+        boolean isPermissionEnabled;
+        isPermissionEnabled = ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED;
         isPermissionEnabled &= ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED;
 
         if (isPermissionEnabled)
@@ -55,33 +55,30 @@ public class GPSSensor
             //get google play fused location service
             m_FusedLocationProvider = LocationServices.getFusedLocationProviderClient(context);
 
-            if (m_FusedLocationProvider != null)
-            {
-                m_LocationRequest = LocationRequest.create();
-                m_LocationRequest.setInterval(MIN_TIME_BW_UPDATES);
-                m_LocationRequest.setFastestInterval(MIN_TIME_BW_UPDATES / 2);
-                m_LocationRequest.setSmallestDisplacement(MIN_DISTANCE_BW_UPDATES);
-                m_LocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+            m_LocationRequest = LocationRequest.create();
+            m_LocationRequest.setInterval(MIN_TIME_BW_UPDATES);
+            m_LocationRequest.setFastestInterval(MIN_TIME_BW_UPDATES / 2);
+            m_LocationRequest.setSmallestDisplacement(MIN_DISTANCE_BW_UPDATES);
+            m_LocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
 
-                m_LocationCB = new LocationCallback()
+            m_LocationCB = new LocationCallback()
+            {
+                @Override
+                public void onLocationResult(@NonNull LocationResult locationResult)
                 {
-                    @Override
-                    public void onLocationResult(@NonNull LocationResult locationResult)
+                    if (!m_Listeners.isEmpty())
                     {
-                        if (!m_Listeners.isEmpty())
+                        Location location = locationResult.getLastLocation();
+                        UpdateBestLocation(location);
+                        for (Listener listener : m_Listeners)
                         {
-                            Location location = locationResult.getLastLocation();
-                            UpdateBestLocation(location);
-                            for (Listener listener : m_Listeners)
-                            {
-                                listener.onLocationChanged(m_BestLocation.getLatitude(), m_BestLocation.getLongitude());
-                            }
+                            listener.onLocationChanged(m_BestLocation.getLatitude(), m_BestLocation.getLongitude());
                         }
                     }
-                };
+                }
+            };
 
-                m_IsLocationServiceEnabled = true;
-            }
+            m_IsLocationServiceEnabled = true;
         } else
         {
             Log.e(TAG, "Permission not enabled for fine and coarse location");
@@ -110,8 +107,11 @@ public class GPSSensor
 
         try
         {
-            m_SensorThread.quitSafely();
-            m_SensorThread.join();
+            if (m_SensorThread != null)
+            {
+                m_SensorThread.quitSafely();
+                m_SensorThread.join();
+            }
             m_SensorThread = null;
         } catch (InterruptedException e)
         {
