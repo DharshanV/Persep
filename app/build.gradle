@@ -44,4 +44,5 @@ dependencies {
     implementation 'org.apache.commons:commons-numbers-quaternion:1.1'
     implementation 'com.google.firebase:firebase-storage'
     implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.1.0'
+    implementation "androidx.core:core-splashscreen:1.0.0"
 }

@@ -25,7 +25,6 @@ public class HomeActivity extends AppCompatActivity
 
     public static float DEFAULT_DISPLAY_REFRESH_RATE = 0.0f;
 
-    @SuppressLint({"WrongConstant", "ClickableViewAccessibility"})
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {

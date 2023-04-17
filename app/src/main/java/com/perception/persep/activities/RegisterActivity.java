@@ -1,6 +1,5 @@
 package com.perception.persep.activities;
 
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -20,55 +19,58 @@ import com.perception.persep.firebase_helpers.FirebaseUserAuthentication;
 import java.util.regex.Pattern;
 
 
-public class RegisterActivity extends AppCompatActivity implements FirebaseUserAuthentication.UserRegisterAuthListener
+public class RegisterActivity extends AppCompatActivity
 {
     private static final String TAG = "RegisterActivity";
     private static final int HOME_ACTIVITY_DELAY_MS = 1000;
-
-    private Context m_Context;
 
     // Widgets
     private EditText m_Email, m_Username, m_Password;
     private TextView m_RegisterTextView;
     private Button m_RegisterButton;
 
-    // Firebase
-    private FirebaseUserAuthentication m_UserAuth;
-
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
-        m_Context = RegisterActivity.this;
-        m_UserAuth = FirebaseUserAuthentication.getInstance();
-        m_UserAuth.m_UserRegisterAuthListener = this;
 
         InitWidgets();
-        Init();
-    }
-
-    @Override
-    public void onStart()
-    {
-        super.onStart();
-        m_UserAuth.onStart();
-    }
-
-    @Override
-    public void onStop()
-    {
-        super.onStop();
-        m_UserAuth.onStop();
     }
 
     private void InitWidgets()
     {
         Log.d(TAG, "Initializing Widgets.");
-        m_Username = (EditText) findViewById(R.id.register_input_username);
-        m_Email = (EditText) findViewById(R.id.register_input_email);
-        m_Password = (EditText) findViewById(R.id.register_input_password);
-        m_RegisterButton = (Button) findViewById(R.id.register_button);
-        m_RegisterTextView = (TextView) findViewById(R.id.register_message);
+        m_Username = findViewById(R.id.register_input_username);
+        m_Email = findViewById(R.id.register_input_email);
+        m_Password = findViewById(R.id.register_input_password);
+        m_RegisterButton = findViewById(R.id.register_button);
+        m_RegisterTextView = findViewById(R.id.register_message);
+
+        m_RegisterButton.setOnClickListener(v -> {
+            String username = m_Username.getText().toString();
+            String email = m_Email.getText().toString();
+            String password = m_Password.getText().toString();
+
+            m_RegisterButton.setEnabled(false);
+            if (CheckInputs(username, email, password))
+            {
+                DisplayMessage("Loading...");
+                FirebaseUserAuthentication.getInstance().RegisterNewUser(username, email, password, (successful, message) -> {
+                    if (successful)
+                    {
+                        DisplayMessage("Successful! Logging in...");
+                        StartHomeActivity();
+                    } else
+                    {
+                        DisplayMessage("Error: " + message);
+                        m_RegisterButton.setEnabled(true);
+                    }
+                });
+            } else
+            {
+                m_RegisterButton.setEnabled(true);
+            }
+        });
 
         TextWatcher watcher = new TextWatcher()
         {
@@ -92,25 +94,6 @@ public class RegisterActivity extends AppCompatActivity implements FirebaseUserA
         m_Username.addTextChangedListener(watcher);
         m_Email.addTextChangedListener(watcher);
         m_Password.addTextChangedListener(watcher);
-    }
-
-    private void Init()
-    {
-        m_RegisterButton.setOnClickListener(v -> {
-            String username = m_Username.getText().toString();
-            String email = m_Email.getText().toString();
-            String password = m_Password.getText().toString();
-
-            m_RegisterButton.setEnabled(false);
-            if (CheckInputs(username, email, password))
-            {
-                DisplayMessage("Loading...");
-                m_UserAuth.RegisterNewUser(username, email, password);
-            } else
-            {
-                m_RegisterButton.setEnabled(true);
-            }
-        });
     }
 
     private void DisplayMessage(String message)
@@ -157,20 +140,6 @@ public class RegisterActivity extends AppCompatActivity implements FirebaseUserA
         }
 
         return true;
-    }
-
-    @Override
-    public void WasRegisterSuccessful(boolean successful, String message)
-    {
-        if (successful)
-        {
-            DisplayMessage("Successful! Logging in...");
-            StartHomeActivity();
-        } else
-        {
-            DisplayMessage("Error: " + message);
-            m_RegisterButton.setEnabled(true);
-        }
     }
 
     private void StartHomeActivity()

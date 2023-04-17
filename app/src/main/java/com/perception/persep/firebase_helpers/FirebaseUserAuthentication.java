@@ -29,8 +29,6 @@ public class FirebaseUserAuthentication
 
     // Authentication
     private FirebaseAuth m_FirebaseAuth;
-    public UserRegisterAuthListener m_UserRegisterAuthListener;
-    public UserLoginAuthListener m_UserLoginAuthListener;
 
     // Database
     private FirebaseFirestore m_FirebaseDB;
@@ -47,15 +45,7 @@ public class FirebaseUserAuthentication
         return m_Instance;
     }
 
-    public void onStart()
-    {
-    }
-
-    public void onStop()
-    {
-    }
-
-    public void RegisterNewUser(String username, String email, String password)
+    public void RegisterNewUser(String username, String email, String password, UserRegisterAuthListener listener)
     {
         Log.d(TAG, "Creating user with email: '" + email);
         m_User = new User();
@@ -69,62 +59,62 @@ public class FirebaseUserAuthentication
             UserProfileChangeRequest.Builder profileUpdates = new UserProfileChangeRequest.Builder();
             profileUpdates.setDisplayName(username);
             currentUser.updateProfile(profileUpdates.build());
-            TryAddUserData();
+            TryAddUserData(listener);
         }).addOnFailureListener(e -> {
             Log.d(TAG, "Login Auth error: " + e);
-            m_UserRegisterAuthListener.WasRegisterSuccessful(false, "User authentication failed");
+            listener.WasRegisterSuccessful(false, "User authentication failed");
         }).addOnCanceledListener(() -> {
             Log.d(TAG, "Login Auth canceled");
-            m_UserRegisterAuthListener.WasRegisterSuccessful(false, "User authentication failed");
+            listener.WasRegisterSuccessful(false, "User authentication failed");
         });
     }
 
-    public void LoginUser(String email, String password)
+    public void LoginUser(String email, String password, UserLoginAuthListener listener)
     {
         Log.d(TAG, "Login in user with email: '" + email);
         m_FirebaseAuth.signInWithEmailAndPassword(email, password).addOnSuccessListener(authResult -> {
             Log.d(TAG, "Login Auth successful");
             FirebaseUser firebaseUser = authResult.getUser();
-            TryGetUserData(firebaseUser.getUid());
+            TryGetUserData(firebaseUser.getUid(), listener);
         }).addOnFailureListener(e -> {
             Log.d(TAG, "Login Auth error: " + e);
-            m_UserLoginAuthListener.WasLoginSuccessful(false, null, "Couldn't sign in...");
+            listener.WasLoginSuccessful(false, null, "Couldn't sign in...");
         }).addOnCanceledListener(() -> {
             Log.d(TAG, "Login Auth canceled");
-            m_UserLoginAuthListener.WasLoginSuccessful(false, null, "Couldn't sign in...");
+            listener.WasLoginSuccessful(false, null, "Couldn't sign in...");
         });
     }
 
-    private void TryGetUserData(String uid)
+    private void TryGetUserData(String uid, UserLoginAuthListener listener)
     {
         Log.d(TAG, "Trying to get user data...");
         DocumentReference docRef = m_FirebaseDB.collection("users").document(uid);
         docRef.get().addOnSuccessListener(documentSnapshot -> {
             Log.d(TAG, "Successfully retrieved user data");
             User user = new User(Objects.requireNonNull(documentSnapshot.getData()));
-            m_UserLoginAuthListener.WasLoginSuccessful(true, user, "");
+            listener.WasLoginSuccessful(true, user, "");
         }).addOnFailureListener(e -> {
             Log.d(TAG, "Get user data from DB failed" + e);
-            m_UserLoginAuthListener.WasLoginSuccessful(false, null, "Couldn't sign in");
+            listener.WasLoginSuccessful(false, null, "Couldn't sign in");
         }).addOnCanceledListener(() -> {
             Log.d(TAG, "Get user data from DB canceled");
-            m_UserLoginAuthListener.WasLoginSuccessful(false, null, "Couldn't sign in");
+            listener.WasLoginSuccessful(false, null, "Couldn't sign in");
         });
     }
 
-    private void TryAddUserData()
+    private void TryAddUserData(UserRegisterAuthListener listener)
     {
         Log.d(TAG, "Trying to add new user...");
         DocumentReference userDoc = m_FirebaseDB.collection("users").document(m_User.m_UserID);
         userDoc.set(m_User.getMap()).addOnSuccessListener(unused -> {
             Log.d(TAG, "Successfully created user data");
-            m_UserRegisterAuthListener.WasRegisterSuccessful(true, "");
+            listener.WasRegisterSuccessful(true, "");
         }).addOnFailureListener(e -> {
             Log.d(TAG, "Write user data to DB failed: " + e);
-            m_UserRegisterAuthListener.WasRegisterSuccessful(false, "Couldn't create user data");
+            listener.WasRegisterSuccessful(false, "Couldn't create user data");
         }).addOnCanceledListener(() -> {
             Log.d(TAG, "Write user data to DB canceled");
-            m_UserRegisterAuthListener.WasRegisterSuccessful(false, "Couldn't create user data");
+            listener.WasRegisterSuccessful(false, "Couldn't create user data");
         });
     }
 
