@@ -4,6 +4,7 @@ import android.util.Log;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.perception.persep.models.User;
@@ -65,6 +66,9 @@ public class FirebaseUserAuthentication
             Log.d(TAG, "Register Auth successful");
             FirebaseUser currentUser = authResult.getUser();
             m_User.m_UserID = currentUser.getUid();
+            UserProfileChangeRequest.Builder profileUpdates = new UserProfileChangeRequest.Builder();
+            profileUpdates.setDisplayName(username);
+            currentUser.updateProfile(profileUpdates.build());
             TryAddUserData();
         }).addOnFailureListener(e -> {
             Log.d(TAG, "Login Auth error: " + e);

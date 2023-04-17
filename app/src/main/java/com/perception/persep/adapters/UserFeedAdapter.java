@@ -141,9 +141,11 @@ public class UserFeedAdapter extends RecyclerView.Adapter<UserFeedAdapter.UserFe
     @Override
     public void OnQueryResult(boolean successful, String message, List<Post> posts)
     {
-        m_UserPosts = posts;
-        m_UserPosts.sort((o1, o2) -> o2.m_TimeCreated.compareTo(o1.m_TimeCreated));
-        this.notifyDataSetChanged();
+        if (posts != null) {
+            m_UserPosts = posts;
+            m_UserPosts.sort((o1, o2) -> o2.m_TimeCreated.compareTo(o1.m_TimeCreated));
+            this.notifyDataSetChanged();
+        }
     }
 
     public class UserFeedViewHolder extends RecyclerView.ViewHolder

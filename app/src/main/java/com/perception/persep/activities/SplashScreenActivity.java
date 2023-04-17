@@ -10,6 +10,9 @@ import androidx.annotation.Nullable;
 
 import com.example.persep.R;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.perception.persep.constants.UserConstants;
 
 public class SplashScreenActivity extends Activity
 {
@@ -23,10 +26,16 @@ public class SplashScreenActivity extends Activity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash_screen);
 
-        if (IsUserAuthenticated())
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if (user != null)
         {
-            Log.d(TAG, "Has authenticated user. Starting Home activity.");
-            StartActivity(HomeActivity.class);
+            FirebaseFirestore.getInstance().collection(UserConstants.COLLECTION_NAME).document(user.getUid()).get().addOnSuccessListener(documentSnapshot -> {
+                Log.d(TAG, "Has authenticated user. Starting Home activity.");
+                StartActivity(HomeActivity.class);
+            }).addOnFailureListener(e -> {
+                Log.d(TAG, "No authenticated user. Staring login activity.");
+                StartActivity(LoginActivity.class);
+            });
         } else
         {
             Log.d(TAG, "No authenticated user. Staring login activity.");
@@ -40,10 +49,5 @@ public class SplashScreenActivity extends Activity
             startActivity(new Intent(SplashScreenActivity.this, cls));
             finish();
         }, START_ACTIVITY_DELAY);
-    }
-
-    private boolean IsUserAuthenticated()
-    {
-        return FirebaseAuth.getInstance().getCurrentUser() != null;
     }
 }

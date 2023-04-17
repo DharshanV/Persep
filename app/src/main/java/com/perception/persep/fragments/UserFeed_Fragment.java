@@ -1,10 +1,12 @@
 package com.perception.persep.fragments;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -14,6 +16,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.example.persep.R;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.perception.persep.adapters.UserFeedAdapter;
 
 import java.util.Timer;
@@ -26,6 +30,7 @@ public class UserFeed_Fragment extends Fragment
     private SwipeRefreshLayout m_SwipeRefreshLayout;
     private final Timer m_RefreshTimer;
     private UserFeedAdapter m_UserFeedAdapter;
+    private TextView m_UserFeedHeaderText;
 
     public UserFeed_Fragment()
     {
@@ -63,6 +68,17 @@ public class UserFeed_Fragment extends Fragment
             }, 5000);
         });
 
+        m_UserFeedHeaderText = view.findViewById(R.id.username_text_view);
+        String username = "Temp-Username";
+        Context context = getContext();
+        if (context != null) {
+            FirebaseUser loggedInUser = FirebaseAuth.getInstance().getCurrentUser();
+            String firebaseUsername = loggedInUser.getDisplayName();
+            if (firebaseUsername != null && !firebaseUsername.isEmpty()) {
+                username = context.getString(R.string.user_feed_username, firebaseUsername);
+            }
+        }
+        m_UserFeedHeaderText.setText(username);
         super.onViewCreated(view, savedInstanceState);
     }
 }

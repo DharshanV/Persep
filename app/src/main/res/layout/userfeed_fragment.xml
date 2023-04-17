@@ -6,10 +6,24 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context="com.perception.persep.fragments.UserFeed_Fragment">
 
+    <TextView
+        android:id="@+id/username_text_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Hello"
+        android:textSize="30sp"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="10dp"
+        android:textStyle="bold"
+        android:fontFamily="monospace"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
         android:id="@+id/user_feed_swipe_refresh_layout"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@+id/username_text_view">
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/user_feed_recycle_view"
             android:layout_width="match_parent"

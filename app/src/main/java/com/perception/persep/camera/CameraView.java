@@ -105,10 +105,12 @@ public class CameraView extends TextureView implements TextureView.SurfaceTextur
 
     private void StopBackgroundThread()
     {
-        m_BackgroundThread.quitSafely();
         try
         {
-            m_BackgroundThread.join();
+            if (m_BackgroundThread != null) {
+                m_BackgroundThread.quitSafely();
+                m_BackgroundThread.join();
+            }
             m_BackgroundThread = null;
             m_BackgroundHandler = null;
         } catch (InterruptedException e)

@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">Persep</string>
     <string name="user_post_likes">Likes: %d</string>
+    <string name="user_feed_username">%s</string>
 </resources>
