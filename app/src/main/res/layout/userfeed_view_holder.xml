@@ -16,7 +16,6 @@
         android:layout_marginTop="20dp"
         android:layout_marginLeft="1dp"
         android:layout_marginRight="1dp"
-        android:src="@mipmap/ic_launcher"
         app:layout_constraintDimensionRatio="H,16:9"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
