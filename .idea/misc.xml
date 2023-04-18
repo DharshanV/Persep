@@ -3,15 +3,20 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="..\:/Projects/Persep/app/src/main/res/drawable-night/persp_logo.xml" value="0.37864583333333335" />
+        <entry key="..\:/Projects/Persep/app/src/main/res/drawable-night/persp_logo_foreground.xml" value="0.37864583333333335" />
         <entry key="..\:/Projects/Persep/app/src/main/res/drawable-v24/ic_launcher_foreground.xml" value="0.24635416666666668" />
         <entry key="..\:/Projects/Persep/app/src/main/res/drawable/card_off_outline.xml" value="0.37864583333333335" />
         <entry key="..\:/Projects/Persep/app/src/main/res/drawable/card_outline.xml" value="0.37864583333333335" />
         <entry key="..\:/Projects/Persep/app/src/main/res/drawable/ic_icon_launcher_persep_adaptive_fore.xml" value="0.37864583333333335" />
         <entry key="..\:/Projects/Persep/app/src/main/res/drawable/ic_launcher_background.xml" value="0.24635416666666668" />
         <entry key="..\:/Projects/Persep/app/src/main/res/drawable/icon_launcher_persep.xml" value="0.37864583333333335" />
+        <entry key="..\:/Projects/Persep/app/src/main/res/drawable/persp_logo.xml" value="0.37864583333333335" />
+        <entry key="..\:/Projects/Persep/app/src/main/res/drawable/persp_logo_foreground.xml" value="0.37864583333333335" />
         <entry key="..\:/Projects/Persep/app/src/main/res/drawable/post_rounded_background.xml" value="0.24635416666666668" />
         <entry key="..\:/Projects/Persep/app/src/main/res/drawable/splash_background.xml" value="0.37864583333333335" />
         <entry key="..\:/Projects/Persep/app/src/main/res/drawable/splash_screen_persp_logo.xml" value="0.37864583333333335" />
+        <entry key="..\:/Projects/Persep/app/src/main/res/drawable/splash_screen_persp_logo_background.xml" value="0.37864583333333335" />
         <entry key="..\:/Projects/Persep/app/src/main/res/drawable/splash_screen_persp_logo_foreground.xml" value="0.37864583333333335" />
         <entry key="..\:/Projects/Persep/app/src/main/res/drawable/splash_screen_persp_logo_white.xml" value="0.37864583333333335" />
         <entry key="..\:/Projects/Persep/app/src/main/res/drawable/temp.xml" value="0.37864583333333335" />
