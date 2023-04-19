@@ -62,6 +62,7 @@
         android:layout_marginRight="25dp"
         android:layout_marginTop="25dp"
         android:background="@drawable/rounded_button"
+        android:textColor="@color/button_text_color"
         android:padding="15dp"
         android:text="Login"
         app:layout_constraintTop_toBottomOf="@id/passwordTextInputLayout"
