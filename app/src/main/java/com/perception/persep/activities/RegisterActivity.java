@@ -6,14 +6,14 @@ import android.os.Handler;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
-import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.persep.R;
+import com.google.android.material.textfield.TextInputLayout;
 import com.perception.persep.firebase_helpers.FirebaseUserAuthentication;
 
 import java.util.regex.Pattern;
@@ -25,8 +25,8 @@ public class RegisterActivity extends AppCompatActivity
     private static final int HOME_ACTIVITY_DELAY_MS = 1000;
 
     // Widgets
+    private TextInputLayout m_EmailLayout, m_UsernameLayout, m_PasswordLayout;
     private EditText m_Email, m_Username, m_Password;
-    private TextView m_RegisterTextView;
     private Button m_RegisterButton;
 
     protected void onCreate(Bundle savedInstanceState)
@@ -44,62 +44,95 @@ public class RegisterActivity extends AppCompatActivity
         m_Email = findViewById(R.id.register_input_email);
         m_Password = findViewById(R.id.register_input_password);
         m_RegisterButton = findViewById(R.id.register_button);
-        m_RegisterTextView = findViewById(R.id.register_message);
+
+        m_UsernameLayout = findViewById(R.id.register_usernameTextInputLayout);
+        m_EmailLayout = findViewById(R.id.register_emailTextInputLayout);
+        m_PasswordLayout = findViewById(R.id.register_passwordTextInputLayout);
 
         m_RegisterButton.setOnClickListener(v -> {
             String username = m_Username.getText().toString();
             String email = m_Email.getText().toString();
             String password = m_Password.getText().toString();
 
-            m_RegisterButton.setEnabled(false);
             if (CheckInputs(username, email, password))
             {
-                DisplayMessage("Loading...");
+                m_RegisterButton.setEnabled(false);
+                m_RegisterButton.setText(R.string.button_loading_text);
                 FirebaseUserAuthentication.getInstance().RegisterNewUser(username, email, password, (successful, message) -> {
                     if (successful)
                     {
-                        DisplayMessage("Successful! Logging in...");
+                        Toast.makeText(getApplicationContext(), "Registered successfully. Loading...", Toast.LENGTH_LONG).show();
                         StartHomeActivity();
                     } else
                     {
-                        DisplayMessage("Error: " + message);
                         m_RegisterButton.setEnabled(true);
+                        m_RegisterButton.setText(R.string.register_button_register_text);
+                        Toast.makeText(getApplicationContext(), "Error registering. Please try again...", Toast.LENGTH_LONG).show();
                     }
                 });
-            } else
-            {
-                m_RegisterButton.setEnabled(true);
             }
         });
 
-        TextWatcher watcher = new TextWatcher()
+        m_Username.addTextChangedListener(new TextWatcher()
         {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after)
             {
+
             }
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count)
             {
-                if (m_RegisterTextView.getVisibility() != View.GONE)
-                    m_RegisterTextView.setVisibility(View.GONE);
+                m_UsernameLayout.setError(null);
             }
 
             @Override
             public void afterTextChanged(Editable s)
             {
-            }
-        };
-        m_Username.addTextChangedListener(watcher);
-        m_Email.addTextChangedListener(watcher);
-        m_Password.addTextChangedListener(watcher);
-    }
 
-    private void DisplayMessage(String message)
-    {
-        m_RegisterTextView.setVisibility(View.VISIBLE);
-        m_RegisterTextView.setText(message);
+            }
+        });
+        m_Email.addTextChangedListener(new TextWatcher()
+        {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after)
+            {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count)
+            {
+                m_EmailLayout.setError(null);
+            }
+
+            @Override
+            public void afterTextChanged(Editable s)
+            {
+
+            }
+        });
+        m_Password.addTextChangedListener(new TextWatcher()
+        {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after)
+            {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count)
+            {
+                m_PasswordLayout.setError(null);
+            }
+
+            @Override
+            public void afterTextChanged(Editable s)
+            {
+
+            }
+        });
     }
 
     private boolean CheckInputs(String username, String email, String password)
@@ -113,8 +146,7 @@ public class RegisterActivity extends AppCompatActivity
         }
         if (!isUsernameValid)
         {
-            DisplayMessage("Invalid username or already exists");
-            return false;
+            m_UsernameLayout.setError("Invalid username");
         }
 
         // Email
@@ -127,19 +159,17 @@ public class RegisterActivity extends AppCompatActivity
         }
         if (!isEmailValid)
         {
-            DisplayMessage("Invalid email or already exists");
-            return false;
+            m_EmailLayout.setError("Invalid email");
         }
 
         // Password
         boolean isPasswordValid = !password.isEmpty() && password.length() >= 5;
         if (!isPasswordValid)
         {
-            DisplayMessage("Invalid password");
-            return false;
+            m_PasswordLayout.setError("Invalid password");
         }
 
-        return true;
+        return isUsernameValid && isEmailValid && isPasswordValid;
     }
 
     private void StartHomeActivity()

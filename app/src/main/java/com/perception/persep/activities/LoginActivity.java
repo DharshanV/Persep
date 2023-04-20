@@ -43,8 +43,8 @@ public class LoginActivity extends AppCompatActivity
     {
         m_Email = findViewById(R.id.login_input_email);
         m_Password = findViewById(R.id.login_input_password);
-        m_EmailLayout = findViewById(R.id.emailTextInputLayout);
-        m_PasswordLayout = findViewById(R.id.passwordTextInputLayout);
+        m_EmailLayout = findViewById(R.id.login_emailTextInputLayout);
+        m_PasswordLayout = findViewById(R.id.login_passwordTextInputLayout);
 
         m_LoginButton = findViewById(R.id.button_login);
         m_LoginButton.setOnClickListener(v -> {
@@ -53,7 +53,7 @@ public class LoginActivity extends AppCompatActivity
             if (CheckInputs(email, password))
             {
                 m_LoginButton.setEnabled(false);
-                m_LoginButton.setText(R.string.login_button_loading_text);
+                m_LoginButton.setText(R.string.button_loading_text);
 
                 FirebaseUserAuthentication.getInstance().LoginUser(email, password, (successful, user, message) -> {
                     if (successful)

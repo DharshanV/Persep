@@ -3,5 +3,6 @@
     <string name="user_post_likes">Likes: %d</string>
     <string name="user_feed_username">%s</string>
     <string name="login_button_login_text">login</string>
-    <string name="login_button_loading_text">loading</string>
+    <string name="register_button_register_text">register</string>
+    <string name="button_loading_text">loading</string>
 </resources>
