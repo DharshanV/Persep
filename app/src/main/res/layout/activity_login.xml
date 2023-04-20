@@ -64,7 +64,7 @@
         android:background="@drawable/rounded_button"
         android:textColor="@color/button_text_color"
         android:padding="15dp"
-        android:text="Login"
+        android:text="@string/login_button_login_text"
         android:textSize="17dp"
         app:layout_constraintTop_toBottomOf="@id/passwordTextInputLayout"
         app:layout_constraintEnd_toEndOf="parent"

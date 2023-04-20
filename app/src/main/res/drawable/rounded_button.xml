@@ -9,6 +9,14 @@
         </shape>
     </item>
 
+    <item android:state_enabled="false">
+        <shape>
+            <solid android:color="?attr/colorAccent"/>
+            <stroke android:color="?attr/colorAccent" android:width="2dp"/>
+            <corners android:radius="50dp"/>
+        </shape>
+    </item>
+
     <item>
         <shape>
             <solid android:color="?attr/colorPrimary"/>
