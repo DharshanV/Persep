@@ -3,6 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:theme="@style/Theme.Persep"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context="com.perception.persep.fragments.UserFeed_Fragment">
 
@@ -14,8 +15,7 @@
         android:textSize="30sp"
         android:layout_marginStart="10dp"
         android:layout_marginTop="10dp"
-        android:textStyle="bold"
-        android:fontFamily="monospace"
+        android:fontFamily="@font/playfair_display_bold"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 

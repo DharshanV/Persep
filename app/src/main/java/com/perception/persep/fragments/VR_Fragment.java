@@ -221,7 +221,7 @@ public class VR_Fragment extends Fragment
         m_ToggleVRButton.setOnClickListener(v -> {
             m_VRRenderState = !m_VRRenderState;
             m_RenderView.ShouldRender(m_VRRenderState);
-            v.setBackgroundResource(m_VRRenderState ? R.drawable.card_outline : R.drawable.card_off_outline);
+            m_ToggleVRButton.setImageResource(m_VRRenderState ? R.drawable.vr_enable_card_outline : R.drawable.vr_disable_card_outline);
         });
     }
 

@@ -4,22 +4,22 @@
     android:id="@+id/vr_root_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:theme="@style/Theme.Persep"
     tools:context="com.perception.persep.fragments.VR_Fragment">
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:layout_width="1000dp"
+        android:layout_width="100dp"
         android:layout_height="100dp"
         android:layout_gravity="center|bottom"
-        android:layout_marginBottom="10dp"
+        android:layout_marginBottom="20dp"
         android:id="@+id/vr_button_take_photo"/>
 
     <ImageButton
         android:id="@+id/toggle_vr_button"
-        android:layout_width="50dp"
-        android:layout_height="55dp"
+        android:layout_width="@dimen/vr_enable_disable_vector_size"
+        android:layout_height="@dimen/vr_enable_disable_vector_size"
         android:background="@android:color/transparent"
-        android:scaleType="fitXY"
-        android:src="@drawable/card_outline"
+        android:src="@drawable/vr_enable_card_outline"
         android:layout_marginTop="30dp"
         android:layout_marginRight="10dp"
         android:layout_gravity="right|top"

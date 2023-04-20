@@ -7,6 +7,7 @@
     android:background="@drawable/post_rounded_background"
     android:layout_marginLeft="10dp"
     android:layout_marginRight="10dp"
+    android:theme="@style/Theme.Persep"
     android:layout_marginBottom="20dp">
 
     <ImageView
@@ -14,8 +15,8 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginTop="20dp"
-        android:layout_marginLeft="1dp"
-        android:layout_marginRight="1dp"
+        android:layout_marginLeft="3dp"
+        android:layout_marginRight="3dp"
         app:layout_constraintDimensionRatio="H,16:9"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -25,12 +26,10 @@
         android:id="@+id/user_post_like_count"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Likes: 999"
-        android:textColor="@color/black"
-        android:textSize="15sp"
-        android:textStyle="bold"
         android:layout_marginLeft="15dp"
+        android:fontFamily="@font/playfair_display_bold"
         android:paddingVertical="10dp"
+        android:text="Likes: 999"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintTop_toBottomOf="@id/user_feed_post_image" />
 
@@ -39,9 +38,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Unknown"
-        android:textColor="@color/black"
-        android:textSize="15sp"
-        android:textStyle="italic"
+        android:fontFamily="@font/playfair_display_italic"
         android:layout_marginRight="15dp"
         android:paddingVertical="10dp"
         app:layout_constraintRight_toRightOf="parent"
