@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <dimen name="vr_enable_disable_vector_size">50dp</dimen>
-    <integer name="vr_enable_disable_vector_viewport_size">25</integer>
+    <integer name="vr_enable_disable_vector_viewport_size">23</integer>
 </resources>

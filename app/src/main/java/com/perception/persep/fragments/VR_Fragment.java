@@ -13,6 +13,7 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.Toast;
@@ -25,7 +26,6 @@ import androidx.fragment.app.Fragment;
 import androidx.viewpager2.widget.ViewPager2;
 
 import com.example.persep.R;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.perception.persep.album_data.Album;
@@ -49,7 +49,7 @@ public class VR_Fragment extends Fragment
     private ActivityResultLauncher<Intent> m_UCropActivityResultLauncher = null;
 
     // widgets
-    private FloatingActionButton m_TakePhotoButton = null;
+    private Button m_TakePhotoButton = null;
     private ImageButton m_ToggleVRButton = null;
     private boolean m_VRRenderState = true;
 
