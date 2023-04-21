@@ -8,13 +8,11 @@
     tools:context="com.perception.persep.fragments.VR_Fragment">
 
 
-    <androidx.appcompat.widget.AppCompatButton
+    <Button
         android:id="@+id/vr_button_take_photo"
-        android:layout_width="match_parent"
-        android:layout_height="70dp"
-        android:layout_marginBottom="35dp"
-        android:layout_marginLeft="135dp"
-        android:layout_marginRight="135dp"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:layout_marginBottom="50dp"
         android:background="@drawable/rounded_button"
         android:layout_gravity="center|bottom"
         android:translationZ="30dp"/>
