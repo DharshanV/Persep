@@ -188,7 +188,5 @@ public class RegisterActivity extends AppCompatActivity
 
     private void hideKeyboard()
     {
-        InputMethodManager imm = (InputMethodManager) getSystemService(Activity.INPUT_METHOD_SERVICE);
-        imm.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
     }
 }
