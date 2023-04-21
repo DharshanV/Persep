@@ -1,15 +1,11 @@
 package com.perception.persep.data_gatherer;
 
-import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.HandlerThread;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
-import androidx.core.app.ActivityCompat;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
@@ -38,7 +34,10 @@ public class GPSSensor
     private LocationCallback m_LocationCB = null;
 
     private final static int MAX_BOUND_COUNT = 20;
+    private final static int MIN_NUM_BOUND_TO_CB = 4;
+    private final static double MIN_ACCURACY_TO_CB = 4.0; // meters
     private final LinkedList<LatLng> m_Bounds = new LinkedList<>();
+    private Location m_BestLocation = null;
 
     private HandlerThread m_SensorThread;
 
@@ -115,11 +114,18 @@ public class GPSSensor
 
     private void UpdateLocation(Location location)
     {
-        AddLocationToBound(location);
-        LatLng center = GetCenter();
-        for (Listener listener : m_Listeners)
+        if (m_BestLocation == null || location.getAccuracy() < m_BestLocation.getAccuracy())
         {
-            listener.onLocationChanged(center.latitude, center.longitude);
+            m_BestLocation = location;
+            AddLocationToBound(m_BestLocation);
+            if (m_BestLocation.getAccuracy() <= MIN_ACCURACY_TO_CB || m_Bounds.size() >= MIN_NUM_BOUND_TO_CB)
+            {
+                LatLng center = GetCenter();
+                for (Listener listener : m_Listeners)
+                {
+                    listener.onLocationChanged(center.latitude, center.longitude);
+                }
+            }
         }
     }
 
