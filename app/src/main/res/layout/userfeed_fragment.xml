@@ -22,7 +22,7 @@
     <View
         android:id="@+id/divier1"
         android:layout_width="match_parent"
-        android:layout_height="2dp"
+        android:layout_height="4dp"
         android:background="@color/divider_background_color"
         app:layout_constraintTop_toBottomOf="@id/username_text_view"/>
 
