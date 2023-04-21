@@ -86,6 +86,7 @@ public class LoginActivity extends AppCompatActivity
             public void onTextChanged(CharSequence s, int start, int before, int count)
             {
                 m_EmailLayout.setError(null);
+                m_EmailLayout.setErrorEnabled(false);
             }
 
             @Override
@@ -104,6 +105,7 @@ public class LoginActivity extends AppCompatActivity
             public void onTextChanged(CharSequence s, int start, int before, int count)
             {
                 m_PasswordLayout.setError(null);
+                m_PasswordLayout.setErrorEnabled(false);
             }
 
             @Override
@@ -126,6 +128,7 @@ public class LoginActivity extends AppCompatActivity
         if (!isEmailValid)
         {
             m_EmailLayout.setError("Invalid email");
+            m_EmailLayout.setErrorEnabled(true);
         }
 
         // Password
@@ -133,6 +136,7 @@ public class LoginActivity extends AppCompatActivity
         if (!isPasswordValid)
         {
             m_PasswordLayout.setError("Invalid password");
+            m_PasswordLayout.setErrorEnabled(true);
         }
 
         return isEmailValid && isPasswordValid;
