@@ -20,9 +20,6 @@ public class SplashScreenActivity extends Activity
 {
     private static final String TAG = "SplashScreen";
 
-    private Class<?> m_LaunchActivityClass = null;
-    private boolean m_LaunchedActivity = false;
-
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState)
     {
@@ -30,31 +27,28 @@ public class SplashScreenActivity extends Activity
         super.onCreate(savedInstanceState);
 
         final View content = findViewById(android.R.id.content);
-        content.getViewTreeObserver().addOnPreDrawListener(() -> {
-            if (m_LaunchActivityClass != null && !m_LaunchedActivity)
-            {
-                m_LaunchedActivity = true;
-                startActivity(new Intent(SplashScreenActivity.this, m_LaunchActivityClass));
-                finish();
-                return true;
-            }
-            return false;
-        });
+        content.getViewTreeObserver().addOnPreDrawListener(() -> true);
 
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         if (user != null)
         {
             FirebaseFirestore.getInstance().collection(UserConstants.COLLECTION_NAME).document(user.getUid()).get().addOnSuccessListener(documentSnapshot -> {
                 Log.d(TAG, "Has authenticated user. Starting Home activity.");
-                m_LaunchActivityClass = HomeActivity.class;
+                StartActivity(HomeActivity.class);
             }).addOnFailureListener(e -> {
                 Log.d(TAG, "No authenticated user. Staring login activity.");
-                m_LaunchActivityClass = LoginActivity.class;
+                StartActivity(LoginActivity.class);
             });
         } else
         {
             Log.d(TAG, "No authenticated user. Staring login activity.");
-            m_LaunchActivityClass = LoginActivity.class;
+            StartActivity(LoginActivity.class);
         }
+    }
+
+    private void StartActivity(Class<?> activityClass)
+    {
+        startActivity(new Intent(SplashScreenActivity.this, activityClass));
+        finish();
     }
 }
