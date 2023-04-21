@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Looper;
 import android.util.Log;
 import android.view.View;
 
@@ -20,6 +19,9 @@ public class SplashScreenActivity extends Activity
 {
     private static final String TAG = "SplashScreen";
 
+    private Class<?> m_LaunchActivityClass = null;
+    private boolean m_LaunchedActivity = false;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState)
     {
@@ -27,28 +29,32 @@ public class SplashScreenActivity extends Activity
         super.onCreate(savedInstanceState);
 
         final View content = findViewById(android.R.id.content);
-        content.getViewTreeObserver().addOnPreDrawListener(() -> true);
+        content.getViewTreeObserver().addOnPreDrawListener(() -> {
+            if (m_LaunchActivityClass != null && !m_LaunchedActivity)
+            {
+                m_LaunchedActivity = true;
+                startActivity(new Intent(SplashScreenActivity.this, m_LaunchActivityClass));
+                finish();
+                return true;
+            }
+            return false;
+        });
 
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         if (user != null)
         {
             FirebaseFirestore.getInstance().collection(UserConstants.COLLECTION_NAME).document(user.getUid()).get().addOnSuccessListener(documentSnapshot -> {
                 Log.d(TAG, "Has authenticated user. Starting Home activity.");
-                StartActivity(HomeActivity.class);
+                m_LaunchActivityClass = HomeActivity.class;
             }).addOnFailureListener(e -> {
                 Log.d(TAG, "No authenticated user. Staring login activity.");
-                StartActivity(LoginActivity.class);
+                m_LaunchActivityClass = LoginActivity.class;
             });
         } else
         {
             Log.d(TAG, "No authenticated user. Staring login activity.");
-            StartActivity(LoginActivity.class);
+            new Handler().postDelayed(() -> m_LaunchActivityClass = LoginActivity.class, 1500);
         }
     }
 
-    private void StartActivity(Class<?> activityClass)
-    {
-        startActivity(new Intent(SplashScreenActivity.this, activityClass));
-        finish();
-    }
 }
