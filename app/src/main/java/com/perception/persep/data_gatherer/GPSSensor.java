@@ -16,8 +16,11 @@ import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.libraries.maps.model.LatLng;
+import com.google.android.libraries.maps.model.LatLngBounds;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 
 public class GPSSensor
 {
@@ -30,69 +33,48 @@ public class GPSSensor
 
     private final ArrayList<Listener> m_Listeners = new ArrayList<>();
 
-    boolean m_IsLocationServiceEnabled = false;
     private FusedLocationProviderClient m_FusedLocationProvider = null;
     private LocationRequest m_LocationRequest = null;
     private LocationCallback m_LocationCB = null;
-    private Location m_BestLocation = null;
+
+    private final static int MAX_BOUND_COUNT = 20;
+    private final LinkedList<LatLng> m_Bounds = new LinkedList<>();
 
     private HandlerThread m_SensorThread;
 
     // The minimum distance between updates in meters
-    private static final long MIN_DISTANCE_BW_UPDATES = 5;
+    private static final long MIN_DISTANCE_BW_UPDATES = 0;
 
     // The minimum time between updates in milliseconds
     private static final long MIN_TIME_BW_UPDATES = 1000;
 
     public GPSSensor(Context context)
     {
-        boolean isPermissionEnabled;
-        isPermissionEnabled = ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED;
-        isPermissionEnabled &= ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED;
+        //get google play fused location service
+        m_FusedLocationProvider = LocationServices.getFusedLocationProviderClient(context);
 
-        if (isPermissionEnabled)
+        m_LocationRequest = LocationRequest.create();
+        m_LocationRequest.setInterval(MIN_TIME_BW_UPDATES);
+        m_LocationRequest.setFastestInterval(MIN_TIME_BW_UPDATES / 2);
+        m_LocationRequest.setSmallestDisplacement(MIN_DISTANCE_BW_UPDATES);
+        m_LocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+
+        m_LocationCB = new LocationCallback()
         {
-            //get google play fused location service
-            m_FusedLocationProvider = LocationServices.getFusedLocationProviderClient(context);
-
-            m_LocationRequest = LocationRequest.create();
-            m_LocationRequest.setInterval(MIN_TIME_BW_UPDATES);
-            m_LocationRequest.setFastestInterval(MIN_TIME_BW_UPDATES / 2);
-            m_LocationRequest.setSmallestDisplacement(MIN_DISTANCE_BW_UPDATES);
-            m_LocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-
-            m_LocationCB = new LocationCallback()
+            @Override
+            public void onLocationResult(@NonNull LocationResult locationResult)
             {
-                @Override
-                public void onLocationResult(@NonNull LocationResult locationResult)
+                if (!m_Listeners.isEmpty())
                 {
-                    if (!m_Listeners.isEmpty())
-                    {
-                        Location location = locationResult.getLastLocation();
-                        UpdateBestLocation(location);
-                        for (Listener listener : m_Listeners)
-                        {
-                            listener.onLocationChanged(m_BestLocation.getLatitude(), m_BestLocation.getLongitude());
-                        }
-                    }
+                    UpdateLocation(locationResult.getLastLocation());
                 }
-            };
-
-            m_IsLocationServiceEnabled = true;
-        } else
-        {
-            Log.e(TAG, "Permission not enabled for fine and coarse location");
-        }
+            }
+        };
     }
 
     @SuppressLint("MissingPermission")
     public void RegisterSensor()
     {
-        if (!m_IsLocationServiceEnabled)
-        {
-            return;
-        }
-
         m_SensorThread = new HandlerThread("GPSThread", Thread.MAX_PRIORITY);
         m_SensorThread.start();
         m_FusedLocationProvider.requestLocationUpdates(m_LocationRequest, m_LocationCB, m_SensorThread.getLooper());
@@ -100,11 +82,6 @@ public class GPSSensor
 
     public void UnregisterSensor()
     {
-        if (!m_IsLocationServiceEnabled)
-        {
-            return;
-        }
-
         try
         {
             if (m_SensorThread != null)
@@ -128,25 +105,42 @@ public class GPSSensor
         if (m_FusedLocationProvider != null)
         {
             m_FusedLocationProvider.getLastLocation().addOnCompleteListener(task -> {
-                Location location = task.getResult();
-                if (location != null)
+                if (!m_Listeners.isEmpty())
                 {
-                    UpdateBestLocation(location);
-                    for (Listener listener1 : m_Listeners)
-                    {
-                        listener1.onLocationChanged(m_BestLocation.getLatitude(), m_BestLocation.getLongitude());
-                    }
+                    UpdateLocation(task.getResult());
                 }
             });
         }
     }
 
-    private void UpdateBestLocation(Location location)
+    private void UpdateLocation(Location location)
     {
-        if (m_BestLocation == null || location.getAccuracy() < m_BestLocation.getAccuracy())
+        AddLocationToBound(location);
+        LatLng center = GetCenter();
+        for (Listener listener : m_Listeners)
         {
-            m_BestLocation = location;
+            listener.onLocationChanged(center.latitude, center.longitude);
         }
     }
 
+    private void AddLocationToBound(Location location)
+    {
+        if (m_Bounds.size() == MAX_BOUND_COUNT)
+        {
+            m_Bounds.removeFirst();
+            m_Bounds.addLast(new LatLng(location.getLatitude(), location.getLongitude()));
+            return;
+        }
+        m_Bounds.addLast(new LatLng(location.getLatitude(), location.getLongitude()));
+    }
+
+    private LatLng GetCenter()
+    {
+        LatLngBounds.Builder builder = LatLngBounds.builder();
+        for (LatLng location : m_Bounds)
+        {
+            builder.include(location);
+        }
+        return builder.build().getCenter();
+    }
 }
