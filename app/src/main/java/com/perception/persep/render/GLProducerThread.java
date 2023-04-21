@@ -35,11 +35,9 @@ public class GLProducerThread extends Thread
     private static final int EGL_OPENGL_ES2_BIT = 4;
 
     //Framerate
-    private final long m_StartTime;
-    private long m_EndTime;
-    private long m_DeltaTime;
-    private final float m_TargetFPS;
-    private final long m_TargetDelay;
+    private final double m_StartTime;
+    private final double m_TargetFPS;
+    private final double m_FrameInterval;
 
     public GLProducerThread(SurfaceTexture surfaceTexture, OpenGLRenderer renderer, int width, int height, AtomicBoolean runningFlag)
     {
@@ -49,10 +47,10 @@ public class GLProducerThread extends Thread
         m_SurfaceHeight = height;
         m_RunningFlag = runningFlag;
         m_ShouldRender = new AtomicBoolean();
-        m_StartTime = System.currentTimeMillis();
+        m_StartTime = (double) System.nanoTime() / 1000000;
 
         m_TargetFPS = HomeActivity.DEFAULT_DISPLAY_REFRESH_RATE;
-        m_TargetDelay = (long) (1.0f / m_TargetFPS * 1000.0f);
+        m_FrameInterval = 1000 / m_TargetFPS;
     }
 
     private void InitGLContext()
@@ -139,15 +137,16 @@ public class GLProducerThread extends Thread
         {
             if (m_Renderer != null)
             {
-                if (m_ShouldRender != null && m_ShouldRender.get()) m_Renderer.DrawFrame();
-                else m_Renderer.DrawClear();
-                m_Egl.eglSwapBuffers(m_EglDisplay, m_EglSurface);
-            }
-            try
-            {
-                Thread.sleep(m_TargetDelay);
-            } catch (InterruptedException ignored)
-            {
+                double endTime = (double) System.nanoTime() / 1000000;
+                double elapsedTime = endTime - m_StartTime;
+
+                if (elapsedTime >= m_FrameInterval)
+                {
+                    if (m_ShouldRender != null && m_ShouldRender.get()) m_Renderer.DrawFrame();
+                    else m_Renderer.DrawClear();
+                    m_Egl.eglSwapBuffers(m_EglDisplay, m_EglSurface);
+                }
+                m_Renderer.DrawClear();
             }
         }
 
