@@ -21,20 +21,18 @@ public class DataGathererManager
         m_AlbumManger = new AlbumManager(context);
     }
 
-    public void onPause()
+    public void onStart()
     {
-        Log.d(TAG, "Paused");
-        m_RotationSensor.UnregisterSensor();
-        m_GPSSensor.UnregisterSensor();
-        m_AlbumManger.onPause();
-    }
-
-    public void onResume()
-    {
-        Log.d(TAG, "Resumed");
         m_RotationSensor.RegisterSensor();
         m_GPSSensor.RegisterSensor();
         m_AlbumManger.onResume();
+    }
+
+    public void onStop()
+    {
+        m_RotationSensor.UnregisterSensor();
+        m_GPSSensor.UnregisterSensor();
+        m_AlbumManger.onPause();
     }
 
     public void SetGyroscopeListener(RotationSensor.Listener listener)

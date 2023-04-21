@@ -35,12 +35,10 @@ public class CameraView extends TextureView implements TextureView.SurfaceTextur
         if (m_PreviewCamera != null) {
             m_PreviewCamera.CloseCamera();
         }
-        StopBackgroundThread();
     }
 
     public void onResume()
     {
-        StartBackgroundThread();
         if (isAvailable() && m_PreviewCamera != null)
         {
             int width = m_TextureSize.getWidth();
@@ -54,10 +52,12 @@ public class CameraView extends TextureView implements TextureView.SurfaceTextur
 
     public void onStart()
     {
+        StartBackgroundThread();
     }
 
     public void onStop()
     {
+        StopBackgroundThread();
     }
 
     @Override
@@ -98,9 +98,12 @@ public class CameraView extends TextureView implements TextureView.SurfaceTextur
 
     private void StartBackgroundThread()
     {
-        m_BackgroundThread = new HandlerThread("CameraBackground");
-        m_BackgroundThread.start();
-        m_BackgroundHandler = new Handler(m_BackgroundThread.getLooper());
+        if (m_BackgroundThread == null && m_BackgroundThread == null)
+        {
+            m_BackgroundThread = new HandlerThread("CameraBackground");
+            m_BackgroundThread.start();
+            m_BackgroundHandler = new Handler(m_BackgroundThread.getLooper());
+        }
     }
 
     private void StopBackgroundThread()

@@ -154,6 +154,7 @@ public class VR_Fragment extends Fragment
 
         if (m_RenderView != null) m_RenderView.onStart();
         if (m_CameraView != null) m_CameraView.onStart();
+        if (m_DataGathererManager != null) m_DataGathererManager.onStart();
     }
 
     @Override
@@ -164,6 +165,7 @@ public class VR_Fragment extends Fragment
 
         if (m_RenderView != null) m_RenderView.onStop();
         if (m_CameraView != null) m_CameraView.onStop();
+        if (m_DataGathererManager != null) m_DataGathererManager.onStop();
     }
 
     @Override
@@ -174,7 +176,6 @@ public class VR_Fragment extends Fragment
 
         if (m_RenderView != null) m_RenderView.onPause();
         if (m_CameraView != null) m_CameraView.onPause();
-        if (m_DataGathererManager != null) m_DataGathererManager.onPause();
     }
 
     @Override
@@ -185,7 +186,6 @@ public class VR_Fragment extends Fragment
 
         if (m_RenderView != null) m_RenderView.onResume(m_VRRenderState);
         if (m_CameraView != null) m_CameraView.onResume();
-        if (m_DataGathererManager != null) m_DataGathererManager.onResume();
     }
 
     @SuppressLint("ClickableViewAccessibility")
