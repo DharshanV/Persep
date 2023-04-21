@@ -21,6 +21,7 @@ public class SplashScreenActivity extends Activity
     private static final String TAG = "SplashScreen";
 
     private Class<?> m_LaunchActivityClass = null;
+    private boolean m_LaunchedActivity = false;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState)
@@ -30,10 +31,13 @@ public class SplashScreenActivity extends Activity
 
         final View content = findViewById(android.R.id.content);
         content.getViewTreeObserver().addOnPreDrawListener(() -> {
-            if (m_LaunchActivityClass != null)
+            if (m_LaunchActivityClass != null && !m_LaunchedActivity)
             {
-                startActivity(new Intent(SplashScreenActivity.this, m_LaunchActivityClass));
-                finish();
+                m_LaunchedActivity = true;
+                new Handler().postDelayed(() -> {
+                    startActivity(new Intent(SplashScreenActivity.this, m_LaunchActivityClass));
+                    finish();
+                }, 1000);
                 return true;
             }
             return false;
@@ -52,9 +56,7 @@ public class SplashScreenActivity extends Activity
         } else
         {
             Log.d(TAG, "No authenticated user. Staring login activity.");
-            new Handler(Looper.getMainLooper()).postDelayed(() -> {
-                m_LaunchActivityClass = LoginActivity.class;
-            }, 500);
+            m_LaunchActivityClass = LoginActivity.class;
         }
     }
 }

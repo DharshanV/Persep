@@ -58,13 +58,13 @@ public class LoginActivity extends AppCompatActivity
                 FirebaseUserAuthentication.getInstance().LoginUser(email, password, (successful, user, message) -> {
                     if (successful)
                     {
-                        Toast.makeText(getApplicationContext(), "Login successful. Loading...", Toast.LENGTH_LONG).show();
+                        Toast.makeText(getApplicationContext(), "Login successful. Loading...", Toast.LENGTH_SHORT).show();
                         StartHomeActivity();
                     } else
                     {
                         m_LoginButton.setEnabled(true);
                         m_LoginButton.setText(R.string.login_button_login_text);
-                        Toast.makeText(getApplicationContext(), "Error logging in. Please try again...", Toast.LENGTH_LONG).show();
+                        Toast.makeText(getApplicationContext(), "Error logging in. Please try again...", Toast.LENGTH_SHORT).show();
                     }
                 });
             }
