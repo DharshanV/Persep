@@ -42,6 +42,7 @@ public class GPSSensor
     private Location m_BestLocation = null;
     private long m_GPSensorStartTime = 0;
 
+    // Test commit
     private HandlerThread m_SensorThread;
 
     // The minimum distance between updates in meters
