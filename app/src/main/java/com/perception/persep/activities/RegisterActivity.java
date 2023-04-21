@@ -1,11 +1,13 @@
 package com.perception.persep.activities;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -63,6 +65,7 @@ public class RegisterActivity extends AppCompatActivity
                     {
                         Toast.makeText(getApplicationContext(), "Registered successfully. Loading...", Toast.LENGTH_LONG).show();
                         StartHomeActivity();
+                        hideKeyboard();
                     } else
                     {
                         m_RegisterButton.setEnabled(true);
@@ -181,5 +184,11 @@ public class RegisterActivity extends AppCompatActivity
             startActivity(intent);
             finish();
         }, HOME_ACTIVITY_DELAY_MS);
+    }
+
+    private void hideKeyboard()
+    {
+        InputMethodManager imm = (InputMethodManager) getSystemService(Activity.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
     }
 }

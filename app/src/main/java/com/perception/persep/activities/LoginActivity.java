@@ -1,11 +1,13 @@
 package com.perception.persep.activities;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -60,6 +62,7 @@ public class LoginActivity extends AppCompatActivity
                     {
                         Toast.makeText(getApplicationContext(), "Login successful. Loading...", Toast.LENGTH_SHORT).show();
                         StartHomeActivity();
+                        hideKeyboard();
                     } else
                     {
                         m_LoginButton.setEnabled(true);
@@ -73,6 +76,7 @@ public class LoginActivity extends AppCompatActivity
         TextView signUpTextView = findViewById(R.id.textview_signup);
         signUpTextView.setOnClickListener(v -> {
             startActivity(new Intent(LoginActivity.this, RegisterActivity.class));
+            hideKeyboard();
         });
 
         m_Email.addTextChangedListener(new TextWatcher()
@@ -149,5 +153,11 @@ public class LoginActivity extends AppCompatActivity
             startActivity(new Intent(LoginActivity.this, HomeActivity.class));
             finish();
         }, HOME_ACTIVITY_DELAY_MS);
+    }
+
+    private void hideKeyboard()
+    {
+        InputMethodManager imm = (InputMethodManager) getSystemService(Activity.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
     }
 }
