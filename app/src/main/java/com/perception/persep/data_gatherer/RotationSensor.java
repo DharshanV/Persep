@@ -65,7 +65,7 @@ public class RotationSensor
             m_SensorThread = new HandlerThread("GyroscopeThread", Thread.MAX_PRIORITY);
             m_SensorThread.start();
             m_SensorHandler = new Handler(m_SensorThread.getLooper());
-            m_SensorManager.registerListener(m_SensorEventListener, m_RotationSensor, SensorManager.SENSOR_DELAY_FASTEST, m_SensorHandler);
+            m_SensorManager.registerListener(m_SensorEventListener, m_RotationSensor, SensorManager.SENSOR_DELAY_GAME, m_SensorHandler);
         }
     }
 
