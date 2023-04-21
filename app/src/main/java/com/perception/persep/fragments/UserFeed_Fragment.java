@@ -54,18 +54,20 @@ public class UserFeed_Fragment extends Fragment
         m_SwipeRefreshLayout = view.findViewById(R.id.user_feed_swipe_refresh_layout);
         m_SwipeRefreshLayout.setOnRefreshListener(() -> {
             Log.d(TAG, "Refresh...");
-            m_SwipeRefreshLayout.setRefreshing(false);
-            m_SwipeRefreshLayout.setEnabled(false);
-            m_UserFeedAdapter.refresh();
-            m_RefreshTimer.schedule(new TimerTask()
-            {
-                @Override
-                public void run()
+            m_UserFeedAdapter.refresh(() -> {
+                m_SwipeRefreshLayout.setRefreshing(false);
+                m_SwipeRefreshLayout.setEnabled(false);
+                m_RefreshTimer.schedule(new TimerTask()
                 {
-                    m_SwipeRefreshLayout.setEnabled(true);
-                }
-            }, 5000);
+                    @Override
+                    public void run()
+                    {
+                        m_SwipeRefreshLayout.setEnabled(true);
+                    }
+                }, 2500);
+            });
         });
+        m_SwipeRefreshLayout.setDistanceToTriggerSync(750);
 
         TextView userFeedHeaderText = view.findViewById(R.id.username_text_view);
         String username = "Temp-Username";

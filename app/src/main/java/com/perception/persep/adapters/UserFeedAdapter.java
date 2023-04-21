@@ -31,6 +31,11 @@ public class UserFeedAdapter extends RecyclerView.Adapter<UserFeedAdapter.UserFe
 {
     private static final String TAG = "UserFeedAdapter";
 
+    public interface RefreshQueryCompleteListener
+    {
+        void onComplete();
+    }
+
     private List<Post> m_UserPosts = new ArrayList<>();
 
     public UserFeedAdapter()
@@ -42,7 +47,7 @@ public class UserFeedAdapter extends RecyclerView.Adapter<UserFeedAdapter.UserFe
         }
     }
 
-    public void refresh()
+    public void refresh(RefreshQueryCompleteListener listener)
     {
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         if (user == null) return;
@@ -59,6 +64,7 @@ public class UserFeedAdapter extends RecyclerView.Adapter<UserFeedAdapter.UserFe
             }
 
             Tasks.whenAllSuccess(postQueryTasks).addOnSuccessListener(postsResult -> {
+                listener.onComplete();
                 // Check for if post has been modified or added
                 for (Object postObj : postsResult)
                 {
