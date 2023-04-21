@@ -103,7 +103,7 @@ public class VR_Fragment extends Fragment
         String[] manifestPermissions = GetAllPermission();
         if (HasAllPermissions(manifestPermissions))
         {
-            InitializeFragment();
+            InitializeFragment(false);
             return;
         }
 
@@ -116,7 +116,7 @@ public class VR_Fragment extends Fragment
             } else
             {
                 Log.d(TAG, "All permissions granted...");
-                InitializeFragment();
+                InitializeFragment(true);
             }
         });
 
@@ -124,7 +124,7 @@ public class VR_Fragment extends Fragment
         multiplePermissionResultLauncher.launch(manifestPermissions);
     }
 
-    private void InitializeFragment()
+    private void InitializeFragment(boolean forceStart)
     {
         if (m_VRLayout == null)
         {
@@ -144,6 +144,12 @@ public class VR_Fragment extends Fragment
         m_DataGathererManager.AddGPSListener(m_RenderView);
         m_DataGathererManager.AddGPSListener(m_DataGathererManager.getAlbumManger());
         m_DataGathererManager.SetAlbumListener(m_RenderView);
+
+        if (forceStart) {
+            m_RenderView.onStart();
+            m_CameraView.onStart();
+            m_DataGathererManager.onStart();
+        }
     }
 
     @Override
