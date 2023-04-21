@@ -60,12 +60,12 @@ public class RegisterActivity extends AppCompatActivity
             {
                 m_RegisterButton.setEnabled(false);
                 m_RegisterButton.setText(R.string.button_loading_text);
+                hideKeyboard();
                 FirebaseUserAuthentication.getInstance().RegisterNewUser(username, email, password, (successful, message) -> {
                     if (successful)
                     {
                         Toast.makeText(getApplicationContext(), "Registered successfully. Loading...", Toast.LENGTH_LONG).show();
                         StartHomeActivity();
-                        hideKeyboard();
                     } else
                     {
                         m_RegisterButton.setEnabled(true);

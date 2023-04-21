@@ -56,13 +56,13 @@ public class LoginActivity extends AppCompatActivity
             {
                 m_LoginButton.setEnabled(false);
                 m_LoginButton.setText(R.string.button_loading_text);
+                hideKeyboard();
 
                 FirebaseUserAuthentication.getInstance().LoginUser(email, password, (successful, user, message) -> {
                     if (successful)
                     {
                         Toast.makeText(getApplicationContext(), "Login successful. Loading...", Toast.LENGTH_SHORT).show();
                         StartHomeActivity();
-                        hideKeyboard();
                     } else
                     {
                         m_LoginButton.setEnabled(true);
