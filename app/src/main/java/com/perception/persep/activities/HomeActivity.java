@@ -1,18 +1,19 @@
 package com.perception.persep.activities;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.Bundle;
 import android.view.Display;
-import android.view.GestureDetector;
 import android.view.WindowManager;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentManager;
+import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.widget.ViewPager2;
 
 import com.example.persep.R;
 import com.perception.persep.adapters.SlidePagerAdapter;
+
+import java.lang.reflect.Field;
 
 public class HomeActivity extends AppCompatActivity
 {
@@ -42,6 +43,29 @@ public class HomeActivity extends AppCompatActivity
         m_SlidePagerAdapter = new SlidePagerAdapter(m_ViewPager, fragmentManager, getLifecycle());
         m_ViewPager.setAdapter(m_SlidePagerAdapter);
         m_ViewPager.setCurrentItem(SlidePagerAdapter.VR_FRAGMENT_INDEX, false);
+
+        reduceDragSensitivity();
+    }
+
+    private void reduceDragSensitivity()
+    {
+        try
+        {
+            Field ff = ViewPager2.class.getDeclaredField("mRecyclerView");
+            ff.setAccessible(true);
+            RecyclerView recyclerView = (RecyclerView) ff.get(m_ViewPager);
+            Field touchSlopField = RecyclerView.class.getDeclaredField("mTouchSlop");
+            touchSlopField.setAccessible(true);
+            Object touchSopObj = touchSlopField.get(recyclerView);
+            if (touchSopObj != null)
+            {
+                int touchSlop = (int) touchSopObj;
+                touchSlopField.set(recyclerView, touchSlop * 3);
+            }
+        } catch (NoSuchFieldException | IllegalAccessException e)
+        {
+            e.printStackTrace();
+        }
     }
 
     @Override
