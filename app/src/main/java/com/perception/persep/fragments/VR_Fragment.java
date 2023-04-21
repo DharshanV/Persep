@@ -55,7 +55,6 @@ public class VR_Fragment extends Fragment
 
     GestureDetector m_GestureDetector;
     ViewPager2 m_ViewPager;
-    private boolean m_EnableViewPager = true;
     private boolean m_IsInteractingWithPost = false;
     private Album m_InteractingAlbum = null;
     private int m_ViewWidth = 1;
@@ -81,7 +80,7 @@ public class VR_Fragment extends Fragment
                         if (croppedImageUri != null)
                         {
                             FirebaseUser loggedInUser = FirebaseAuth.getInstance().getCurrentUser();
-                            if (loggedInUser != null)
+                            if (loggedInUser != null && m_DataGathererManager != null)
                             {
                                 m_DataGathererManager.AddPost(loggedInUser, croppedImageUri);
                             } else
@@ -107,11 +106,13 @@ public class VR_Fragment extends Fragment
             InitializeFragment();
             return;
         }
+
         ActivityResultLauncher<String[]> multiplePermissionResultLauncher = registerForActivityResult(new ActivityResultContracts.RequestMultiplePermissions(), isGranted -> {
             Log.d(TAG, "Permission launcher result: " + isGranted.toString());
             if (isGranted.containsValue(false))
             {
                 Log.d(TAG, "At least one of the permissions was not granted");
+                Toast.makeText(getActivity(), "Please enable all required permission for the AR feature.", Toast.LENGTH_LONG).show();
             } else
             {
                 Log.d(TAG, "All permissions granted...");
@@ -219,6 +220,7 @@ public class VR_Fragment extends Fragment
 
         m_ToggleVRButton = view.findViewById(R.id.toggle_vr_button);
         m_ToggleVRButton.setOnClickListener(v -> {
+            if (m_RenderView == null) return;
             m_VRRenderState = !m_VRRenderState;
             m_RenderView.ShouldRender(m_VRRenderState);
             m_ToggleVRButton.setImageResource(m_VRRenderState ? R.drawable.vr_enable_card_outline : R.drawable.vr_disable_card_outline);
