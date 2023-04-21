@@ -34,10 +34,8 @@ public class SplashScreenActivity extends Activity
             if (m_LaunchActivityClass != null && !m_LaunchedActivity)
             {
                 m_LaunchedActivity = true;
-                new Handler().postDelayed(() -> {
-                    startActivity(new Intent(SplashScreenActivity.this, m_LaunchActivityClass));
-                    finish();
-                }, 1000);
+                startActivity(new Intent(SplashScreenActivity.this, m_LaunchActivityClass));
+                finish();
                 return true;
             }
             return false;
