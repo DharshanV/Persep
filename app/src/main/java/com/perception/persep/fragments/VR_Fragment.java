@@ -70,32 +70,6 @@ public class VR_Fragment extends Fragment
     {
         Log.d(TAG, "Created");
         super.onCreate(savedInstanceState);
-
-        m_UCropActivityResultLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
-                result -> {
-                    if (result.getData() == null) return;
-                    if (result.getResultCode() == Activity.RESULT_OK)
-                    {
-                        Uri croppedImageUri = UCrop.getOutput(result.getData());
-                        if (croppedImageUri != null)
-                        {
-                            FirebaseUser loggedInUser = FirebaseAuth.getInstance().getCurrentUser();
-                            if (loggedInUser != null && m_DataGathererManager != null)
-                            {
-                                m_DataGathererManager.AddPost(loggedInUser, croppedImageUri);
-                            } else
-                            {
-                                Log.e(TAG, "Unable to find logged in user!");
-                            }
-                        } else
-                        {
-                            Log.e(TAG, "Cropped image uri is null!");
-                        }
-                    } else
-                    {
-                        Log.e(TAG, UCrop.getError(result.getData()).toString());
-                    }
-                });
     }
 
     private void TryInitializeFragment()
@@ -103,7 +77,7 @@ public class VR_Fragment extends Fragment
         String[] manifestPermissions = GetAllPermission();
         if (HasAllPermissions(manifestPermissions))
         {
-            InitializeFragment();
+            InitializeFragment(false);
             return;
         }
 
@@ -116,7 +90,7 @@ public class VR_Fragment extends Fragment
             } else
             {
                 Log.d(TAG, "All permissions granted...");
-                InitializeFragment();
+                InitializeFragment(true);
             }
         });
 
@@ -124,7 +98,7 @@ public class VR_Fragment extends Fragment
         multiplePermissionResultLauncher.launch(manifestPermissions);
     }
 
-    private void InitializeFragment()
+    private void InitializeFragment(boolean forceStart)
     {
         if (m_VRLayout == null)
         {
@@ -144,6 +118,13 @@ public class VR_Fragment extends Fragment
         m_DataGathererManager.AddGPSListener(m_RenderView);
         m_DataGathererManager.AddGPSListener(m_DataGathererManager.getAlbumManger());
         m_DataGathererManager.SetAlbumListener(m_RenderView);
+
+        if (forceStart)
+        {
+            if (m_RenderView != null) m_RenderView.onStart();
+            if (m_CameraView != null) m_CameraView.onStart();
+            if (m_DataGathererManager != null) m_DataGathererManager.onStart();
+        }
     }
 
     @Override
@@ -227,6 +208,32 @@ public class VR_Fragment extends Fragment
             m_RenderView.ShouldRender(m_VRRenderState);
             m_ToggleVRButton.setImageResource(m_VRRenderState ? R.drawable.vr_enable_card_outline : R.drawable.vr_disable_card_outline);
         });
+
+        m_UCropActivityResultLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    if (result.getData() == null) return;
+                    if (result.getResultCode() == Activity.RESULT_OK)
+                    {
+                        Uri croppedImageUri = UCrop.getOutput(result.getData());
+                        if (croppedImageUri != null)
+                        {
+                            FirebaseUser loggedInUser = FirebaseAuth.getInstance().getCurrentUser();
+                            if (loggedInUser != null && m_DataGathererManager != null)
+                            {
+                                m_DataGathererManager.AddPost(loggedInUser, croppedImageUri);
+                            } else
+                            {
+                                Log.e(TAG, "Unable to find logged in user!");
+                            }
+                        } else
+                        {
+                            Log.e(TAG, "Cropped image uri is null!");
+                        }
+                    } else
+                    {
+                        Log.e(TAG, UCrop.getError(result.getData()).toString());
+                    }
+                });
     }
 
     void TakePhoto()
