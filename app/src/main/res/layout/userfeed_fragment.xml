@@ -26,6 +26,7 @@
             android:layout_gravity="center|left"
             android:fontFamily="@font/playfair_display_bold" />
         <ImageButton
+            android:id="@+id/button_user_settings"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@android:color/transparent"

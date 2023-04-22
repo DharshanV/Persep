@@ -1,11 +1,13 @@
 package com.perception.persep.fragments;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -18,6 +20,9 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import com.example.persep.R;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.perception.persep.activities.HomeActivity;
+import com.perception.persep.activities.LoginActivity;
+import com.perception.persep.activities.SettingsActivity;
 import com.perception.persep.adapters.UserFeedAdapter;
 
 import java.util.Timer;
@@ -46,6 +51,8 @@ public class UserFeed_Fragment extends Fragment
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState)
     {
+        super.onViewCreated(view, savedInstanceState);
+
         RecyclerView userFeedRecycleView = view.findViewById(R.id.user_feed_recycle_view);
         userFeedRecycleView.setLayoutManager(new LinearLayoutManager(view.getContext()));
         m_UserFeedAdapter = new UserFeedAdapter();
@@ -80,6 +87,10 @@ public class UserFeed_Fragment extends Fragment
             }
         }
         userFeedHeaderText.setText(username);
-        super.onViewCreated(view, savedInstanceState);
+
+        ImageButton imageButton = view.findViewById(R.id.button_user_settings);
+        imageButton.setOnClickListener(v -> {
+            startActivity(new Intent(getActivity(), SettingsActivity.class));
+        });
     }
 }
