@@ -20,6 +20,7 @@ public class SplashScreenActivity extends Activity
 {
     private static final String TAG = "SplashScreen";
 
+    private static final int SPLASH_SCREEN_ANIMATION_TIME = 1000;
     private Class<?> m_LaunchActivityClass = null;
     private boolean m_LaunchedActivity = false;
 
@@ -47,17 +48,17 @@ public class SplashScreenActivity extends Activity
             long currTime = SystemClock.elapsedRealtime();
             FirebaseFirestore.getInstance().collection(UserConstants.COLLECTION_NAME).document(user.getUid()).get().addOnSuccessListener(documentSnapshot -> {
                 Log.d(TAG, "Has authenticated user. Starting Home activity.");
-                long delayTime = Math.max(SystemClock.elapsedRealtime() - currTime, 0);
+                long delayTime = Math.max(SPLASH_SCREEN_ANIMATION_TIME - (SystemClock.elapsedRealtime() - currTime), 0);
                 new Handler().postDelayed(() -> m_LaunchActivityClass = HomeActivity.class, delayTime);
             }).addOnFailureListener(e -> {
                 Log.d(TAG, "No authenticated user. Staring login activity.");
-                long delayTime = Math.max(SystemClock.elapsedRealtime() - currTime, 0);
+                long delayTime = Math.max(SPLASH_SCREEN_ANIMATION_TIME - (SystemClock.elapsedRealtime() - currTime), 0);
                 new Handler().postDelayed(() -> m_LaunchActivityClass = LoginActivity.class, delayTime);
             });
         } else
         {
             Log.d(TAG, "No authenticated user. Staring login activity.");
-            new Handler().postDelayed(() -> m_LaunchActivityClass = LoginActivity.class, 1000);
+            new Handler().postDelayed(() -> m_LaunchActivityClass = LoginActivity.class, SPLASH_SCREEN_ANIMATION_TIME);
         }
     }
 
