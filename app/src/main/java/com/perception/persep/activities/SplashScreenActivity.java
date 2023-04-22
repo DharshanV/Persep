@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.SystemClock;
 import android.util.Log;
 import android.view.View;
 
@@ -43,12 +44,15 @@ public class SplashScreenActivity extends Activity
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         if (user != null)
         {
+            long currTime = SystemClock.elapsedRealtime();
             FirebaseFirestore.getInstance().collection(UserConstants.COLLECTION_NAME).document(user.getUid()).get().addOnSuccessListener(documentSnapshot -> {
                 Log.d(TAG, "Has authenticated user. Starting Home activity.");
-                m_LaunchActivityClass = HomeActivity.class;
+                long delayTime = Math.max(SystemClock.elapsedRealtime() - currTime, 0);
+                new Handler().postDelayed(() -> m_LaunchActivityClass = HomeActivity.class, delayTime);
             }).addOnFailureListener(e -> {
                 Log.d(TAG, "No authenticated user. Staring login activity.");
-                m_LaunchActivityClass = LoginActivity.class;
+                long delayTime = Math.max(SystemClock.elapsedRealtime() - currTime, 0);
+                new Handler().postDelayed(() -> m_LaunchActivityClass = LoginActivity.class, delayTime);
             });
         } else
         {
