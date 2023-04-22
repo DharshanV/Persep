@@ -23,15 +23,23 @@ public class DataGathererManager
 
     public void onStart()
     {
-        m_RotationSensor.RegisterSensor();
         m_GPSSensor.RegisterSensor();
-        m_AlbumManger.onResume();
+        m_RotationSensor.RegisterSensor();
     }
 
     public void onStop()
     {
         m_RotationSensor.UnregisterSensor();
         m_GPSSensor.UnregisterSensor();
+    }
+
+    public void onResume()
+    {
+        m_AlbumManger.onResume();
+    }
+
+    public void onPause()
+    {
         m_AlbumManger.onPause();
     }
 

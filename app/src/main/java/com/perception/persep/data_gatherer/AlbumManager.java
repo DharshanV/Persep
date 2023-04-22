@@ -56,7 +56,7 @@ public class AlbumManager implements Runnable, FirebaseQueries.AlbumQueryListene
     private double m_QueryLon = 0.0;
     private boolean m_IsLocationInit = false;
 
-    private final long UPDATE_LOOP_INTERVAL = 2500; //update and notify every 5 secs
+    private final long UPDATE_LOOP_INTERVAL = 10000; //update and notify every 10 secs
     private final Handler m_QueryNearbyAlbumHandler;
 
     AlbumManager(Context context)
