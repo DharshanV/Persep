@@ -1,0 +1,47 @@
+<animated-vector xmlns:tools="http://schemas.android.com/tools"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    tools:ignore="MissingDefaultResource">
+    <aapt:attr name="android:drawable">
+        <vector
+            android:name="vector"
+            android:width="432dp"
+            android:height="432dp"
+            android:viewportWidth="432"
+            android:viewportHeight="432">
+            <path
+                android:name="persep_logo"
+                android:pathData="M 253 120.6 C 232 122.3 202.1 128.4 180.8 135.4 C 146.7 146.6 128 159 128 170.3 C 128 178.6 135.5 189 141.5 189 C 145.3 189 147 187.4 147 183.9 C 147 179.5 156.8 173.6 177 165.7 C 187.7 161.5 210 155 225 151.6 C 237.4 148.8 256 147.6 266.6 148.9 C 278.3 150.3 283.2 152.3 289.3 158.1 C 296.4 165 297.9 173.9 293.6 184.3 C 286.4 201.7 267.4 216 233.5 229.4 C 209.7 238.8 184 245.4 173.3 244.8 L 167.8 244.5 L 174.4 235.5 C 187.7 217.3 202.2 198.2 212.4 185 C 224 170.2 224.7 168.2 220.4 163.1 C 216.8 158.8 213.9 159.1 208.3 164.2 C 198.9 173 173.8 205.6 152.7 236.7 L 147.8 243.8 L 143.3 242.3 C 137.8 240.4 130 233.3 130 230.1 C 130 228.9 130.7 226.5 131.6 224.9 C 136.7 215 127 211.2 121 220.7 C 114.1 231.5 119 243.4 133.7 251.7 C 140.9 255.7 141.1 253.9 132.2 268.4 C 118.5 291.1 112.6 306.4 116 310.5 C 117.6 312.4 123.9 312.4 126.4 310.5 C 127.4 309.8 130.6 304.4 133.5 298.7 C 138.9 288.2 145.8 276.4 153.3 265.5 C 155.5 262.2 157.4 259.4 157.5 259.3 C 157.6 259.1 163.2 258.8 170.1 258.5 C 185.7 257.8 190.5 257 211.4 251.4 C 229.5 246.5 251 238.5 265.4 231.3 C 294.4 216.8 313.6 194.1 317 170.3 C 319.5 152.3 310.2 134.5 294.4 127.1 C 284.5 122.4 266.4 119.6 253 120.6 Z"
+                android:fillColor="#7dd4ae"
+                android:strokeColor="#7dd4ae"
+                android:strokeWidth="1"/>
+        </vector>
+    </aapt:attr>
+    <target android:name="persep_logo">
+        <aapt:attr name="android:animation">
+            <set>
+                <objectAnimator
+                    android:propertyName="trimPathEnd"
+                    android:duration="1000"
+                    android:valueFrom="0"
+                    android:valueTo="1"
+                    android:valueType="floatType"
+                    android:interpolator="@android:interpolator/linear_out_slow_in"/>
+                <objectAnimator
+                    android:propertyName="fillAlpha"
+                    android:duration="1000"
+                    android:valueFrom="0"
+                    android:valueTo="1"
+                    android:valueType="floatType"
+                    android:interpolator="@android:anim/anticipate_interpolator"/>
+                <objectAnimator
+                    android:propertyName="strokeWidth"
+                    android:duration="1000"
+                    android:valueFrom="0"
+                    android:valueTo="1"
+                    android:valueType="floatType"
+                    android:interpolator="@android:interpolator/linear_out_slow_in"/>
+            </set>
+        </aapt:attr>
+    </target>
+</animated-vector>

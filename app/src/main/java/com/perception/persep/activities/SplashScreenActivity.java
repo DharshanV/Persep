@@ -53,7 +53,7 @@ public class SplashScreenActivity extends Activity
         } else
         {
             Log.d(TAG, "No authenticated user. Staring login activity.");
-            new Handler().postDelayed(() -> m_LaunchActivityClass = LoginActivity.class, 1500);
+            new Handler().postDelayed(() -> m_LaunchActivityClass = LoginActivity.class, 1000);
         }
     }
 
