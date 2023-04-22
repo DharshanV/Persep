@@ -8,23 +8,39 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context="com.perception.persep.fragments.UserFeed_Fragment">
 
-    <TextView
-        android:id="@+id/username_text_view"
+
+    <FrameLayout
+        android:id="@+id/user_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Hello"
-        android:textSize="35sp"
-        android:layout_margin="10dp"
-        android:fontFamily="@font/playfair_display_bold"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        android:layout_marginTop="5dp">
+        <TextView
+            android:id="@+id/username_text_view"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Hello"
+            android:textSize="35sp"
+            android:layout_marginLeft="10dp"
+            android:layout_gravity="center|left"
+            android:fontFamily="@font/playfair_display_bold" />
+        <ImageButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@android:color/transparent"
+            android:src="@drawable/ic_baseline_settings"
+            android:layout_marginRight="10dp"
+            app:tint="@color/settings_button_color"
+            android:layout_gravity="center|right"/>
+    </FrameLayout>
 
     <View
         android:id="@+id/divier1"
         android:layout_width="match_parent"
         android:layout_height="4dp"
         android:background="@color/divider_background_color"
-        app:layout_constraintTop_toBottomOf="@id/username_text_view"/>
+        app:layout_constraintTop_toBottomOf="@id/user_layout"/>
 
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
         android:id="@+id/user_feed_swipe_refresh_layout"
