@@ -1,3 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <color name="ucrop_color_toolbar">@color/black</color>
+    <color name="ucrop_color_statusbar">@color/black</color>
+    <color name="ucrop_color_toolbar_widget">@color/white</color>
+
+    <color name="ucrop_color_widget_active">@color/white</color>
+    <color name="ucrop_color_active_controls_color">@color/persep_color</color>
+    <color name="ucrop_color_widget_rotate_mid_line">#35F600</color>
+    <color name="ucrop_color_widget_background" tools:override="true">@color/black</color>
+
+    <color name="ucrop_color_inactive_controls_color">@color/white</color>
+    <color name="ucrop_color_widget_text">@color/persep_color</color>
 </resources>
