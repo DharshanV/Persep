@@ -37,7 +37,8 @@ public class GPSSensor
     private final static int MAX_BOUND_COUNT = 20;
     private final static int MIN_NUM_BOUND_TO_CB = 4;
     private final static double MIN_ACCURACY_TO_CB = 4.0; // meters
-    private final static long MIN_SECS_TO_CB = 5000; // 5 seconds
+    private final static long MIN_SECS_TO_CB = 3000; // 4 seconds
+    private boolean m_ForceUpdated = false;
     private final LinkedList<LatLng> m_Bounds = new LinkedList<>();
     private Location m_BestLocation = null;
     private long m_GPSensorStartTime = 0;
@@ -118,12 +119,12 @@ public class GPSSensor
 
     private void UpdateLocation(Location location)
     {
-        if (m_BestLocation == null || location.getAccuracy() < m_BestLocation.getAccuracy())
+        boolean shouldForceUpdate = ShouldForceUpdate();
+        if (shouldForceUpdate || m_BestLocation == null || location.getAccuracy() < m_BestLocation.getAccuracy())
         {
             m_BestLocation = location;
             AddLocationToBound(m_BestLocation);
-            double elapsedTime = SystemClock.elapsedRealtime() - m_GPSensorStartTime;
-            if (m_BestLocation.getAccuracy() <= MIN_ACCURACY_TO_CB || m_Bounds.size() >= MIN_NUM_BOUND_TO_CB || elapsedTime > MIN_SECS_TO_CB)
+            if (shouldForceUpdate || m_BestLocation.getAccuracy() <= MIN_ACCURACY_TO_CB || m_Bounds.size() >= MIN_NUM_BOUND_TO_CB)
             {
                 LatLng center = GetCenter();
                 for (Listener listener : m_Listeners)
@@ -132,6 +133,16 @@ public class GPSSensor
                 }
             }
         }
+    }
+
+    private boolean ShouldForceUpdate()
+    {
+        if (!m_ForceUpdated && SystemClock.elapsedRealtime() - m_GPSensorStartTime > MIN_SECS_TO_CB)
+        {
+            m_ForceUpdated = true;
+            return true;
+        }
+        return false;
     }
 
     private void AddLocationToBound(Location location)
