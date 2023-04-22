@@ -71,7 +71,7 @@
         <activity
             android:name="com.yalantis.ucrop.UCropActivity"
             android:screenOrientation="portrait"
-            android:theme="@style/Theme.AppCompat.DayNight.NoActionBar"
+            android:theme="@style/Theme.Persep.UCrop"
             android:windowSoftInputMode="adjustPan"/>
     </application>
 
