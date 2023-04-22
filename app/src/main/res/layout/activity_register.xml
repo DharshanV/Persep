@@ -7,6 +7,19 @@
     android:background="@color/register_background_color"
     tools:context="com.perception.persep.activities.RegisterActivity">
 
+    <ImageButton
+        android:id="@+id/button_back_register"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        android:layout_marginTop="40dp"
+        android:layout_marginLeft="15dp"
+        android:padding="5dp"
+        android:background="@android:color/transparent"
+        android:src="@drawable/ic_baseline_arrow_back"
+        app:tint="@color/navigation_button_color"/>
+
     <ImageView
         android:id="@+id/register_imageView"
         android:layout_width="192dp"
@@ -16,7 +29,7 @@
         android:src="@drawable/persp_logo"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@+id/button_back_register"/>
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/register_usernameTextInputLayout"

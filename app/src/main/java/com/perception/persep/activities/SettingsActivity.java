@@ -3,6 +3,7 @@ package com.perception.persep.activities;
 import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -33,6 +34,9 @@ public class SettingsActivity extends AppCompatActivity
                 FirebaseAuth.getInstance().signOut();
             }
         });
+
+        ImageButton backButton = findViewById(R.id.button_back_settings);
+        backButton.setOnClickListener(v -> finish());
 
         FirebaseAuth.getInstance().addAuthStateListener(firebaseAuth -> {
             if (firebaseAuth.getCurrentUser() == null) {

@@ -10,6 +10,7 @@ import android.util.Log;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -75,6 +76,9 @@ public class RegisterActivity extends AppCompatActivity
                 });
             }
         });
+
+        ImageButton backButton = findViewById(R.id.button_back_register);
+        backButton.setOnClickListener(v -> finish());
 
         m_Username.addTextChangedListener(new TextWatcher()
         {
