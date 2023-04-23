@@ -82,7 +82,11 @@ public class AlbumManager implements Runnable, FirebaseQueries.AlbumQueryListene
     {
         m_QueryLat = lat;
         m_QueryLon = lon;
-        m_IsLocationInit = true;
+        if (!m_IsLocationInit) {
+            m_IsLocationInit = true;
+            m_QueryNearbyAlbumHandler.removeCallbacks(this);
+            m_QueryNearbyAlbumHandler.post(this);
+        }
     }
 
     public void onPause()

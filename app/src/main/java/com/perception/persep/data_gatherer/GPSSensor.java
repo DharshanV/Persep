@@ -5,6 +5,7 @@ import android.content.Context;
 import android.location.Location;
 import android.os.HandlerThread;
 import android.os.SystemClock;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 
@@ -37,7 +38,7 @@ public class GPSSensor
     private final static int MAX_BOUND_COUNT = 20;
     private final static int MIN_NUM_BOUND_TO_CB = 4;
     private final static double MIN_ACCURACY_TO_CB = 4.0; // meters
-    private final static long MIN_SECS_TO_CB = 3000; // 4 seconds
+    private final static long MIN_SECS_TO_CB = 3000; // 3 seconds
     private boolean m_ForceUpdated = false;
     private final LinkedList<LatLng> m_Bounds = new LinkedList<>();
     private Location m_BestLocation = null;
