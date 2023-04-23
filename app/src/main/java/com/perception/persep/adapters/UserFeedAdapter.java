@@ -55,7 +55,10 @@ public class UserFeedAdapter extends RecyclerView.Adapter<UserFeedAdapter.UserFe
         FirebaseFirestore.getInstance().collection(UserConstants.COLLECTION_NAME).document(user.getUid()).get().addOnSuccessListener(userDoc -> {
             List<DocumentReference> userDocPostRefs = (List<DocumentReference>) userDoc.get(UserConstants.POSTS);
 
-            if (userDocPostRefs == null || userDocPostRefs.isEmpty()) return;
+            if (userDocPostRefs == null || userDocPostRefs.isEmpty()) {
+                listener.onComplete();
+                return;
+            }
 
             List<Task<DocumentSnapshot>> postQueryTasks = new ArrayList<>(userDocPostRefs.size());
             for (DocumentReference postRef : userDocPostRefs)
@@ -87,8 +90,8 @@ public class UserFeedAdapter extends RecyclerView.Adapter<UserFeedAdapter.UserFe
                         this.notifyItemInserted(0);
                     }
                 }
-            });
-        });
+            }).addOnFailureListener(e -> listener.onComplete());
+        }).addOnFailureListener(e -> listener.onComplete());
 
     }
 
