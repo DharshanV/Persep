@@ -350,6 +350,11 @@ public class PreviewCamera
         }
     }
 
+    public boolean isValid()
+    {
+        return m_CameraDevice != null;
+    }
+
     public static Bitmap RotateBitmap(Bitmap source, float angle)
     {
         Matrix matrix = new Matrix();

@@ -32,7 +32,8 @@ public class CameraView extends TextureView implements TextureView.SurfaceTextur
 
     public void onPause()
     {
-        if (m_PreviewCamera != null) {
+        if (m_PreviewCamera != null)
+        {
             m_PreviewCamera.CloseCamera();
         }
     }
@@ -110,7 +111,8 @@ public class CameraView extends TextureView implements TextureView.SurfaceTextur
     {
         try
         {
-            if (m_BackgroundThread != null) {
+            if (m_BackgroundThread != null)
+            {
                 m_BackgroundThread.quitSafely();
                 m_BackgroundThread.join();
             }
@@ -120,6 +122,11 @@ public class CameraView extends TextureView implements TextureView.SurfaceTextur
         {
             e.printStackTrace();
         }
+    }
+
+    public boolean isValid()
+    {
+        return m_BackgroundThread != null && m_BackgroundHandler != null && m_PreviewCamera != null && m_PreviewCamera.isValid();
     }
 
     public void setAspectRatio(int width, int height)

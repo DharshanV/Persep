@@ -198,19 +198,23 @@ public class VR_Fragment extends Fragment
     {
         m_TakePhotoButton = view.findViewById(R.id.vr_button_take_photo);
         m_TakePhotoButton.setOnClickListener(v -> {
-            if (m_CameraView != null) TakePhoto();
+            if (m_CameraView != null && m_CameraView.isValid())
+            {
+                m_TakePhotoButton.setEnabled(false);
+                TakePhoto();
+            }
         });
 
         m_ToggleVRButton = view.findViewById(R.id.toggle_vr_button);
         m_ToggleVRButton.setOnClickListener(v -> {
-            if (m_RenderView == null) return;
             m_VRRenderState = !m_VRRenderState;
-            m_RenderView.ShouldRender(m_VRRenderState);
+            if (m_RenderView != null) m_RenderView.ShouldRender(m_VRRenderState);
             m_ToggleVRButton.setImageResource(m_VRRenderState ? R.drawable.vr_enable_card_outline : R.drawable.vr_disable_card_outline);
         });
 
         m_UCropActivityResultLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
                 result -> {
+                    m_TakePhotoButton.setEnabled(true);
                     if (result.getData() == null) return;
                     if (result.getResultCode() == Activity.RESULT_OK)
                     {

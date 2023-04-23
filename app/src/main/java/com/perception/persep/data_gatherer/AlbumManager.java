@@ -56,7 +56,6 @@ public class AlbumManager implements Runnable, FirebaseQueries.AlbumQueryListene
     private double m_QueryLon = 0.0;
     private boolean m_IsLocationInit = false;
 
-    private final long UPDATE_LOOP_INTERVAL = 10000; //update and notify every 10 secs
     private final Handler m_QueryNearbyAlbumHandler;
 
     AlbumManager(Context context)
@@ -69,14 +68,13 @@ public class AlbumManager implements Runnable, FirebaseQueries.AlbumQueryListene
     @Override
     public void run()
     {
-        m_QueryNearbyAlbumHandler.postDelayed(this, UPDATE_LOOP_INTERVAL);
-
         if (m_IsLocationInit && !m_IsQueryInProgress && m_Listener != null)
         {
             List<String> ignoreAlbums = GetAlbumsToIgnore();
             FirebaseQueries.getInstance().QueryNearbyAlbums(m_QueryLat, m_QueryLon, ignoreAlbums, this);
             m_IsQueryInProgress = true;
         }
+        m_QueryNearbyAlbumHandler.postDelayed(this, QueryConstants.QUERY_UPDATE_LOOP_INTERVAL);
     }
 
     @Override
@@ -95,7 +93,7 @@ public class AlbumManager implements Runnable, FirebaseQueries.AlbumQueryListene
 
     public void onResume()
     {
-        m_QueryNearbyAlbumHandler.postDelayed(this, UPDATE_LOOP_INTERVAL);
+        m_QueryNearbyAlbumHandler.post(this);
         FirebaseQueries.getInstance().AddAlbumListener(this);
     }
 
