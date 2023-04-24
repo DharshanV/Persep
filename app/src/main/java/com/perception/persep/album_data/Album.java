@@ -87,7 +87,7 @@ public class Album
             return true;
         }
 
-        if (m_PendingPostUpdate.contains(m_CurrPostIndex))
+        if (m_PendingPostUpdate.contains(m_CurrPostIndex) && m_Posts.get(m_CurrPostIndex).m_Image != null)
         {
             m_PendingPostUpdate.remove(m_CurrPostIndex);
             return true;
