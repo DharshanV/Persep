@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.widget.ViewPager2;
 
 import com.example.persep.R;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.perception.persep.adapters.SlidePagerAdapter;
 
 import java.lang.reflect.Field;
@@ -23,6 +24,7 @@ public class HomeActivity extends AppCompatActivity
 
     ViewPager2 m_ViewPager;
     SlidePagerAdapter m_SlidePagerAdapter;
+    BottomNavigationView m_BottomNavigationView;
 
     public static float DEFAULT_DISPLAY_REFRESH_RATE = 0.0f;
 
@@ -43,6 +45,35 @@ public class HomeActivity extends AppCompatActivity
         m_SlidePagerAdapter = new SlidePagerAdapter(m_ViewPager, fragmentManager, getLifecycle());
         m_ViewPager.setAdapter(m_SlidePagerAdapter);
         m_ViewPager.setCurrentItem(SlidePagerAdapter.VR_FRAGMENT_INDEX, false);
+
+        m_BottomNavigationView = findViewById(R.id.buttom_navigation);
+        m_BottomNavigationView.setSelectedItemId(R.id.vr_view_menu);
+        m_BottomNavigationView.setOnItemSelectedListener(item -> {
+            if (item.getItemId() == R.id.vr_view_menu)
+            {
+                m_ViewPager.setCurrentItem(SlidePagerAdapter.VR_FRAGMENT_INDEX, true);
+            } else if (item.getItemId() == R.id.user_feed_menu)
+            {
+                m_ViewPager.setCurrentItem(SlidePagerAdapter.USERFEED_FRAGMENT_1, true);
+            }
+            return true;
+        });
+
+        m_ViewPager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback()
+        {
+            @Override
+            public void onPageSelected(int position)
+            {
+                if (position == SlidePagerAdapter.VR_FRAGMENT_INDEX)
+                {
+                    m_BottomNavigationView.setSelectedItemId(R.id.vr_view_menu);
+                } else if (position == SlidePagerAdapter.USERFEED_FRAGMENT_1)
+                {
+                    m_BottomNavigationView.setSelectedItemId(R.id.user_feed_menu);
+                }
+                super.onPageSelected(position);
+            }
+        });
 
         reduceDragSensitivity();
     }
