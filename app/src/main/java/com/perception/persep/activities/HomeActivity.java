@@ -59,6 +59,10 @@ public class HomeActivity extends AppCompatActivity
             return true;
         });
 
+        for (int i = 0; i < m_BottomNavigationView.getMenu().size(); i++) {
+            m_BottomNavigationView.findViewById(m_BottomNavigationView.getMenu().getItem(i).getItemId()).setOnLongClickListener(view -> true);
+        }
+
         m_ViewPager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback()
         {
             @Override
