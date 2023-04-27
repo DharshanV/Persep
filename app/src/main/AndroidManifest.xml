@@ -30,7 +30,7 @@
             android:screenOrientation="portrait"
             tools:ignore="LockedOrientationActivity"
             android:windowSoftInputMode="adjustPan"
-            android:theme="@style/Theme.Persep">
+            android:theme="@style/Theme.Persep.Home">
         </activity>
         <activity
             android:name="com.perception.persep.activities.LoginActivity"
