@@ -4,10 +4,10 @@
         android:id="@+id/user_feed_menu"
         android:enabled="true"
         android:icon="@drawable/ic_baseline_account_circle_24"
-        android:title="Hello"/>
+        android:title="User Feed"/>
     <item
         android:id="@+id/vr_view_menu"
         android:enabled="true"
         android:icon="@drawable/ic_baseline_camera_alt_24"
-        android:title="There"/>
+        android:title="AR View"/>
 </menu>
