@@ -29,6 +29,7 @@ import com.example.persep.R;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.otaliastudios.cameraview.CameraListener;
+import com.otaliastudios.cameraview.CameraOptions;
 import com.otaliastudios.cameraview.CameraView;
 import com.otaliastudios.cameraview.PictureResult;
 import com.perception.persep.album_data.Album;
@@ -46,7 +47,11 @@ public class VR_Fragment extends Fragment
     public DataGathererManager m_DataGathererManager;
 
     private RelativeLayout m_VRLayout;
-    private RenderView m_RenderView;
+    private RenderView m_VRRenderView;
+    private boolean m_IsVRInitialized = false;
+    private boolean m_PrevIsVREnabled = false;
+    private boolean m_IsVREnabled = false;
+
     private CameraView m_CameraView;
     private ActivityResultLauncher<Intent> m_UCropActivityResultLauncher = null;
 
@@ -54,16 +59,14 @@ public class VR_Fragment extends Fragment
     private ImageButton m_TakePhotoButton = null;
     private ImageButton m_ToggleVRButton = null;
     private ImageButton m_ToggleCameraButton = null;
-    private boolean m_VRRenderState = true;
-    private boolean m_PrevRenderState = true;
-    private boolean m_VRCameraRear = true;
+    private boolean m_IsBackCamera = true;
 
     GestureDetector m_GestureDetector;
     ViewPager2 m_ViewPager;
     private boolean m_IsInteractingWithPost = false;
-    private Album m_InteractingAlbum = null;
-    private int m_ViewWidth = 1;
-    private int m_ViewHeight = 1;
+    private Album m_InteractingWithAlbum = null;
+    private int m_ViewWidth = 0;
+    private int m_ViewHeight = 0;
 
     public VR_Fragment(ViewPager2 viewPager)
     {
@@ -111,19 +114,25 @@ public class VR_Fragment extends Fragment
             return;
         }
 
-        m_RenderView = new RenderView(getActivity());
-        m_VRLayout.addView(m_RenderView, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
-        m_RenderView.setOpaque(false);
+        m_IsVRInitialized = true;
+        m_IsVREnabled = true;
+        m_PrevIsVREnabled = true;
+        m_ToggleVRButton.setEnabled(true);
+        m_ToggleVRButton.setImageResource(R.drawable.ic_ar_enabled_button);
+
+        m_VRRenderView = new RenderView(getActivity());
+        m_VRLayout.addView(m_VRRenderView, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        m_VRRenderView.setOpaque(false);
 
         m_DataGathererManager = new DataGathererManager(getActivity());
-        m_DataGathererManager.SetGyroscopeListener(m_RenderView);
-        m_DataGathererManager.AddGPSListener(m_RenderView);
+        m_DataGathererManager.SetGyroscopeListener(m_VRRenderView);
+        m_DataGathererManager.AddGPSListener(m_VRRenderView);
         m_DataGathererManager.AddGPSListener(m_DataGathererManager.getAlbumManger());
-        m_DataGathererManager.SetAlbumListener(m_RenderView);
+        m_DataGathererManager.SetAlbumListener(m_VRRenderView);
 
         if (forceStart)
         {
-            if (m_RenderView != null) m_RenderView.onStart();
+            if (m_VRRenderView != null) m_VRRenderView.onStart();
             if (m_DataGathererManager != null) m_DataGathererManager.onStart();
         }
     }
@@ -134,7 +143,7 @@ public class VR_Fragment extends Fragment
         Log.d(TAG, "Started");
         super.onStart();
 
-        if (m_RenderView != null) m_RenderView.onStart();
+        if (m_VRRenderView != null) m_VRRenderView.onStart();
         if (m_DataGathererManager != null) m_DataGathererManager.onStart();
     }
 
@@ -144,7 +153,7 @@ public class VR_Fragment extends Fragment
         Log.d(TAG, "Stopped");
         super.onStop();
 
-        if (m_RenderView != null) m_RenderView.onStop();
+        if (m_VRRenderView != null) m_VRRenderView.onStop();
         if (m_DataGathererManager != null) m_DataGathererManager.onStop();
     }
 
@@ -154,7 +163,7 @@ public class VR_Fragment extends Fragment
         Log.d(TAG, "Paused");
         super.onPause();
 
-        if (m_RenderView != null) m_RenderView.onPause();
+        if (m_VRRenderView != null) m_VRRenderView.onPause();
         if (m_DataGathererManager != null) m_DataGathererManager.onPause();
     }
 
@@ -164,7 +173,7 @@ public class VR_Fragment extends Fragment
         Log.d(TAG, "Resumed");
         super.onResume();
 
-        if (m_RenderView != null) m_RenderView.onResume(m_VRRenderState);
+        if (m_VRRenderView != null) m_VRRenderView.onResume(m_IsVREnabled);
         if (m_DataGathererManager != null) m_DataGathererManager.onResume();
     }
 
@@ -196,7 +205,7 @@ public class VR_Fragment extends Fragment
         m_CameraView.setOnTouchListener((v, event) -> {
             m_ViewWidth = v.getWidth();
             m_ViewHeight = v.getHeight();
-            if (m_VRRenderState)
+            if (m_IsVREnabled)
             {
                 return m_GestureDetector.onTouchEvent(event);
             }
@@ -206,6 +215,12 @@ public class VR_Fragment extends Fragment
 
         m_CameraView.addCameraListener(new CameraListener()
         {
+            @Override
+            public void onCameraOpened(@NonNull CameraOptions options)
+            {
+                m_ToggleCameraButton.setEnabled(true);
+            }
+
             @Override
             public void onPictureTaken(@NonNull PictureResult result)
             {
@@ -229,36 +244,17 @@ public class VR_Fragment extends Fragment
         m_TakePhotoButton.setOnClickListener(v -> {
             if (m_CameraView != null && m_CameraView.isOpened() && !m_CameraView.isTakingPicture())
             {
-                m_TakePhotoButton.setEnabled(false);
                 TakePhoto();
             }
         });
 
         m_ToggleVRButton = view.findViewById(R.id.toggle_vr_button);
-        m_ToggleVRButton.setOnClickListener(v -> {
-            m_VRRenderState = !m_VRRenderState;
-            m_PrevRenderState = m_VRRenderState;
-            ToggleVR();
-        });
+        m_ToggleVRButton.setEnabled(false);
+        m_ToggleVRButton.setOnClickListener(v -> ToggleVREnabled());
 
         m_ToggleCameraButton = view.findViewById(R.id.toggle_camera_button);
-        m_ToggleCameraButton.setOnClickListener(v -> {
-            m_VRCameraRear = !m_VRCameraRear;
-            m_ToggleCameraButton.setImageResource(m_VRCameraRear ? R.drawable.ic_baseline_camera_rear_24 : R.drawable.ic_baseline_camera_front_24);
-
-            if (!m_VRCameraRear)
-            {
-                m_VRRenderState = false;
-                m_ToggleVRButton.setEnabled(false);
-            } else
-            {
-                if (m_PrevRenderState)
-                    m_VRRenderState = true;
-                m_ToggleVRButton.setEnabled(true);
-            }
-            ToggleVR();
-            m_CameraView.toggleFacing();
-        });
+        m_ToggleCameraButton.setEnabled(false);
+        m_ToggleCameraButton.setOnClickListener(v -> ToggleCamera());
 
         m_UCropActivityResultLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
                 result -> {
@@ -288,14 +284,41 @@ public class VR_Fragment extends Fragment
                 });
     }
 
-    private void ToggleVR()
+    private void ToggleVREnabled()
     {
-        if (m_RenderView != null) m_RenderView.ShouldRender(m_VRRenderState);
-        m_ToggleVRButton.setImageResource(m_VRRenderState ? R.drawable.ic_ar_enabled_button : R.drawable.ic_ar_disabled_button);
+        if (m_IsVRInitialized) {
+            m_IsVREnabled = !m_IsVREnabled;
+            m_ToggleVRButton.setImageResource(m_IsVREnabled ? R.drawable.ic_ar_enabled_button : R.drawable.ic_ar_disabled_button);
+            if (m_VRRenderView != null) m_VRRenderView.ShouldRender(m_IsVREnabled);
+            m_PrevIsVREnabled = m_IsVREnabled;
+        }
+    }
+
+    private void ToggleCamera()
+    {
+        if (m_CameraView != null && m_CameraView.isOpened()) {
+            m_IsBackCamera = !m_IsBackCamera;
+            m_ToggleCameraButton.setImageResource(m_IsBackCamera ? R.drawable.ic_baseline_camera_rear_24 : R.drawable.ic_baseline_camera_front_24);
+            m_CameraView.toggleFacing();
+        }
+
+        if (m_IsVRInitialized) {
+            if (m_IsBackCamera) {
+                m_ToggleVRButton.setEnabled(true);
+                m_ToggleVRButton.setImageResource(m_PrevIsVREnabled ? R.drawable.ic_ar_enabled_button : R.drawable.ic_ar_disabled_button);
+                if (m_VRRenderView != null) m_VRRenderView.ShouldRender(m_PrevIsVREnabled);
+            }
+            else {
+                m_ToggleVRButton.setEnabled(false);
+                m_ToggleVRButton.setImageResource(R.drawable.ic_ar_disabled_button);
+                if (m_VRRenderView != null) m_VRRenderView.ShouldRender(false);
+            }
+        }
     }
 
     void TakePhoto()
     {
+        m_TakePhotoButton.setEnabled(false);
         m_CameraView.takePicture();
     }
 
@@ -332,11 +355,11 @@ public class VR_Fragment extends Fragment
 
     private Album rayCast(MotionEvent event)
     {
-        if (m_RenderView != null)
+        if (m_VRRenderView != null)
         {
             float x = 2f * (event.getX() / m_ViewWidth) - 1f;
             float y = -2f * (event.getY() / m_ViewHeight) + 1f;
-            return m_RenderView.rayCast(x, y);
+            return m_VRRenderView.rayCast(x, y);
         }
         return null;
     }
@@ -349,8 +372,8 @@ public class VR_Fragment extends Fragment
         @Override
         public boolean onDown(MotionEvent event)
         {
-            m_InteractingAlbum = rayCast(event);
-            if (m_InteractingAlbum != null)
+            m_InteractingWithAlbum = rayCast(event);
+            if (m_InteractingWithAlbum != null)
             {
                 m_ViewPager.setUserInputEnabled(false);
                 m_IsInteractingWithPost = true;
@@ -361,11 +384,11 @@ public class VR_Fragment extends Fragment
         @Override
         public boolean onDoubleTap(MotionEvent event)
         {
-            m_InteractingAlbum = rayCast(event);
-            if (m_InteractingAlbum != null)
+            m_InteractingWithAlbum = rayCast(event);
+            if (m_InteractingWithAlbum != null)
             {
                 FirebaseUser loggedInUser = FirebaseAuth.getInstance().getCurrentUser();
-                m_InteractingAlbum.getCurrentPost().like(loggedInUser, successful -> {
+                m_InteractingWithAlbum.getCurrentPost().like(loggedInUser, successful -> {
                     if (successful)
                         Toast.makeText(getContext(), "Liked post!", Toast.LENGTH_LONG).show();
                 });
@@ -389,10 +412,10 @@ public class VR_Fragment extends Fragment
         {
             if (m_IsInteractingWithPost)
             {
-                if (m_InteractingAlbum != null && m_SwipeTimeSpent != 0)
+                if (m_InteractingWithAlbum != null && m_SwipeTimeSpent != 0)
                 {
                     double velocity = m_SwipeDistanceCovered / m_SwipeTimeSpent;
-                    m_InteractingAlbum.updatePostIndex(velocity > 0);
+                    m_InteractingWithAlbum.updatePostIndex(velocity > 0);
                     m_SwipeDistanceCovered = 0;
                     m_SwipeTimeSpent = 0;
                 }

@@ -62,7 +62,7 @@
             app:layout_constraintRight_toRightOf="parent"
             android:paddingTop="5dp"
             android:background="@android:color/transparent"
-            android:src="@drawable/ic_ar_enabled_button"
+            android:src="@drawable/ic_ar_disabled_button"
             android:translationZ="30dp"/>
     </androidx.constraintlayout.widget.ConstraintLayout>
 
