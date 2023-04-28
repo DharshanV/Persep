@@ -60,6 +60,7 @@
         <entry key="..\:/Users/ddvyu/OneDrive/Desktop/Projects/Persep/app/src/main/res/drawable-night/vr_disable_card_outline.xml" value="0.37864583333333335" />
         <entry key="..\:/Users/ddvyu/OneDrive/Desktop/Projects/Persep/app/src/main/res/drawable-night/vr_enable_card_outline.xml" value="0.37864583333333335" />
         <entry key="..\:/Users/ddvyu/OneDrive/Desktop/Projects/Persep/app/src/main/res/drawable-night/vr_rounded_button.xml" value="0.37864583333333335" />
+        <entry key="..\:/Users/ddvyu/OneDrive/Desktop/Projects/Persep/app/src/main/res/drawable/ar_icon_background.xml" value="0.21875" />
         <entry key="..\:/Users/ddvyu/OneDrive/Desktop/Projects/Persep/app/src/main/res/drawable/bottom_navigation_rounded.xml" value="0.28541666666666665" />
         <entry key="..\:/Users/ddvyu/OneDrive/Desktop/Projects/Persep/app/src/main/res/drawable/ic_ar_button.xml" value="0.2786458333333333" />
         <entry key="..\:/Users/ddvyu/OneDrive/Desktop/Projects/Persep/app/src/main/res/drawable/ic_ar_button_1.xml" value="0.2786458333333333" />
@@ -68,6 +69,7 @@
         <entry key="..\:/Users/ddvyu/OneDrive/Desktop/Projects/Persep/app/src/main/res/drawable/ic_ar_disabled_button.xml" value="0.2786458333333333" />
         <entry key="..\:/Users/ddvyu/OneDrive/Desktop/Projects/Persep/app/src/main/res/drawable/ic_ar_enabled_button.xml" value="0.2786458333333333" />
         <entry key="..\:/Users/ddvyu/OneDrive/Desktop/Projects/Persep/app/src/main/res/drawable/ic_baseline_arrow_back.xml" value="0.37864583333333335" />
+        <entry key="..\:/Users/ddvyu/OneDrive/Desktop/Projects/Persep/app/src/main/res/drawable/ic_baseline_camera_rear_24.xml" value="0.5" />
         <entry key="..\:/Users/ddvyu/OneDrive/Desktop/Projects/Persep/app/src/main/res/drawable/ic_baseline_settings.xml" value="0.37864583333333335" />
         <entry key="..\:/Users/ddvyu/OneDrive/Desktop/Projects/Persep/app/src/main/res/drawable/ic_baseline_settings_24.xml" value="0.37864583333333335" />
         <entry key="..\:/Users/ddvyu/OneDrive/Desktop/Projects/Persep/app/src/main/res/drawable/news_avd_v02.xml" value="0.37864583333333335" />
@@ -85,7 +87,7 @@
         <entry key="..\:/Users/ddvyu/OneDrive/Desktop/Projects/Persep/app/src/main/res/layout/activity_settings.xml" value="0.3625" />
         <entry key="..\:/Users/ddvyu/OneDrive/Desktop/Projects/Persep/app/src/main/res/layout/userfeed_fragment.xml" value="0.33" />
         <entry key="..\:/Users/ddvyu/OneDrive/Desktop/Projects/Persep/app/src/main/res/layout/userfeed_view_holder.xml" value="0.5" />
-        <entry key="..\:/Users/ddvyu/OneDrive/Desktop/Projects/Persep/app/src/main/res/layout/vr_fragment.xml" value="0.25" />
+        <entry key="..\:/Users/ddvyu/OneDrive/Desktop/Projects/Persep/app/src/main/res/layout/vr_fragment.xml" value="0.5" />
         <entry key="..\:/Users/ddvyu/OneDrive/Desktop/Projects/Persep/app/src/main/res/menu/bottom_navigation_menu.xml" value="0.3625" />
       </map>
     </option>

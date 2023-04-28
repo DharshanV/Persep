@@ -21,6 +21,7 @@ import android.widget.Toast;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 import androidx.viewpager2.widget.ViewPager2;
@@ -43,7 +44,7 @@ public class VR_Fragment extends Fragment
 
     public DataGathererManager m_DataGathererManager;
 
-    private FrameLayout m_VRLayout;
+    private ConstraintLayout m_VRLayout;
     private RenderView m_RenderView;
     private CameraView m_CameraView;
     private ActivityResultLauncher<Intent> m_UCropActivityResultLauncher = null;
@@ -51,7 +52,9 @@ public class VR_Fragment extends Fragment
     // widgets
     private Button m_TakePhotoButton = null;
     private ImageButton m_ToggleVRButton = null;
+    private ImageButton m_ToggleCameraButton = null;
     private boolean m_VRRenderState = true;
+    private boolean m_VRCameraRear = true;
 
     GestureDetector m_GestureDetector;
     ViewPager2 m_ViewPager;
@@ -210,6 +213,12 @@ public class VR_Fragment extends Fragment
             m_VRRenderState = !m_VRRenderState;
             if (m_RenderView != null) m_RenderView.ShouldRender(m_VRRenderState);
             m_ToggleVRButton.setImageResource(m_VRRenderState ? R.drawable.ic_ar_enabled_button : R.drawable.ic_ar_disabled_button);
+        });
+
+        m_ToggleCameraButton = view.findViewById(R.id.toggle_camera_button);
+        m_ToggleCameraButton.setOnClickListener(v -> {
+            m_VRCameraRear = !m_VRCameraRear;
+            m_ToggleCameraButton.setImageResource(m_VRCameraRear ? R.drawable.ic_baseline_camera_rear_24 : R.drawable.ic_baseline_camera_front_24);
         });
 
         m_UCropActivityResultLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
