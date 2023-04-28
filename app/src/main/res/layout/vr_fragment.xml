@@ -2,12 +2,33 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/vr_root_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:theme="@style/Theme.Persep"
     android:background="@color/black"
     tools:context="com.perception.persep.fragments.VR_Fragment">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:translationZ="2dp"
+        android:id="@+id/vr_root_layout">
+
+        <com.otaliastudios.cameraview.CameraView
+            android:id="@+id/otalia_camera_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:keepScreenOn="true"
+            app:cameraAudio="off"
+            app:cameraEngine="camera1"
+            app:cameraMode="picture"
+            app:cameraPictureFormat="jpeg"
+            app:cameraPlaySounds="false"
+            app:cameraPreview="glSurface"
+            app:cameraRequestPermissions="true"
+            app:cameraUseDeviceOrientation="false" />
+
+    </RelativeLayout>
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="50dp"

@@ -13,14 +13,13 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
-import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 import androidx.viewpager2.widget.ViewPager2;
@@ -28,8 +27,10 @@ import androidx.viewpager2.widget.ViewPager2;
 import com.example.persep.R;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.otaliastudios.cameraview.CameraListener;
+import com.otaliastudios.cameraview.CameraView;
+import com.otaliastudios.cameraview.PictureResult;
 import com.perception.persep.album_data.Album;
-import com.perception.persep.camera.CameraView;
 import com.perception.persep.data_gatherer.DataGathererManager;
 import com.perception.persep.render.RenderView;
 import com.yalantis.ucrop.UCrop;
@@ -43,7 +44,7 @@ public class VR_Fragment extends Fragment
 
     public DataGathererManager m_DataGathererManager;
 
-    private ConstraintLayout m_VRLayout;
+    private RelativeLayout m_VRLayout;
     private RenderView m_RenderView;
     private CameraView m_CameraView;
     private ActivityResultLauncher<Intent> m_UCropActivityResultLauncher = null;
@@ -109,9 +110,6 @@ public class VR_Fragment extends Fragment
             return;
         }
 
-        m_CameraView = new CameraView(getActivity());
-        m_VRLayout.addView(m_CameraView, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
-
         m_RenderView = new RenderView(getActivity());
         m_VRLayout.addView(m_RenderView, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
         m_RenderView.setOpaque(false);
@@ -125,7 +123,6 @@ public class VR_Fragment extends Fragment
         if (forceStart)
         {
             if (m_RenderView != null) m_RenderView.onStart();
-            if (m_CameraView != null) m_CameraView.onStart();
             if (m_DataGathererManager != null) m_DataGathererManager.onStart();
         }
     }
@@ -137,7 +134,6 @@ public class VR_Fragment extends Fragment
         super.onStart();
 
         if (m_RenderView != null) m_RenderView.onStart();
-        if (m_CameraView != null) m_CameraView.onStart();
         if (m_DataGathererManager != null) m_DataGathererManager.onStart();
     }
 
@@ -148,7 +144,6 @@ public class VR_Fragment extends Fragment
         super.onStop();
 
         if (m_RenderView != null) m_RenderView.onStop();
-        if (m_CameraView != null) m_CameraView.onStop();
         if (m_DataGathererManager != null) m_DataGathererManager.onStop();
     }
 
@@ -159,7 +154,6 @@ public class VR_Fragment extends Fragment
         super.onPause();
 
         if (m_RenderView != null) m_RenderView.onPause();
-        if (m_CameraView != null) m_CameraView.onPause();
         if (m_DataGathererManager != null) m_DataGathererManager.onPause();
     }
 
@@ -170,7 +164,6 @@ public class VR_Fragment extends Fragment
         super.onResume();
 
         if (m_RenderView != null) m_RenderView.onResume(m_VRRenderState);
-        if (m_CameraView != null) m_CameraView.onResume();
         if (m_DataGathererManager != null) m_DataGathererManager.onResume();
     }
 
@@ -182,7 +175,18 @@ public class VR_Fragment extends Fragment
         m_VRLayout = view.findViewById(R.id.vr_root_layout);
 
         m_GestureDetector = new VR_Fragment_GestureDetector(getActivity(), new VR_Fragment_GestureListener());
-        m_VRLayout.setOnTouchListener((v, event) -> {
+
+        InitWidgets(view);
+        TryInitializeFragment();
+        return view;
+    }
+
+    @SuppressLint("ClickableViewAccessibility")
+    void InitWidgets(View view)
+    {
+        m_CameraView = view.findViewById(R.id.otalia_camera_view);
+        m_CameraView.setLifecycleOwner(getViewLifecycleOwner());
+        m_CameraView.setOnTouchListener((v, event) -> {
             m_ViewWidth = v.getWidth();
             m_ViewHeight = v.getHeight();
             if (m_VRRenderState)
@@ -192,16 +196,31 @@ public class VR_Fragment extends Fragment
             return true;
         });
 
-        InitWidgets(view);
-        TryInitializeFragment();
-        return view;
-    }
 
-    void InitWidgets(View view)
-    {
+        m_CameraView.addCameraListener(new CameraListener()
+        {
+            @Override
+            public void onPictureTaken(@NonNull PictureResult result)
+            {
+                try
+                {
+                    File previewCroppedFile = File.createTempFile("cameraPreview-cropped", ".jpg");
+                    result.toFile(previewCroppedFile, file -> {
+                        Uri savedPreviewUri = Uri.fromFile(file);
+                        Uri croppedPreviewUri = Uri.fromFile(previewCroppedFile);
+                        Intent UCropIntent = UCrop.of(savedPreviewUri, croppedPreviewUri).withAspectRatio(16, 9).getIntent(getActivity());
+                        m_UCropActivityResultLauncher.launch(UCropIntent);
+                    });
+                } catch (IOException e)
+                {
+                    Log.e(TAG, e.toString());
+                }
+            }
+        });
+
         m_TakePhotoButton = view.findViewById(R.id.vr_button_take_photo);
         m_TakePhotoButton.setOnClickListener(v -> {
-            if (m_CameraView != null && m_CameraView.isValid())
+            if (m_CameraView != null && !m_CameraView.isTakingPicture())
             {
                 m_TakePhotoButton.setEnabled(false);
                 TakePhoto();
@@ -231,6 +250,7 @@ public class VR_Fragment extends Fragment
                 m_ToggleVRButton.setEnabled(true);
             }
             ToggleVR();
+            m_CameraView.toggleFacing();
         });
 
         m_UCropActivityResultLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
@@ -269,19 +289,7 @@ public class VR_Fragment extends Fragment
 
     void TakePhoto()
     {
-        m_CameraView.TakeAndSavePreview(file -> {
-            try
-            {
-                File previewCroppedFile = File.createTempFile("cameraPreview-cropped", ".jpg");
-                Uri savedPreviewUri = Uri.fromFile(file);
-                Uri croppedPreviewUri = Uri.fromFile(previewCroppedFile);
-                Intent UCropIntent = UCrop.of(savedPreviewUri, croppedPreviewUri).withAspectRatio(16, 9).getIntent(getActivity());
-                m_UCropActivityResultLauncher.launch(UCropIntent);
-            } catch (IOException e)
-            {
-                Log.e(TAG, e.toString());
-            }
-        });
+        m_CameraView.takePicture();
     }
 
     private boolean HasAllPermissions(String[] permissions)
