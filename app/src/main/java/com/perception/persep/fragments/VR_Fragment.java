@@ -14,7 +14,6 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
@@ -54,6 +53,7 @@ public class VR_Fragment extends Fragment
     private ImageButton m_ToggleVRButton = null;
     private ImageButton m_ToggleCameraButton = null;
     private boolean m_VRRenderState = true;
+    private boolean m_PrevRenderState = true;
     private boolean m_VRCameraRear = true;
 
     GestureDetector m_GestureDetector;
@@ -211,14 +211,26 @@ public class VR_Fragment extends Fragment
         m_ToggleVRButton = view.findViewById(R.id.toggle_vr_button);
         m_ToggleVRButton.setOnClickListener(v -> {
             m_VRRenderState = !m_VRRenderState;
-            if (m_RenderView != null) m_RenderView.ShouldRender(m_VRRenderState);
-            m_ToggleVRButton.setImageResource(m_VRRenderState ? R.drawable.ic_ar_enabled_button : R.drawable.ic_ar_disabled_button);
+            m_PrevRenderState = m_VRRenderState;
+            ToggleVR();
         });
 
         m_ToggleCameraButton = view.findViewById(R.id.toggle_camera_button);
         m_ToggleCameraButton.setOnClickListener(v -> {
             m_VRCameraRear = !m_VRCameraRear;
             m_ToggleCameraButton.setImageResource(m_VRCameraRear ? R.drawable.ic_baseline_camera_rear_24 : R.drawable.ic_baseline_camera_front_24);
+
+            if (!m_VRCameraRear)
+            {
+                m_VRRenderState = false;
+                m_ToggleVRButton.setEnabled(false);
+            } else
+            {
+                if (m_PrevRenderState)
+                    m_VRRenderState = true;
+                m_ToggleVRButton.setEnabled(true);
+            }
+            ToggleVR();
         });
 
         m_UCropActivityResultLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
@@ -247,6 +259,12 @@ public class VR_Fragment extends Fragment
                         Log.e(TAG, UCrop.getError(result.getData()).toString());
                     }
                 });
+    }
+
+    private void ToggleVR()
+    {
+        if (m_RenderView != null) m_RenderView.ShouldRender(m_VRRenderState);
+        m_ToggleVRButton.setImageResource(m_VRRenderState ? R.drawable.ic_ar_enabled_button : R.drawable.ic_ar_disabled_button);
     }
 
     void TakePhoto()
