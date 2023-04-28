@@ -46,7 +46,7 @@
             android:translationZ="30dp"/>
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <Button
+    <ImageButton
         android:id="@+id/vr_button_take_photo"
         android:layout_width="100dp"
         android:layout_height="100dp"
@@ -55,5 +55,6 @@
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
         android:background="@drawable/vr_rounded_button"
+        android:src="@null"
         android:translationZ="30dp"/>
 </androidx.constraintlayout.widget.ConstraintLayout>

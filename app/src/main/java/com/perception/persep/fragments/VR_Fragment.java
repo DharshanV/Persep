@@ -49,7 +49,7 @@ public class VR_Fragment extends Fragment
     private ActivityResultLauncher<Intent> m_UCropActivityResultLauncher = null;
 
     // widgets
-    private Button m_TakePhotoButton = null;
+    private ImageButton m_TakePhotoButton = null;
     private ImageButton m_ToggleVRButton = null;
     private ImageButton m_ToggleCameraButton = null;
     private boolean m_VRRenderState = true;

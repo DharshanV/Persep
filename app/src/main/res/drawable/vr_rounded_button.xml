@@ -8,6 +8,14 @@
         </shape>
     </item>
 
+    <item android:state_enabled="false">
+        <shape>
+            <solid android:color="@color/persep_color"/>
+            <stroke android:color="@color/persep_color" android:width="5dp"/>
+            <corners android:radius="50dp"/>
+        </shape>
+    </item>
+
     <item>
         <shape>
             <solid android:color="@android:color/transparent"/>
