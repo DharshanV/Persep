@@ -23,7 +23,7 @@
         android:layout_width="@dimen/vr_enable_disable_vector_size"
         android:layout_height="@dimen/vr_enable_disable_vector_size"
         android:background="@android:color/transparent"
-        android:src="@drawable/vr_enable_card_outline"
+        android:src="@drawable/ic_ar_enabled_button"
         android:layout_marginTop="60dp"
         android:layout_marginRight="10dp"
         android:layout_gravity="right|top"

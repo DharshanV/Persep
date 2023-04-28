@@ -209,7 +209,7 @@ public class VR_Fragment extends Fragment
         m_ToggleVRButton.setOnClickListener(v -> {
             m_VRRenderState = !m_VRRenderState;
             if (m_RenderView != null) m_RenderView.ShouldRender(m_VRRenderState);
-            m_ToggleVRButton.setImageResource(m_VRRenderState ? R.drawable.vr_enable_card_outline : R.drawable.vr_disable_card_outline);
+            m_ToggleVRButton.setImageResource(m_VRRenderState ? R.drawable.ic_ar_enabled_button : R.drawable.ic_ar_disabled_button);
         });
 
         m_UCropActivityResultLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
