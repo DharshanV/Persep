@@ -11,7 +11,6 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:translationZ="2dp"
         android:id="@+id/vr_root_layout">
 
         <com.otaliastudios.cameraview.CameraView
@@ -25,7 +24,7 @@
             app:cameraPictureFormat="jpeg"
             app:cameraPlaySounds="false"
             app:cameraPreview="glSurface"
-            app:cameraRequestPermissions="true"
+            app:cameraRequestPermissions="false"
             app:cameraUseDeviceOrientation="false" />
 
     </RelativeLayout>

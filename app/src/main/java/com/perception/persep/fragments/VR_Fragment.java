@@ -20,6 +20,7 @@ import android.widget.Toast;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 import androidx.viewpager2.widget.ViewPager2;
@@ -171,14 +172,20 @@ public class VR_Fragment extends Fragment
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
     {
-        View view = inflater.inflate(R.layout.vr_fragment, container, false);
+        return inflater.inflate(R.layout.vr_fragment, container, false);
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState)
+    {
+        super.onViewCreated(view, savedInstanceState);
+
         m_VRLayout = view.findViewById(R.id.vr_root_layout);
 
         m_GestureDetector = new VR_Fragment_GestureDetector(getActivity(), new VR_Fragment_GestureListener());
 
         InitWidgets(view);
         TryInitializeFragment();
-        return view;
     }
 
     @SuppressLint("ClickableViewAccessibility")
@@ -220,7 +227,7 @@ public class VR_Fragment extends Fragment
 
         m_TakePhotoButton = view.findViewById(R.id.vr_button_take_photo);
         m_TakePhotoButton.setOnClickListener(v -> {
-            if (m_CameraView != null && !m_CameraView.isTakingPicture())
+            if (m_CameraView != null && m_CameraView.isOpened() && !m_CameraView.isTakingPicture())
             {
                 m_TakePhotoButton.setEnabled(false);
                 TakePhoto();
