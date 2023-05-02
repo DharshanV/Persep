@@ -35,14 +35,9 @@ public class GPSSensor
     private LocationRequest m_LocationRequest = null;
     private LocationCallback m_LocationCB = null;
 
-    private final static int MAX_BOUND_COUNT = 20;
+    private final static int MAX_BOUND_COUNT = 10;
     private final static int MIN_NUM_BOUND_TO_CB = 4;
-    private final static double MIN_ACCURACY_TO_CB = 4.0; // meters
-    private final static long MIN_SECS_TO_CB = 3000; // 3 seconds
-    private boolean m_ForceUpdated = false;
     private final LinkedList<LatLng> m_Bounds = new LinkedList<>();
-    private Location m_BestLocation = null;
-    private long m_GPSensorStartTime = 0;
 
     private HandlerThread m_SensorThread;
 
@@ -51,6 +46,14 @@ public class GPSSensor
 
     // The minimum time between updates in milliseconds
     private static final long MIN_TIME_BW_UPDATES = 1000;
+
+    // Kalman Filter parameters
+    private static final double DEG_TO_METER = 111225.0;
+    private static final double METER_TO_DEG = 1.0 / DEG_TO_METER;
+
+    private static final double TIME_STEP = 1.0;
+    private static final double COORDINATE_NOISE = 4.0 * METER_TO_DEG;
+    private KalmanFilterTracker1D m_LatTracker, m_LonTracker;
 
     public GPSSensor(Context context)
     {
@@ -68,18 +71,53 @@ public class GPSSensor
             @Override
             public void onLocationResult(@NonNull LocationResult locationResult)
             {
-                if (!m_Listeners.isEmpty())
-                {
-                    UpdateLocation(locationResult.getLastLocation());
-                }
+                if (m_Listeners.isEmpty()) return;
+
+                Location location = locationResult.getLastLocation();
+
+                double lat = PredictLatitude(location);
+                double lon = PredictLongitude(location);
+
+                UpdateLocation(lat, lon);
             }
         };
+    }
+
+    private double PredictLatitude(Location location)
+    {
+        double position = location.getLatitude();
+        double noise = location.getAccuracy() * METER_TO_DEG;
+
+        if (m_LatTracker == null) {
+            m_LatTracker = new KalmanFilterTracker1D(TIME_STEP, COORDINATE_NOISE);
+            m_LatTracker.setState(position, 0.0, noise);
+        }
+
+        m_LatTracker.predict(0.0);
+        double predictedLat = m_LatTracker.getPosition();
+        m_LatTracker.update(position, noise);
+        return predictedLat;
+    }
+
+    private double PredictLongitude(Location location)
+    {
+        double position = location.getLongitude();
+        double noise = location.getAccuracy() * Math.cos(Math.toRadians(location.getLatitude())) * METER_TO_DEG ;
+
+        if (m_LonTracker == null) {
+            m_LonTracker = new KalmanFilterTracker1D(TIME_STEP, COORDINATE_NOISE);
+            m_LonTracker.setState(position, 0.0, noise);
+        }
+
+        m_LonTracker.predict(0.0);
+        double predictedLon = m_LonTracker.getPosition();
+        m_LonTracker.update(position, noise);
+        return predictedLon;
     }
 
     @SuppressLint("MissingPermission")
     public void RegisterSensor()
     {
-        m_GPSensorStartTime = SystemClock.elapsedRealtime();
         m_SensorThread = new HandlerThread("GPSThread", Thread.MAX_PRIORITY);
         m_SensorThread.start();
         m_FusedLocationProvider.requestLocationUpdates(m_LocationRequest, m_LocationCB, m_SensorThread.getLooper());
@@ -106,55 +144,29 @@ public class GPSSensor
     public void AddListener(GPSSensor.Listener listener)
     {
         m_Listeners.add(listener);
-
-        if (m_FusedLocationProvider != null)
-        {
-            m_FusedLocationProvider.getLastLocation().addOnCompleteListener(task -> {
-                if (!m_Listeners.isEmpty())
-                {
-                    UpdateLocation(task.getResult());
-                }
-            });
-        }
     }
 
-    private void UpdateLocation(Location location)
+    private void UpdateLocation(double lat, double lon)
     {
-        boolean shouldForceUpdate = ShouldForceUpdate();
-        if (shouldForceUpdate || m_BestLocation == null || location.getAccuracy() < m_BestLocation.getAccuracy())
-        {
-            m_BestLocation = location;
-            AddLocationToBound(m_BestLocation);
-            if (shouldForceUpdate || m_BestLocation.getAccuracy() <= MIN_ACCURACY_TO_CB || m_Bounds.size() >= MIN_NUM_BOUND_TO_CB)
+        AddLocationToBound(lat, lon);
+        if (m_Bounds.size() >= MIN_NUM_BOUND_TO_CB) {
+            LatLng center = GetCenter();
+            for (Listener listener : m_Listeners)
             {
-                LatLng center = GetCenter();
-                for (Listener listener : m_Listeners)
-                {
-                    listener.onLocationChanged(center.latitude, center.longitude);
-                }
+                listener.onLocationChanged(center.latitude, center.longitude);
             }
         }
     }
 
-    private boolean ShouldForceUpdate()
-    {
-        if (!m_ForceUpdated && SystemClock.elapsedRealtime() - m_GPSensorStartTime > MIN_SECS_TO_CB)
-        {
-            m_ForceUpdated = true;
-            return true;
-        }
-        return false;
-    }
-
-    private void AddLocationToBound(Location location)
+    private void AddLocationToBound(double lat, double lon)
     {
         if (m_Bounds.size() == MAX_BOUND_COUNT)
         {
             m_Bounds.removeFirst();
-            m_Bounds.addLast(new LatLng(location.getLatitude(), location.getLongitude()));
+            m_Bounds.addLast(new LatLng(lat, lon));
             return;
         }
-        m_Bounds.addLast(new LatLng(location.getLatitude(), location.getLongitude()));
+        m_Bounds.addLast(new LatLng(lat, lon));
     }
 
     private LatLng GetCenter()
