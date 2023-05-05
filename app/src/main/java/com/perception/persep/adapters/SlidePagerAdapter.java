@@ -7,6 +7,7 @@ import androidx.lifecycle.Lifecycle;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 import androidx.viewpager2.widget.ViewPager2;
 
+import com.perception.persep.fragments.DataVisualization_Fragment;
 import com.perception.persep.fragments.UserFeed_Fragment;
 import com.perception.persep.fragments.VR_Fragment;
 
@@ -40,7 +41,8 @@ public class SlidePagerAdapter extends FragmentStateAdapter
                 fragment = new UserFeed_Fragment();
                 break;
             case 1:
-                fragment = new VR_Fragment(m_ViewPager);
+//                fragment = new VR_Fragment(m_ViewPager);
+                fragment = new DataVisualization_Fragment();
                 break;
             default:
                 throw new IllegalStateException("Unexpected value: " + position);
