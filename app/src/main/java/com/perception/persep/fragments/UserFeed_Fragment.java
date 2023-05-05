@@ -55,8 +55,8 @@ public class UserFeed_Fragment extends Fragment
 
         RecyclerView userFeedRecycleView = view.findViewById(R.id.user_feed_recycle_view);
         userFeedRecycleView.setLayoutManager(new LinearLayoutManager(view.getContext()));
-        m_UserFeedAdapter = new UserFeedAdapter();
-        userFeedRecycleView.setAdapter(m_UserFeedAdapter);
+//        m_UserFeedAdapter = new UserFeedAdapter();
+//        userFeedRecycleView.setAdapter(m_UserFeedAdapter);
 
         m_SwipeRefreshLayout = view.findViewById(R.id.user_feed_swipe_refresh_layout);
         m_SwipeRefreshLayout.setOnRefreshListener(() -> {
