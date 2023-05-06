@@ -20,8 +20,9 @@ public class GeoLocationHelper
 
     public static double Heading(double lat1, double lon1, double lat2, double lon2)
     {
-        double y = Math.sin(lon2 - lon1) * Math.cos(lat2);
-        double x = Math.cos(lat1) * Math.sin(lat2) - Math.sin(lat1) * Math.cos(lat2) * Math.cos(lon2 - lon1);
+        double dLon = (lon2-lon1);
+        double y = Math.sin(dLon) * Math.cos(lat2);
+        double x = Math.cos(lat1)*Math.sin(lat2) - Math.sin(lat1)*Math.cos(lat2)*Math.cos(dLon);
         return Math.atan2(y, x);
     }
 
