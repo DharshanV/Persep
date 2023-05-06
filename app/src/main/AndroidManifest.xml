@@ -24,6 +24,11 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/icon_launcher_persep"
         android:supportsRtl="true">
+        <service
+            android:name="mad.location.manager.lib.Services.KalmanLocationService"
+            android:enabled="true"
+            android:exported="false"
+            android:stopWithTask="false" />
         <activity
             android:name="com.perception.persep.activities.HomeActivity"
             android:exported="true"
