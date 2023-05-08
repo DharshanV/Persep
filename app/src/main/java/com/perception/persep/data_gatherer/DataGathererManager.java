@@ -11,36 +11,40 @@ public class DataGathererManager
     private static final String TAG = "Data_Gatherer_Manager";
 
 //    private final RotationSensor m_RotationSensor;
-    private final GPSSensor m_GPSSensor;
+//    private final GPSSensor m_GPSSensor;
+    private final AccelerometerSensor m_AccelerometerSensor;
 //    private final AlbumManager m_AlbumManger;
 
     public DataGathererManager(Context context)
     {
 //        m_RotationSensor = new RotationSensor(context);
-        m_GPSSensor = new GPSSensor(context);
+//        m_GPSSensor = new GPSSensor(context);
+        m_AccelerometerSensor= new AccelerometerSensor(context);
 //        m_AlbumManger = new AlbumManager(context);
     }
 
     public void onStart()
     {
-        m_GPSSensor.RegisterSensor();
+//        m_GPSSensor.RegisterSensor();
 //        m_RotationSensor.RegisterSensor();
     }
 
     public void onStop()
     {
 //        m_RotationSensor.UnregisterSensor();
-        m_GPSSensor.UnregisterSensor();
+//        m_GPSSensor.UnregisterSensor();
     }
 
     public void onResume()
     {
 //        m_AlbumManger.onResume();
+        m_AccelerometerSensor.RegisterSensor();
     }
 
     public void onPause()
     {
 //        m_AlbumManger.onPause();
+        m_AccelerometerSensor.UnregisterSensor();
     }
 
     public void SetGyroscopeListener(RotationSensor.Listener listener)
@@ -50,7 +54,12 @@ public class DataGathererManager
 
     public void AddGPSListener(GPSSensor.Listener listener)
     {
-        m_GPSSensor.AddListener(listener);
+//        m_GPSSensor.AddListener(listener);
+    }
+
+    public void AddAccelerometerListener(AccelerometerSensor.Listener listener)
+    {
+        m_AccelerometerSensor.AddListener(listener);
     }
 
     public void SetAlbumListener(AlbumManager.Listener listener)
