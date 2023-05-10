@@ -38,6 +38,7 @@ public class DataVisualization_Fragment extends Fragment implements Acceleromete
 
     DataGathererManager m_DataGathererManager;
 
+    //https://stackoverflow.com/questions/20398898/how-to-get-speed-in-android-app-using-location-or-accelerometer-or-some-other-wa
     public DataVisualization_Fragment()
     {
         m_AccX = new LinkedList<>();

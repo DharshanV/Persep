@@ -27,6 +27,12 @@ public class AccelerometerSensor implements SensorEventListener
 
     private final float[] m_Acceleration = new float[3];
 
+    static final float NS2S = 1.0f / 1000000000.0f;
+    float[] last_values = null;
+    float[] velocity = null;
+    float[] position = null;
+    long last_timestamp = 0;
+
     public AccelerometerSensor(Context context)
     {
         m_SensorManager = (SensorManager) context.getSystemService(Context.SENSOR_SERVICE);
@@ -76,6 +82,25 @@ public class AccelerometerSensor implements SensorEventListener
         {
             m_Listener.onAccelerationChanged(event.values);
         }
+
+//        if(last_values != null){
+//            float dt = (event.timestamp - last_timestamp) * NS2S;
+//
+//            for(int index = 0; index < 3;++index){
+//                velocity[index] += (event.values[index] + last_values[index])/2 * dt;
+//                position[index] += velocity[index] * dt;
+//            }
+//        }
+//        else{
+//            last_values = new float[3];
+//            velocity = new float[3];
+//            position = new float[3];
+//            velocity[0] = velocity[1] = velocity[2] = 0f;
+//            position[0] = position[1] = position[2] = 0f;
+//        }
+//        Log.d("Debug", Arrays.toString(position));
+//        System.arraycopy(event.values, 0, last_values, 0, 3);
+//        last_timestamp = event.timestamp;
     }
 
     @Override
