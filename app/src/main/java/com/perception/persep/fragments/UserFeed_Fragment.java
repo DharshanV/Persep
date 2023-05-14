@@ -2,6 +2,7 @@ package com.perception.persep.fragments;
 
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -25,6 +26,7 @@ import com.perception.persep.activities.LoginActivity;
 import com.perception.persep.activities.SettingsActivity;
 import com.perception.persep.adapters.UserFeedAdapter;
 
+import java.util.Locale;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -56,7 +58,7 @@ public class UserFeed_Fragment extends Fragment
 
         m_UserFeedRecycleView = view.findViewById(R.id.user_feed_recycle_view);
         m_UserFeedRecycleView.setLayoutManager(new LinearLayoutManager(view.getContext()));
-        m_UserFeedAdapter = new UserFeedAdapter();
+        m_UserFeedAdapter = new UserFeedAdapter(this);
         m_UserFeedRecycleView.setAdapter(m_UserFeedAdapter);
 
         m_SwipeRefreshLayout = view.findViewById(R.id.user_feed_swipe_refresh_layout);
@@ -94,5 +96,13 @@ public class UserFeed_Fragment extends Fragment
         imageButton.setOnClickListener(v -> {
             startActivity(new Intent(getActivity(), SettingsActivity.class));
         });
+    }
+
+    public void openGoogleMaps(double lat, double lon)
+    {
+        Uri mapUri = Uri.parse(String.format(Locale.US, "geo:%f,%f?q=%f,%f", lat, lon, lat, lon));
+        Intent mapIntent = new Intent(Intent.ACTION_VIEW, mapUri);
+        mapIntent.setPackage("com.google.android.apps.maps");
+        startActivity(mapIntent);
     }
 }

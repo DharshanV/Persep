@@ -29,6 +29,7 @@ import com.perception.persep.constants.PostConstants;
 import com.perception.persep.constants.UserConstants;
 import com.perception.persep.data_gatherer.DataGathererManager;
 import com.perception.persep.firebase_helpers.FirebaseQueries;
+import com.perception.persep.fragments.UserFeed_Fragment;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -43,11 +44,13 @@ public class UserFeedAdapter extends RecyclerView.Adapter<UserFeedAdapter.UserFe
     }
     private RefreshQueryCompleteListener m_RefreshListener = null;
 
+    private UserFeed_Fragment m_UserFeedFragment;
     private boolean m_FirstLoad = true;
     private final List<Post> m_UserPosts = new ArrayList<>();
 
-    public UserFeedAdapter()
+    public UserFeedAdapter(UserFeed_Fragment userFeedFragment)
     {
+        m_UserFeedFragment = userFeedFragment;
         FirebaseUser loggedInUser = FirebaseAuth.getInstance().getCurrentUser();
         if (loggedInUser != null)
         {
@@ -197,6 +200,7 @@ public class UserFeedAdapter extends RecyclerView.Adapter<UserFeedAdapter.UserFe
 
     public void sharePost(int postPosition)
     {
+        m_UserFeedFragment.openGoogleMaps(-33.858587567654794, 151.21389684447863);
     }
 
     public static class UserFeedViewHolder extends RecyclerView.ViewHolder
