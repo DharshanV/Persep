@@ -27,6 +27,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.perception.persep.album_data.Post;
 import com.perception.persep.constants.PostConstants;
 import com.perception.persep.constants.UserConstants;
+import com.perception.persep.data_gatherer.DataGathererManager;
 import com.perception.persep.firebase_helpers.FirebaseQueries;
 
 import java.util.ArrayList;
@@ -182,6 +183,16 @@ public class UserFeedAdapter extends RecyclerView.Adapter<UserFeedAdapter.UserFe
 
     public void deletePost(int postPosition)
     {
+        FirebaseUser loggedInUser = FirebaseAuth.getInstance().getCurrentUser();
+        if (loggedInUser != null && postPosition < m_UserPosts.size()) {
+            Post post = m_UserPosts.get(postPosition);
+            post.delete(loggedInUser, successful -> {
+                if (successful) {
+                    m_UserPosts.remove(postPosition);
+                    this.notifyItemRemoved(postPosition);
+                }
+            });
+        }
     }
 
     public void sharePost(int postPosition)

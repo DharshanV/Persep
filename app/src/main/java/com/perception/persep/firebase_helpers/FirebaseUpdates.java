@@ -48,6 +48,11 @@ public class FirebaseUpdates
         void OnLikeUpdate(boolean successful);
     }
 
+    public interface PostDeleteListener
+    {
+        void OnPostDelete(boolean successful);
+    }
+
     private final FirebaseFirestore m_Firestore;
     private final StorageReference m_FireStoreRef;
 
@@ -109,6 +114,29 @@ public class FirebaseUpdates
                     .addOnSuccessListener(unused -> listener.OnLikeUpdate(true))
                     .addOnFailureListener(e -> listener.OnLikeUpdate(false));
         }).addOnFailureListener(Throwable::printStackTrace);
+    }
+
+    public void deletePost(FirebaseUser user, String postImageURI, String postID, String albumID, PostDeleteListener listener)
+    {
+        FirebaseStorage.getInstance().getReferenceFromUrl(postImageURI).delete();
+
+        WriteBatch batch = m_Firestore.batch();
+
+        DocumentReference postRef = m_Firestore.collection(PostConstants.COLLECTION_NAME).document(postID);
+        DocumentReference albumRef = m_Firestore.collection(AlbumConstants.COLLECTION_NAME).document(albumID);
+        albumRef.update(AlbumConstants.POSTS, FieldValue.arrayRemove(postRef)).addOnSuccessListener(unused -> {
+            albumRef.get().addOnSuccessListener(albumDoc -> {
+                List<DocumentReference> postRefs = (List<DocumentReference>) albumDoc.get(AlbumConstants.POSTS);
+                if (postRefs == null || postRefs.isEmpty()) {
+                    albumRef.delete();
+                }
+            });
+        });
+        m_Firestore.collection(UserConstants.COLLECTION_NAME).document(user.getUid()).update(UserConstants.POSTS, FieldValue.arrayRemove(postRef));
+        postRef.delete();
+
+        batch.commit().addOnSuccessListener(unused -> listener.OnPostDelete(true))
+                .addOnFailureListener(unused -> listener.OnPostDelete(false));
     }
 
     private void TryAddPostToClosestAlbum(DocumentSnapshot userDoc, Uri postImageURI, double lat, double lon, UpdatesListener listener)

@@ -59,6 +59,11 @@ public class Post implements Target
         FirebaseUpdates.getInstance().likePost(user, m_PostID, listener);
     }
 
+    public void delete(FirebaseUser user, FirebaseUpdates.PostDeleteListener listener)
+    {
+        FirebaseUpdates.getInstance().deletePost(user, m_ImageURI, m_PostID, m_AlbumID, listener);
+    }
+
     @Override
     public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from)
     {
