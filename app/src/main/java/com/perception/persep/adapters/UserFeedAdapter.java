@@ -153,6 +153,7 @@ public class UserFeedAdapter extends RecyclerView.Adapter<UserFeedAdapter.UserFe
 
     private void RefreshPostsLoad(List<DocumentSnapshot> posts)
     {
+        List<Post> newPostsAdded = new ArrayList<>(posts.size());
         for(DocumentSnapshot postDoc : posts)
         {
             Timestamp postDocTimeModified = (Timestamp) postDoc.get(PostConstants.TIME_MODIFIED);
@@ -169,9 +170,13 @@ public class UserFeedAdapter extends RecyclerView.Adapter<UserFeedAdapter.UserFe
                 }
             } else
             {
-                m_UserPosts.add(0, new Post(postDoc.getId(), postDoc.getData(), false));
-                this.notifyItemInserted(0);
+                newPostsAdded.add(new Post(postDoc.getId(), postDoc.getData(), false));
             }
+        }
+        if (!newPostsAdded.isEmpty()) {
+            newPostsAdded.sort((o1, o2) -> o2.m_TimeCreated.compareTo(o1.m_TimeCreated));
+            m_UserPosts.addAll(0, newPostsAdded);
+            this.notifyItemRangeInserted(0, newPostsAdded.size());
         }
     }
 
