@@ -7,12 +7,15 @@ import android.view.LayoutInflater;
 import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.PopupMenu;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.widget.ListPopupWindow;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.persep.R;
@@ -212,6 +215,12 @@ public class UserFeedAdapter extends RecyclerView.Adapter<UserFeedAdapter.UserFe
         public ImageButton m_PostOptionButton;
         private final UserFeedAdapter m_UserFeed;
 
+        int m_PopupWidth;
+        int m_PopupHeight;
+        final static String[] POST_OPTION_ITEMS = new String[]{"Delete", "Share"};
+        ArrayAdapter<String> m_ItemsAdapter;
+        ListPopupWindow m_PopupWindow;
+
         public UserFeedViewHolder(@NonNull View itemView, UserFeedAdapter userFeedAdapter)
         {
             super(itemView);
@@ -222,26 +231,32 @@ public class UserFeedAdapter extends RecyclerView.Adapter<UserFeedAdapter.UserFe
             m_PostOptionButton = itemView.findViewById(R.id.post_options_button);
             m_Context = itemView.getContext();
 
-            m_PostOptionButton.setOnClickListener(v -> {
-                PopupMenu popupMenu = new PopupMenu(m_Context, v);
-                MenuInflater inflater = popupMenu.getMenuInflater();
-                inflater.inflate(R.menu.post_option_menu, popupMenu.getMenu());
-                popupMenu.setGravity(Gravity.END);
-                popupMenu.show();
+            m_ItemsAdapter = new ArrayAdapter<>(m_Context, R.layout.post_options, R.id.post_option_text, POST_OPTION_ITEMS);
+            m_PopupWidth = measureContentWidth(m_ItemsAdapter);
+            m_PopupHeight = ListPopupWindow.WRAP_CONTENT;
 
-                popupMenu.setOnMenuItemClickListener(item -> {
-                    switch (item.getItemId())
-                    {
-                        case R.id.post_option_delete:
-                            m_UserFeed.deletePost(getAdapterPosition());
-                            return true;
-                        case R.id.post_option_share:
-                            m_UserFeed.sharePost(getAdapterPosition());
-                            return true;
-                        default:
-                            return false;
-                    }
-                });
+            m_PopupWindow = new ListPopupWindow(m_Context);
+            m_PopupWindow.setAdapter(m_ItemsAdapter);
+            m_PopupWindow.setWidth(m_PopupWidth);
+            m_PopupWindow.setHeight(m_PopupHeight);
+            m_PopupWindow.setModal(true);
+            m_PopupWindow.setDropDownGravity(Gravity.END);
+
+            m_PopupWindow.setOnItemClickListener((parent, view, position, id) -> {
+                if (position == 0) {
+                    m_UserFeed.deletePost(getAdapterPosition());
+                }
+                else if(position == 1) {
+                    m_UserFeed.sharePost(getAdapterPosition());
+                }
+                m_PopupWindow.dismiss();
+            });
+
+            m_PostOptionButton.setOnClickListener(v -> {
+                if (!m_PopupWindow.isShowing()) {
+                    m_PopupWindow.setAnchorView(v);
+                    m_PopupWindow.show();
+                }
             });
         }
 
@@ -249,6 +264,32 @@ public class UserFeedAdapter extends RecyclerView.Adapter<UserFeedAdapter.UserFe
         {
             String textViewString = m_Context.getString(R.string.user_post_likes, likes);
             m_PostLikeCount.setText(textViewString);
+        }
+
+        private int measureContentWidth(ArrayAdapter<String> items)
+        {
+            ViewGroup measureParentViewGroup = new FrameLayout(m_Context);
+            int maxWidth = 0;
+            int itemType = 0;
+            View itemView = null;
+
+            int widthMeasureSpec = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED);
+            int heightMeasureSpec = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED);
+
+            for(int i=0;i<items.getCount();i++) {
+                int positionType = items.getItemViewType(i);
+                if (positionType != itemType) {
+                    itemType = positionType;
+                    itemView = null;
+                }
+                itemView = items.getView(i, itemView, measureParentViewGroup);
+                itemView.measure(widthMeasureSpec, heightMeasureSpec);
+                int itemWidth = itemView.getMeasuredWidth();
+                if (itemWidth > maxWidth) {
+                    maxWidth = itemWidth;
+                }
+            }
+            return maxWidth;
         }
     }
 }
