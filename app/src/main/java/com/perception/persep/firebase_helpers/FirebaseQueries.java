@@ -41,7 +41,7 @@ public class FirebaseQueries
 
     public interface UserPostsQueryListener
     {
-        void OnQueryResult(boolean successful, String message, List<Post> posts);
+        void OnQueryResult(boolean successful, String message, List<DocumentSnapshot> postSnapshots);
     }
 
     // Database
@@ -249,11 +249,10 @@ public class FirebaseQueries
             }
 
             Tasks.whenAllSuccess(postQueryTasks).addOnSuccessListener(postsResult -> {
-                List<Post> userPosts = new ArrayList<>(postsResult.size());
+                List<DocumentSnapshot> userPosts = new ArrayList<>(postsResult.size());
                 for (Object postObj : postsResult)
                 {
-                    DocumentSnapshot postDoc = (DocumentSnapshot) postObj;
-                    userPosts.add(new Post(postDoc.getId(), postDoc.getData(), false));
+                    userPosts.add((DocumentSnapshot) postObj);
                 }
                 listener.OnQueryResult(true, "Success", userPosts);
             }).addOnFailureListener(e -> {

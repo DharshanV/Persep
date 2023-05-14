@@ -40,8 +40,10 @@ public class UserFeedAdapter extends RecyclerView.Adapter<UserFeedAdapter.UserFe
     {
         void onComplete();
     }
+    private RefreshQueryCompleteListener m_RefreshListener = null;
 
-    private List<Post> m_UserPosts = new ArrayList<>();
+    private boolean m_FirstLoad = true;
+    private final List<Post> m_UserPosts = new ArrayList<>();
 
     public UserFeedAdapter()
     {
@@ -54,50 +56,11 @@ public class UserFeedAdapter extends RecyclerView.Adapter<UserFeedAdapter.UserFe
 
     public void refresh(RefreshQueryCompleteListener listener)
     {
-        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-        if (user == null) return;
-
-        FirebaseFirestore.getInstance().collection(UserConstants.COLLECTION_NAME).document(user.getUid()).get().addOnSuccessListener(userDoc -> {
-            List<DocumentReference> userDocPostRefs = (List<DocumentReference>) userDoc.get(UserConstants.POSTS);
-
-            if (userDocPostRefs == null || userDocPostRefs.isEmpty()) {
-                listener.onComplete();
-                return;
-            }
-
-            List<Task<DocumentSnapshot>> postQueryTasks = new ArrayList<>(userDocPostRefs.size());
-            for (DocumentReference postRef : userDocPostRefs)
-            {
-                postQueryTasks.add(postRef.get());
-            }
-
-            Tasks.whenAllSuccess(postQueryTasks).addOnSuccessListener(postsResult -> {
-                listener.onComplete();
-                // Check for if post has been modified or added
-                for (Object postObj : postsResult)
-                {
-                    DocumentSnapshot postDoc = (DocumentSnapshot) postObj;
-                    Timestamp postDocTimeModified = (Timestamp) postDoc.get(PostConstants.TIME_MODIFIED);
-
-                    int index = findPostIndex(postDoc.getId());
-                    if (index != -1)
-                    {
-                        Post currPost = m_UserPosts.get(index);
-                        if (postDocTimeModified != currPost.m_TimeModified)
-                        {
-                            currPost.m_Likes = (Long) postDoc.get(PostConstants.LIKES);
-                            this.notifyItemChanged(index, currPost.m_Likes);
-                            currPost.m_TimeModified = postDocTimeModified;
-                        }
-                    } else
-                    {
-                        m_UserPosts.add(0, new Post(postDoc.getId(), postDoc.getData(), false));
-                        this.notifyItemInserted(0);
-                    }
-                }
-            }).addOnFailureListener(e -> listener.onComplete());
-        }).addOnFailureListener(e -> listener.onComplete());
-
+        FirebaseUser loggedInUser = FirebaseAuth.getInstance().getCurrentUser();
+        if (loggedInUser != null) {
+            m_RefreshListener = listener;
+            FirebaseQueries.getInstance().QueryUserPosts(loggedInUser, this);
+        }
     }
 
     private int findPostIndex(String postDocID)
@@ -158,13 +121,57 @@ public class UserFeedAdapter extends RecyclerView.Adapter<UserFeedAdapter.UserFe
     }
 
     @Override
-    public void OnQueryResult(boolean successful, String message, List<Post> posts)
+    public void OnQueryResult(boolean successful, String message, List<DocumentSnapshot> postSnapshots)
     {
-        if (posts != null)
+        if (postSnapshots != null)
         {
-            m_UserPosts = posts;
-            m_UserPosts.sort((o1, o2) -> o2.m_TimeCreated.compareTo(o1.m_TimeCreated));
-            this.notifyDataSetChanged();
+            if (m_FirstLoad)
+            {
+                FirstPostsLoad(postSnapshots);
+                m_FirstLoad = false;
+            }
+            else {
+                RefreshPostsLoad(postSnapshots);
+                if (m_RefreshListener != null) {
+                    m_RefreshListener.onComplete();
+                    m_RefreshListener = null;
+                }
+            }
+        }
+    }
+
+    private void FirstPostsLoad(List<DocumentSnapshot> posts)
+    {
+        m_UserPosts.clear();
+        for (DocumentSnapshot postDoc : posts)
+        {
+            m_UserPosts.add(new Post(postDoc.getId(), postDoc.getData(), false));
+        }
+        m_UserPosts.sort((o1, o2) -> o2.m_TimeCreated.compareTo(o1.m_TimeCreated));
+        this.notifyDataSetChanged();
+    }
+
+    private void RefreshPostsLoad(List<DocumentSnapshot> posts)
+    {
+        for(DocumentSnapshot postDoc : posts)
+        {
+            Timestamp postDocTimeModified = (Timestamp) postDoc.get(PostConstants.TIME_MODIFIED);
+
+            int index = findPostIndex(postDoc.getId());
+            if (index != -1)
+            {
+                Post currPost = m_UserPosts.get(index);
+                if (postDocTimeModified != currPost.m_TimeModified)
+                {
+                    currPost.m_Likes = (Long) postDoc.get(PostConstants.LIKES);
+                    this.notifyItemChanged(index, currPost.m_Likes);
+                    currPost.m_TimeModified = postDocTimeModified;
+                }
+            } else
+            {
+                m_UserPosts.add(0, new Post(postDoc.getId(), postDoc.getData(), false));
+                this.notifyItemInserted(0);
+            }
         }
     }
 
