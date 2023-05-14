@@ -1,10 +1,15 @@
 package com.perception.persep.adapters;
 
 import android.content.Context;
+import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.PopupMenu;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -119,7 +124,7 @@ public class UserFeedAdapter extends RecyclerView.Adapter<UserFeedAdapter.UserFe
     public UserFeedViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType)
     {
         View view = LayoutInflater.from(parent.getContext()).inflate(viewType, parent, false);
-        return new UserFeedViewHolder(view);
+        return new UserFeedViewHolder(view, this);
     }
 
     @Override
@@ -163,20 +168,54 @@ public class UserFeedAdapter extends RecyclerView.Adapter<UserFeedAdapter.UserFe
         }
     }
 
+    public void deletePost(int postPosition)
+    {
+    }
+
+    public void sharePost(int postPosition)
+    {
+    }
+
     public static class UserFeedViewHolder extends RecyclerView.ViewHolder
     {
         private final Context m_Context;
         public ImageView m_PostImage;
         public TextView m_PostLikeCount;
         public TextView m_PostGeoLocation;
+        public ImageButton m_PostOptionButton;
+        private final UserFeedAdapter m_UserFeed;
 
-        public UserFeedViewHolder(@NonNull View itemView)
+        public UserFeedViewHolder(@NonNull View itemView, UserFeedAdapter userFeedAdapter)
         {
             super(itemView);
+            m_UserFeed = userFeedAdapter;
             m_PostImage = itemView.findViewById(R.id.user_feed_post_image);
             m_PostLikeCount = itemView.findViewById(R.id.user_post_like_count);
             m_PostGeoLocation = itemView.findViewById(R.id.user_post_geo_location);
+            m_PostOptionButton = itemView.findViewById(R.id.post_options_button);
             m_Context = itemView.getContext();
+
+            m_PostOptionButton.setOnClickListener(v -> {
+                PopupMenu popupMenu = new PopupMenu(m_Context, v);
+                MenuInflater inflater = popupMenu.getMenuInflater();
+                inflater.inflate(R.menu.post_option_menu, popupMenu.getMenu());
+                popupMenu.setGravity(Gravity.END);
+                popupMenu.show();
+
+                popupMenu.setOnMenuItemClickListener(item -> {
+                    switch (item.getItemId())
+                    {
+                        case R.id.post_option_delete:
+                            m_UserFeed.deletePost(getAdapterPosition());
+                            return true;
+                        case R.id.post_option_share:
+                            m_UserFeed.sharePost(getAdapterPosition());
+                            return true;
+                        default:
+                            return false;
+                    }
+                });
+            });
         }
 
         public void setLike(long likes)

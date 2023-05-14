@@ -15,17 +15,28 @@
         android:paddingBottom="10dp"
         android:background="@drawable/post_rounded_background">
 
+        <ImageButton
+            android:id="@+id/post_options_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:layout_marginEnd="5dp"
+            android:background="@android:color/transparent"
+            android:src="@drawable/ic_baseline_menu_24"
+            android:padding="5dp"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintRight_toRightOf="parent"/>
+
         <ImageView
             android:id="@+id/user_feed_post_image"
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:layout_marginLeft="3dp"
-            android:layout_marginTop="20dp"
             android:layout_marginRight="3dp"
             app:layout_constraintDimensionRatio="H,16:9"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/post_options_button"
             android:background="@color/black"/>
 
         <TextView
@@ -34,9 +45,9 @@
             android:layout_height="wrap_content"
             android:layout_marginLeft="15dp"
             android:layout_marginTop="10dp"
-            android:fontFamily="@font/playfair_display_bold"
+            android:fontFamily="@font/playfair_display_regular"
             android:text="Likes: 999"
-            android:textSize="15dp"
+            android:textSize="17dp"
             android:textColor="@color/white"
             android:background="@color/black"
             app:layout_constraintLeft_toLeftOf="parent"
@@ -48,9 +59,9 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
             android:layout_marginRight="15dp"
-            android:fontFamily="@font/playfair_display_italic"
+            android:fontFamily="@font/playfair_display_regular"
             android:text="Unknown"
-            android:textSize="15dp"
+            android:textSize="17dp"
             android:textColor="@color/white"
             android:background="@color/black"
             app:layout_constraintRight_toRightOf="parent"
