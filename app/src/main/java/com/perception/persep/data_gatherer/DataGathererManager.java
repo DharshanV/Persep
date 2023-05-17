@@ -18,7 +18,7 @@ public class DataGathererManager
     {
         m_RotationSensor = new RotationSensor(context);
         m_GPSSensor = new GPSSensor(context);
-        m_AlbumManger = new AlbumManager(context);
+        m_AlbumManger = AlbumManager.getInstance(context);
     }
 
     public void onStart()
