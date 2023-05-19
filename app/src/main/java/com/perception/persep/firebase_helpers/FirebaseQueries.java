@@ -181,16 +181,16 @@ public class FirebaseQueries
 
         for (DocumentSnapshot albumDoc : albumDocs)
         {
-            String albumID = albumDoc.getId();
-
-            Album album = new Album(albumDoc.getId(), albumDoc.getData());
-            List<DocumentSnapshot> albumPostDocs = mapAlbumIDToPost.get(albumID);
-            assert albumPostDocs != null;
-            for (DocumentSnapshot postDoc : albumPostDocs)
-            {
-                album.AddPost(new Post(postDoc.getId(), postDoc.getData(), true));
-            }
-            albums.add(album);
+//            String albumID = albumDoc.getId();
+//
+//            Album album = new Album(albumDoc.getId(), albumDoc.getData());
+//            List<DocumentSnapshot> albumPostDocs = mapAlbumIDToPost.get(albumID);
+//            assert albumPostDocs != null;
+//            for (DocumentSnapshot postDoc : albumPostDocs)
+//            {
+//                album.AddPost(new Post(postDoc.getId(), postDoc.getData(), true));
+//            }
+//            albums.add(album);
         }
 
         return albums;

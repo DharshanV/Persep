@@ -57,7 +57,7 @@ public class UserFeedAdapter extends RecyclerView.Adapter<UserFeedAdapter.UserFe
         FirebaseUser loggedInUser = FirebaseAuth.getInstance().getCurrentUser();
         if (loggedInUser != null)
         {
-            FirebaseQueries.getInstance().QueryUserPosts(loggedInUser, this);
+//            FirebaseQueries.getInstance().QueryUserPosts(loggedInUser, this);
         }
     }
 
@@ -66,7 +66,7 @@ public class UserFeedAdapter extends RecyclerView.Adapter<UserFeedAdapter.UserFe
         FirebaseUser loggedInUser = FirebaseAuth.getInstance().getCurrentUser();
         if (loggedInUser != null) {
             m_RefreshListener = listener;
-            FirebaseQueries.getInstance().QueryUserPosts(loggedInUser, this);
+//            FirebaseQueries.getInstance().QueryUserPosts(loggedInUser, this);
         }
     }
 

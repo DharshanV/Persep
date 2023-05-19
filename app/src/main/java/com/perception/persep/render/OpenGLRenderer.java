@@ -103,69 +103,69 @@ public class OpenGLRenderer
 
         if (!m_DeviceCoordInit) return;
 
-        m_DataUpdateReadLock.lock();
-        for (Album album : m_Albums.keySet())
-        {
-            if (album != null)
-            {
-                Integer textureIndex = m_Albums.get(album);
-                if (textureIndex != null)
-                {
-                    int albumTextureID = m_AlbumTextureIDs[textureIndex];
-                    if (album.ShouldUpdateTexture())
-                    {
-                        Bitmap image = album.getCurrentPost().m_Image;
-                        if (image != null)
-                        {
-                            m_AlbumModel.UpdateSurfaceTexture(albumTextureID, image);
-                        }
-                    }
-
-                    double bearing = GeoLocationHelper.Heading(m_DeviceLat, m_DeviceLon, album.m_Lat, album.m_Lon);
-                    double distance = GeoLocationHelper.Distance(m_DeviceLat, m_DeviceLon, album.m_Lat, album.m_Lon);
-                    distance = Math.max(3.0, distance);
-
-                    float x = (float) (distance * Math.sin(bearing));
-                    float z = (float) (distance * Math.cos(bearing));
-
-                    Matrix.setIdentityM(m_ModelMatrix, 0);
-                    Matrix.multiplyMM(m_ModelMatrix, 0, m_ModelMatrix, 0, m_OrientationMatrix, 0);
-                    Matrix.multiplyMM(m_ModelMatrix, 0, m_ModelMatrix, 0, DEVICE_TO_OPENGL, 0);
-                    Matrix.translateM(m_ModelMatrix, 0, x, 0.0f, z);
-
-                    // Rotate the album to always face the camera
-                    float originToModelX = -x;
-                    float originToModelZ = -z;
-                    double length = Math.sqrt(originToModelX * originToModelX + originToModelZ * originToModelZ);
-                    double angle = Math.toDegrees(Math.acos(originToModelX / length));
-                    if (originToModelZ > 0.0f) angle *= -1;
-                    Matrix.rotateM(m_ModelMatrix, 0, (float) angle, 0, 1, 0);
-
-                    // Scale the model based on distance
-                    float scale = (float) (1.0 + 4 * Math.log10(length - 2));
-                    Matrix.scaleM(m_ModelMatrix, 0, scale, scale, scale);
-                    float[] albumTransform = m_AlbumTransforms.get(album);
-                    if (albumTransform != null)
-                    {
-                        System.arraycopy(m_ModelMatrix, 0, albumTransform, 0, m_ModelMatrix.length);
-                    } else
-                    {
-                        m_AlbumTransforms.put(album, m_ModelMatrix.clone());
-                    }
-
-                    m_AlbumModel.SetMVP(m_ModelMatrix, m_ViewMatrix, m_ProjectionMatrix);
-                    m_AlbumModel.DrawFrame();
-                    m_AlbumModel.DrawSurface(albumTextureID);
-                } else
-                {
-                    Log.e(TAG, "Couldn't find texture ID for album!!");
-                }
-            } else
-            {
-                Log.e(TAG, "Found a null album to render!!");
-            }
-        }
-        m_DataUpdateReadLock.unlock();
+//        m_DataUpdateReadLock.lock();
+//        for (Album album : m_Albums.keySet())
+//        {
+//            if (album != null)
+//            {
+//                Integer textureIndex = m_Albums.get(album);
+//                if (textureIndex != null)
+//                {
+//                    int albumTextureID = m_AlbumTextureIDs[textureIndex];
+//                    if (album.ShouldUpdateTexture())
+//                    {
+//                        Bitmap image = album.getCurrentPost().m_Image;
+//                        if (image != null)
+//                        {
+//                            m_AlbumModel.UpdateSurfaceTexture(albumTextureID, image);
+//                        }
+//                    }
+//
+//                    double bearing = GeoLocationHelper.Heading(m_DeviceLat, m_DeviceLon, album.m_Lat, album.m_Lon);
+//                    double distance = GeoLocationHelper.Distance(m_DeviceLat, m_DeviceLon, album.m_Lat, album.m_Lon);
+//                    distance = Math.max(3.0, distance);
+//
+//                    float x = (float) (distance * Math.sin(bearing));
+//                    float z = (float) (distance * Math.cos(bearing));
+//
+//                    Matrix.setIdentityM(m_ModelMatrix, 0);
+//                    Matrix.multiplyMM(m_ModelMatrix, 0, m_ModelMatrix, 0, m_OrientationMatrix, 0);
+//                    Matrix.multiplyMM(m_ModelMatrix, 0, m_ModelMatrix, 0, DEVICE_TO_OPENGL, 0);
+//                    Matrix.translateM(m_ModelMatrix, 0, x, 0.0f, z);
+//
+//                    // Rotate the album to always face the camera
+//                    float originToModelX = -x;
+//                    float originToModelZ = -z;
+//                    double length = Math.sqrt(originToModelX * originToModelX + originToModelZ * originToModelZ);
+//                    double angle = Math.toDegrees(Math.acos(originToModelX / length));
+//                    if (originToModelZ > 0.0f) angle *= -1;
+//                    Matrix.rotateM(m_ModelMatrix, 0, (float) angle, 0, 1, 0);
+//
+//                    // Scale the model based on distance
+//                    float scale = (float) (1.0 + 4 * Math.log10(length - 2));
+//                    Matrix.scaleM(m_ModelMatrix, 0, scale, scale, scale);
+//                    float[] albumTransform = m_AlbumTransforms.get(album);
+//                    if (albumTransform != null)
+//                    {
+//                        System.arraycopy(m_ModelMatrix, 0, albumTransform, 0, m_ModelMatrix.length);
+//                    } else
+//                    {
+//                        m_AlbumTransforms.put(album, m_ModelMatrix.clone());
+//                    }
+//
+//                    m_AlbumModel.SetMVP(m_ModelMatrix, m_ViewMatrix, m_ProjectionMatrix);
+//                    m_AlbumModel.DrawFrame();
+//                    m_AlbumModel.DrawSurface(albumTextureID);
+//                } else
+//                {
+//                    Log.e(TAG, "Couldn't find texture ID for album!!");
+//                }
+//            } else
+//            {
+//                Log.e(TAG, "Found a null album to render!!");
+//            }
+//        }
+//        m_DataUpdateReadLock.unlock();
     }
 
     public void DrawClear()

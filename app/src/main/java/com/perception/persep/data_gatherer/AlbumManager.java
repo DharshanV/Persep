@@ -10,6 +10,7 @@ import androidx.annotation.Nullable;
 
 import com.firebase.geofire.GeoFireUtils;
 import com.firebase.geofire.GeoLocation;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.auth.FirebaseUser;
@@ -18,6 +19,7 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FieldValue;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
@@ -31,8 +33,10 @@ import com.perception.persep.firebase_helpers.FirebaseUpdates;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Stack;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -58,7 +62,7 @@ public class AlbumManager implements Runnable, GPSSensor.Listener
     private final ReadWriteLock m_ReadWriteLock = new ReentrantReadWriteLock();
     private final Lock m_AlbumWriteLock = m_ReadWriteLock.writeLock();
     private final Lock m_AlbumReadLock = m_ReadWriteLock.readLock();
-    private Map<String, Album> m_Albums;
+    private Map<String, Album> m_Albums = new HashMap<>();
 
     private double m_QueryLat = 0.0;
     private double m_QueryLon = 0.0;
@@ -66,6 +70,8 @@ public class AlbumManager implements Runnable, GPSSensor.Listener
 
     private boolean m_IsQueryInProgress = false;
     private final Handler m_QueryNearbyAlbumHandler;
+
+    private Stack<Uri> m_AddPostQueue = new Stack<>();
 
     private AlbumManager(Context context)
     {
@@ -88,54 +94,62 @@ public class AlbumManager implements Runnable, GPSSensor.Listener
 
     public void addPost(Uri postImageURI)
     {
+        if (!m_IsLocationInit) {
+            m_AddPostQueue.add(postImageURI);
+            return;
+        }
         Album closestAlbum = getClosestLocalAlbum();
         if (closestAlbum == null) {
-            closestAlbum = new Album(m_QueryLat, m_QueryLon);
+            closestAlbum = new Album(m_Context, m_QueryLat, m_QueryLon);
+            m_Albums.put(closestAlbum.m_AlbumID, closestAlbum);
         }
 
-        Album finalClosestAlbum = closestAlbum;
-        PostManager.getInstance(m_Context).addPost(postImageURI, closestAlbum.m_AlbumID, (success, message, postID) -> {
-            if (success) {
-                finalClosestAlbum.addPost(postID);
-            }
-        });
-    }
-
-    public void removeAlbum(String albumID)
-    {
-        Album album = m_Albums.get(albumID);
-        if (album != null) {
-            album.remove();
-            m_Albums.remove(albumID);
-        }
+        String postID = PostManager.getInstance(m_Context).addPost(postImageURI, closestAlbum.m_AlbumID, m_QueryLat, m_QueryLon);
+        closestAlbum.addPost(postID);
     }
 
     public void removePost(String postID)
     {
-        PostManager.getInstance(m_Context).removePost(postID);
+        PostManager.getInstance(m_Context).removePost(postID, (success, postRef, albumID) -> {
+            if (!success) return;
+            Album album = m_Albums.get(albumID);
+            if (album != null) {
+                removeLocalAlbumPost(albumID, postID);
+            }
+            else {
+                removeServerAlbumPost(albumID, postRef);
+            }
+//            User.getInstance().removePost(postRef);
+        });
+    }
 
-        boolean removedLocalAlbumPost = false;
-        for (Map.Entry<String, Album> entry : m_Albums.entrySet())
-        {
-            Album album = entry.getValue();
-            if (album.containsPost(postID)) {
+    private void removeLocalAlbumPost(String albumID, String postID)
+    {
+        Album album = m_Albums.get(albumID);
+        if (album.m_PostIDs.contains(postID)) {
+            if (album.m_PostIDs.size() != 1) {
                 album.removePost(postID);
-                if (album.m_Posts.isEmpty()) {
-                    removeAlbum(entry.getKey());
-                }
-                removedLocalAlbumPost = true;
+            }
+            else {
+                album.remove();
+                m_Albums.remove(albumID);
             }
         }
+    }
 
-        if (!removedLocalAlbumPost) {
-            // remove remote album post
-            DocumentReference postRef = findPost(postID);
-            DocumentSnapshot remoteAlbum = findPostAlbum(postID);
-            List<DocumentReference> remoteAlbumPostRefs = (List<DocumentReference>) remoteAlbum.get(AlbumConstants.POSTS);
-            if (remoteAlbumPostRefs != null && remoteAlbumPostRefs.contains(postRef)) {
-                remoteAlbum.getReference().update(AlbumConstants.POSTS, FieldValue.arrayRemove(postRef));
+    private void removeServerAlbumPost(String albumID, DocumentReference postRef)
+    {
+        FirebaseFirestore.getInstance().collection(AlbumConstants.COLLECTION_NAME).document(albumID).get().addOnSuccessListener(albumDoc -> {
+            List<DocumentReference> postRefs = (List<DocumentReference>) albumDoc.get(AlbumConstants.POSTS);
+            if (postRefs != null && postRefs.contains(postRef)) {
+                if (postRefs.size() != 1) {
+                    albumDoc.getReference().update(AlbumConstants.POSTS, FieldValue.arrayRemove(postRef));
+                }
+                else {
+                    albumDoc.getReference().delete();
+                }
             }
-        }
+        });
     }
 
     @Override
@@ -166,6 +180,11 @@ public class AlbumManager implements Runnable, GPSSensor.Listener
         if (!m_IsLocationInit) {
             m_IsLocationInit = true;
             m_QueryNearbyAlbumHandler.removeCallbacks(this);
+
+            while(!m_AddPostQueue.empty()) {
+                addPost(m_AddPostQueue.pop());
+            }
+
             m_QueryNearbyAlbumHandler.post(this);
         }
     }

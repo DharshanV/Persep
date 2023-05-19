@@ -15,7 +15,7 @@ import com.perception.persep.data_gatherer.RotationSensor;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class RenderView extends TextureView implements TextureView.SurfaceTextureListener, RotationSensor.Listener, GPSSensor.Listener, AlbumManager.Listener
+public class RenderView extends TextureView implements TextureView.SurfaceTextureListener, RotationSensor.Listener, GPSSensor.Listener
 {
     private static final String TAG = "RenderView";
 
@@ -113,11 +113,11 @@ public class RenderView extends TextureView implements TextureView.SurfaceTextur
         m_Renderer.UpdateDeviceLocation(lat, lon);
     }
 
-    @Override
-    public void onAlbumUpdate(List<Album> albums)
-    {
-        m_Renderer.onAlbumUpdate(albums);
-    }
+//    @Override
+//    public void onAlbumUpdate(List<Album> albums)
+//    {
+//        m_Renderer.onAlbumUpdate(albums);
+//    }
 
 
     public Album rayCast(float x, float y)

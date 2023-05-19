@@ -53,11 +53,6 @@ public class DataGathererManager
         m_GPSSensor.AddListener(listener);
     }
 
-    public void SetAlbumListener(AlbumManager.Listener listener)
-    {
-        m_AlbumManger.SetListener(listener);
-    }
-
     public AlbumManager getAlbumManger()
     {
         return m_AlbumManger;
@@ -65,6 +60,6 @@ public class DataGathererManager
 
     public void AddPost(FirebaseUser user, Uri imageUri)
     {
-        m_AlbumManger.AddPost(user, imageUri);
+        m_AlbumManger.addPost(imageUri);
     }
 }

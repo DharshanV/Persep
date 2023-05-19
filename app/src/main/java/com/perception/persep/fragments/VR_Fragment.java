@@ -128,7 +128,7 @@ public class VR_Fragment extends Fragment
         m_DataGathererManager.SetGyroscopeListener(m_VRRenderView);
         m_DataGathererManager.AddGPSListener(m_VRRenderView);
         m_DataGathererManager.AddGPSListener(m_DataGathererManager.getAlbumManger());
-        m_DataGathererManager.SetAlbumListener(m_VRRenderView);
+//        m_DataGathererManager.SetAlbumListener(m_VRRenderView);
 
         if (forceStart)
         {
@@ -388,10 +388,10 @@ public class VR_Fragment extends Fragment
             if (m_InteractingWithAlbum != null)
             {
                 FirebaseUser loggedInUser = FirebaseAuth.getInstance().getCurrentUser();
-                m_InteractingWithAlbum.getCurrentPost().like(loggedInUser, successful -> {
-                    if (successful)
-                        Toast.makeText(getContext(), "Liked post!", Toast.LENGTH_LONG).show();
-                });
+//                m_InteractingWithAlbum.getCurrentPost().like(loggedInUser, successful -> {
+//                    if (successful)
+//                        Toast.makeText(getContext(), "Liked post!", Toast.LENGTH_LONG).show();
+//                });
             }
             return true;
         }
