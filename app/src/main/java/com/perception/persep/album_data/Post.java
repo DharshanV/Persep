@@ -45,7 +45,7 @@ public class Post implements Target
     public String m_AlbumID;
     public Uri m_ImageURI;
     public Bitmap m_Image;
-    public long m_Likes = 0;
+    public long m_Likes;
     public GeoPoint m_GeoPoint;
     public String m_GeoLocation;
     public Timestamp m_TimeCreated;
@@ -132,12 +132,12 @@ public class Post implements Target
         m_LoadIntoViews.add(imageView);
     }
 
-    public void like(FirebaseUser user, FirebaseUpdates.PostLikeListener listener)
+    public void like(FirebaseUpdates.PostLikeListener listener)
     {
-        FirebaseUpdates.getInstance().likePost(user, m_PostID, listener);
+//        FirebaseUpdates.getInstance().likePost(user, m_PostID, listener);
     }
 
-    public void delete(FirebaseUser user, FirebaseUpdates.PostDeleteListener listener)
+    public void delete(FirebaseUpdates.PostDeleteListener listener)
     {
 //        FirebaseUpdates.getInstance().deletePost(user, m_ImageURI, m_PostID, m_AlbumID, listener);
     }

@@ -45,7 +45,7 @@ public class Album
 
     private int m_CurrPostIndex = 0;
     private int m_PrevPostIndex = 0;
-    private Timer m_UpdatePostTimer;
+    private final Timer m_UpdatePostTimer;
     private PostUpdateIndexTask m_PostUpdateTimerTask;
     private final int TASK_START_DELAY = 5000; // 5 secs
 
@@ -64,6 +64,20 @@ public class Album
         m_UpdatePostTimer.scheduleAtFixedRate(m_PostUpdateTimerTask, TASK_START_DELAY, TASK_START_DELAY);
     }
 
+    private void createAlbumServer()
+    {
+        m_DocRef = FirebaseFirestore.getInstance().collection(AlbumConstants.COLLECTION_NAME).document();
+        m_AlbumID = m_DocRef.getId();
+
+        Map<String, Object> albumData = new HashMap<>();
+        albumData.put(AlbumConstants.GEO_HASH, m_GeoHash);
+        albumData.put(AlbumConstants.GEO_POINT, m_GeoPoint);
+        albumData.put(AlbumConstants.POSTS, Collections.emptyList());
+        albumData.put(AlbumConstants.TIME_CREATED, m_TimeCreated);
+        albumData.put(AlbumConstants.TIME_MODIFIED, m_TimeModified);
+        m_DocRef.set(albumData);
+    }
+
     public Album(DocumentSnapshot albumDoc)
     {
         m_AlbumID = albumDoc.getId();
@@ -78,6 +92,7 @@ public class Album
             for (DocumentReference postRef : postRefs)
             {
                 PostManager.getInstance().addPost(postRef, (success, message, postID) -> {
+                    // TODO: write lock
                     m_PostIDs.add(postID);
                 });
             }
@@ -93,18 +108,9 @@ public class Album
 
     }
 
-    private void createAlbumServer()
+    private void removeServer()
     {
-        m_DocRef = FirebaseFirestore.getInstance().collection(AlbumConstants.COLLECTION_NAME).document();
-        m_AlbumID = m_DocRef.getId();
 
-        Map<String, Object> albumData = new HashMap<>();
-        albumData.put(AlbumConstants.GEO_HASH, GeoFireUtils.getGeoHashForLocation(new GeoLocation(m_GeoPoint.getLatitude(), m_GeoPoint.getLongitude())));
-        albumData.put(AlbumConstants.GEO_POINT, m_GeoPoint);
-        albumData.put(AlbumConstants.POSTS, Collections.emptyList());
-        albumData.put(AlbumConstants.TIME_CREATED, m_TimeCreated);
-        albumData.put(AlbumConstants.TIME_MODIFIED, m_TimeModified);
-        m_DocRef.set(albumData);
     }
 
     public void addPost(String postID)
@@ -126,7 +132,7 @@ public class Album
         removePostServer(postID);
     }
 
-    public void removePostServer(String postID)
+    private void removePostServer(String postID)
     {
 
     }
@@ -182,7 +188,7 @@ public class Album
 
     public String getCurrentPostID()
     {
-        if (m_PostIDs != null && !m_PostIDs.isEmpty()) {
+        if (!m_PostIDs.isEmpty()) {
             return m_PostIDs.get(m_CurrPostIndex);
         }
         return null;

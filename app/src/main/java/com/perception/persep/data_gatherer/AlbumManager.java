@@ -43,16 +43,6 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-/*
-Add Post
-1. User adds a post and nearby album
-2. User adds a post and no nearby album
-
-Delete Post
-1. User deletes a post and nearby album (i.e. local data exists) contains it
-2. User deletes a post and no nearby album
- */
-
 public class AlbumManager implements Runnable, GPSSensor.Listener
 {
     private static final String TAG = "AlbumManager";
@@ -61,10 +51,7 @@ public class AlbumManager implements Runnable, GPSSensor.Listener
 
     private final Context m_Context;
 
-    private final ReadWriteLock m_ReadWriteLock = new ReentrantReadWriteLock();
-    private final Lock m_AlbumWriteLock = m_ReadWriteLock.writeLock();
-    private final Lock m_AlbumReadLock = m_ReadWriteLock.readLock();
-    private Map<String, Album> m_Albums = new HashMap<>();
+    private final Map<String, Album> m_Albums = new HashMap<>();
 
     private double m_QueryLat = 0.0;
     private double m_QueryLon = 0.0;
@@ -72,8 +59,7 @@ public class AlbumManager implements Runnable, GPSSensor.Listener
 
     private boolean m_IsQueryInProgress = false;
     private final Handler m_QueryNearbyAlbumHandler;
-
-    private Stack<Uri> m_AddPostQueue = new Stack<>();
+    private final Stack<Uri> m_AddPostQueue = new Stack<>();
 
     private AlbumManager(Context context)
     {
@@ -106,6 +92,7 @@ public class AlbumManager implements Runnable, GPSSensor.Listener
 
     public void tryAddPost(Uri postImageURI)
     {
+        // TODO: || m_IsQueryInProgress
         if (!m_IsLocationInit) {
             m_AddPostQueue.add(postImageURI);
             return;
@@ -128,6 +115,7 @@ public class AlbumManager implements Runnable, GPSSensor.Listener
 
     public void removePost(String postID)
     {
+        // TODO: rework this
         PostManager.getInstance(m_Context).removePost(postID, (success, postRef, albumID) -> {
             if (!success) return;
             Album album = m_Albums.get(albumID);
@@ -215,10 +203,6 @@ public class AlbumManager implements Runnable, GPSSensor.Listener
             m_QueryNearbyAlbumHandler.post(this);
         }
     }
-
-    public void readLock() { m_AlbumReadLock.lock(); }
-
-    public void readUnlock() { m_AlbumReadLock.unlock(); }
 
     public Album getClosestLocalAlbum()
     {
