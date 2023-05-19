@@ -99,6 +99,7 @@ public class Post implements Target
         StorageReference postImageRef = FirebaseStorage.getInstance().getReference().child("images/" + UUID.randomUUID().toString() + ".jpg");
         postImageRef.putFile(m_ImageURI).addOnSuccessListener(taskSnapshot -> {
             postImageRef.getDownloadUrl().addOnSuccessListener(uri -> {
+                m_ImageURI = uri;
                 m_DocRef.update(PostConstants.IMAGE_URI, uri).addOnFailureListener(Exception::printStackTrace);
             }).addOnFailureListener(Exception::printStackTrace);
         }).addOnFailureListener(Exception::printStackTrace);
@@ -124,6 +125,8 @@ public class Post implements Target
 
     public void remove()
     {
+        StorageReference postImageRef = FirebaseStorage.getInstance().getReferenceFromUrl(m_ImageURI.toString());
+        postImageRef.delete();
         m_DocRef.delete();
     }
 
