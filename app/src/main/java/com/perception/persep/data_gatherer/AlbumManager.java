@@ -96,7 +96,7 @@ public class AlbumManager implements Runnable, GPSSensor.Listener
 
     public void tryAddPost(Uri postImageURI)
     {
-        if (!m_IsLocationInit) {
+        if (!m_IsLocationInit || m_IsQueryInProgress) {
             m_AddPostQueue.add(postImageURI);
             return;
         }
@@ -176,7 +176,10 @@ public class AlbumManager implements Runnable, GPSSensor.Listener
                 while (!m_AddPostQueue.empty()) {
                     addPost(m_AddPostQueue.pop());
                 }
-            }).addOnFailureListener(Exception::printStackTrace);
+                m_IsQueryInProgress = false;
+            }).addOnFailureListener(e -> {
+                m_IsQueryInProgress = false;
+            });
         }
         m_QueryNearbyAlbumHandler.postDelayed(this, QueryConstants.QUERY_UPDATE_LOOP_INTERVAL);
     }
