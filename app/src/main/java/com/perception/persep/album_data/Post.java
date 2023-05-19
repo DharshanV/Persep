@@ -62,7 +62,7 @@ public class Post implements Target
         m_ImageURI = postImageURI;
         m_Likes = 0;
         m_GeoPoint = new GeoPoint(lat, lon);
-        m_GeoLocation = "";
+        m_GeoLocation = GetPostGeoLocation(m_GeoPoint);
         Timestamp now = Timestamp.now();
         m_TimeCreated = now;
         m_TimeModified = now;
@@ -83,7 +83,7 @@ public class Post implements Target
         postData.put(PostConstants.LIKES, m_Likes);
         postData.put(PostConstants.USERS_LIKED, Collections.emptyList());
         postData.put(PostConstants.GEO_POINT, m_GeoPoint);
-        postData.put(PostConstants.GEO_LOCATION, GetPostGeoLocation(m_GeoPoint));
+        postData.put(PostConstants.GEO_LOCATION, m_GeoLocation);
         Timestamp now = Timestamp.now();
         postData.put(PostConstants.TIME_CREATED, now);
         postData.put(PostConstants.TIME_MODIFIED, now);

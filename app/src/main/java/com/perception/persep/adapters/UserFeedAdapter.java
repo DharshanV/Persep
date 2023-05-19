@@ -30,6 +30,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.perception.persep.album_data.Post;
 import com.perception.persep.constants.PostConstants;
 import com.perception.persep.constants.UserConstants;
+import com.perception.persep.data_gatherer.AlbumManager;
 import com.perception.persep.data_gatherer.DataGathererManager;
 import com.perception.persep.data_gatherer.PostManager;
 import com.perception.persep.data_gatherer.UserManager;
@@ -54,6 +55,7 @@ public class UserFeedAdapter extends RecyclerView.Adapter<UserFeedAdapter.UserFe
 
     private final UserFeed_Fragment m_UserFeedFragment;
     private List<String> m_UserPostIDs = new ArrayList<>();
+    private Map<String, Timestamp> m_PostModified = new HashMap<>();
 
     public UserFeedAdapter(UserFeed_Fragment userFeedFragment)
     {
@@ -65,6 +67,11 @@ public class UserFeedAdapter extends RecyclerView.Adapter<UserFeedAdapter.UserFe
                 if (postIDs == null || postIDs.isEmpty()) return;
 
                 m_UserPostIDs.addAll(postIDs);
+                for(String postID : m_UserPostIDs) {
+                    Post post = PostManager.getInstance().getPost(postID);
+                    m_PostModified.put(postID, post.m_TimeModified);
+                }
+
                 m_UserPostIDs.sort((o1, o2) -> {
                     Post post1 = PostManager.getInstance().getPost(o1);
                     Post post2 = PostManager.getInstance().getPost(o2);
@@ -81,8 +88,49 @@ public class UserFeedAdapter extends RecyclerView.Adapter<UserFeedAdapter.UserFe
         FirebaseUser loggedInUser = FirebaseAuth.getInstance().getCurrentUser();
         if (loggedInUser != null) {
             listener.onComplete();
-//            FirebaseQueries.getInstance().QueryUserPosts(loggedInUser, this);
+            PostManager.getInstance(m_UserFeedFragment.getContext().getApplicationContext()).queryUserPosts(loggedInUser.getUid(), postIDs -> {
+                listener.onComplete();
+
+                if (postIDs == null) return;
+
+                List<String> newPostsAdded = new ArrayList<>();
+                for (String postID : postIDs) {
+                    int postIndex = getPostIndex(postID);
+                    if (postIndex != -1) {
+                        Post post = PostManager.getInstance().getPost(postID);
+                        if (post.m_TimeModified != m_PostModified.get(postID)) {
+                            this.notifyItemChanged(postIndex, post.m_Likes);
+                        }
+                    }
+                    else {
+                        newPostsAdded.add(postID);
+                    }
+                }
+
+                if (!newPostsAdded.isEmpty()) {
+                    newPostsAdded.sort((o1, o2) -> {
+                        Post post1 = PostManager.getInstance().getPost(o1);
+                        Post post2 = PostManager.getInstance().getPost(o2);
+
+                        return post2.m_TimeCreated.compareTo(post1.m_TimeCreated);
+                    });
+                    m_UserPostIDs.addAll(0, newPostsAdded);
+                    this.notifyItemRangeInserted(0, newPostsAdded.size());
+                }
+
+            });
         }
+    }
+
+    private int getPostIndex(String postID)
+    {
+        for (int i = 0; i < m_UserPostIDs.size(); i++)
+        {
+            if (m_UserPostIDs.get(i).equals(postID)) {
+                return i;
+            }
+        }
+        return -1;
     }
 
     @Override
@@ -129,59 +177,22 @@ public class UserFeedAdapter extends RecyclerView.Adapter<UserFeedAdapter.UserFe
         return m_UserPostIDs.size();
     }
 
-    private void RefreshPostsLoad(List<DocumentSnapshot> posts)
-    {
-//        if (m_RefreshListener != null) {
-//            m_RefreshListener.onComplete();
-//            m_RefreshListener = null;
-//        }
-//
-//        if (posts == null) return;
-//
-//        List<Post> newPostsAdded = new ArrayList<>(posts.size());
-//        for(DocumentSnapshot postDoc : posts)
-//        {
-//            Timestamp postDocTimeModified = (Timestamp) postDoc.get(PostConstants.TIME_MODIFIED);
-//
-//            int index = findPostIndex(postDoc.getId());
-//            if (index != -1)
-//            {
-//                Post currPost = m_UserPosts.get(index);
-//                if (postDocTimeModified != currPost.m_TimeModified)
-//                {
-//                    currPost.m_Likes = (Long) postDoc.get(PostConstants.LIKES);
-//                    this.notifyItemChanged(index, currPost.m_Likes);
-//                    currPost.m_TimeModified = postDocTimeModified;
-//                }
-//            } else
-//            {
-//                newPostsAdded.add(new Post(postDoc.getId(), postDoc.getData(), false));
-//            }
-//        }
-//        if (!newPostsAdded.isEmpty()) {
-//            newPostsAdded.sort((o1, o2) -> o2.m_TimeCreated.compareTo(o1.m_TimeCreated));
-//            m_UserPosts.addAll(0, newPostsAdded);
-//            this.notifyItemRangeInserted(0, newPostsAdded.size());
-//        }
-    }
-
     public void deletePost(int postPosition)
     {
-//        FirebaseUser loggedInUser = FirebaseAuth.getInstance().getCurrentUser();
-//        if (loggedInUser != null && postPosition < m_UserPosts.size()) {
-//            Post post = m_UserPosts.get(postPosition);
-//            post.delete(loggedInUser, successful -> {
-//                if (successful) {
-//                    m_UserPosts.remove(postPosition);
-//                    this.notifyItemRemoved(postPosition);
-//                }
-//            });
-//        }
+        if (postPosition < m_UserPostIDs.size()) {
+            AlbumManager.getInstance().removePost(m_UserPostIDs.get(postPosition));
+        }
     }
 
     public void sharePost(int postPosition)
     {
-        m_UserFeedFragment.openGoogleMaps(-33.858587567654794, 151.21389684447863);
+        if (postPosition < m_UserPostIDs.size())
+        {
+            Post post = PostManager.getInstance().getPost(m_UserPostIDs.get(postPosition));
+            if (post != null) {
+                m_UserFeedFragment.openGoogleMaps(post.m_GeoPoint.getLatitude(), post.m_GeoPoint.getLongitude());
+            }
+        }
     }
 
     public static class UserFeedViewHolder extends RecyclerView.ViewHolder

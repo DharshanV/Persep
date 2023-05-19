@@ -4,6 +4,9 @@ import android.content.Context;
 import android.net.Uri;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
+
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
@@ -16,6 +19,7 @@ import com.perception.persep.album_data.Post;
 import com.perception.persep.constants.UserConstants;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -74,6 +78,7 @@ public class PostManager
         for(Map.Entry<String, Post> entry : m_Posts.entrySet()) {
             if (entry.getValue().m_DocRef == postRef) {
                 listener.onPostAdded(true, "", entry.getKey());
+                return;
             }
         }
         postRef.get().addOnSuccessListener(postDoc -> {
@@ -81,11 +86,6 @@ public class PostManager
             m_Posts.put(postID, new Post(postDoc));
             listener.onPostAdded(true, "", postID);
         });
-    }
-
-    private void addPost(DocumentSnapshot postDoc)
-    {
-
     }
 
     public void removePost(String postID, RemovePostListener listener)
@@ -107,7 +107,7 @@ public class PostManager
         FirebaseFirestore.getInstance().collection(UserConstants.COLLECTION_NAME).document(userID).get().addOnSuccessListener(userDoc -> {
             List<DocumentReference> userDocPostRefs = (List<DocumentReference>) userDoc.get(UserConstants.POSTS);
 
-            if (userDocPostRefs == null || userDocPostRefs.isEmpty()) return;
+            if (userDocPostRefs == null) return;
 
             List<Task<DocumentSnapshot>> postQueryTasks = new ArrayList<>(userDocPostRefs.size());
             for (DocumentReference postRef : userDocPostRefs)
