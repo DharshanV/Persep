@@ -263,27 +263,6 @@ public class FirebaseQueries
         });
     }
 
-    private void PrintData(List<DocumentSnapshot> albumDocs, List<DocumentSnapshot> postDocs)
-    {
-        Log.d(QUERY_NEARBY_TAG, "===== Album Docs =====");
-        for (DocumentSnapshot albumDoc : albumDocs)
-        {
-            for (String tag : AlbumConstants.TAGS)
-            {
-                Log.d(QUERY_NEARBY_TAG, tag + ": " + albumDoc.get(tag).toString());
-            }
-        }
-
-        Log.d(QUERY_NEARBY_TAG, "===== Post Docs =====");
-        for (DocumentSnapshot postDoc : postDocs)
-        {
-            for (String tag : PostConstants.TAGS)
-            {
-                Log.d(QUERY_NEARBY_TAG, tag + ": " + postDoc.get(tag).toString());
-            }
-        }
-    }
-
     public void AddAlbumListener(EventListener<QuerySnapshot> listener)
     {
         m_Firestore.collection(AlbumConstants.COLLECTION_NAME).addSnapshotListener(listener);

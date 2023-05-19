@@ -13,7 +13,7 @@ public class PostConstants
     public static final String TIME_CREATED = "time_created";
     public static final String TIME_MODIFIED = "time_modified";
 
-    public static final String[] TAGS = {ALBUM_ID, IMAGE_URI, USER, LIKES, USERS_LIKED, TIME_CREATED, TIME_MODIFIED};
+    public static final String[] REQUIRED_TAGS = {ALBUM_ID, IMAGE_URI, LIKES, GEO_POINT, GEO_LOCATION, TIME_CREATED, TIME_MODIFIED};
 
     public static final int IMAGE_WIDTH = 1280;
     public static final int IMAGE_HEIGHT = 720;

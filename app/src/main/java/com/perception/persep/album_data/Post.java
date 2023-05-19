@@ -68,7 +68,7 @@ public class Post implements Target
         m_TimeModified = now;
         createPostServer();
 
-        Log.d(PostLoadImage, "Loading image to post: " + postImageURI);
+        Log.d(PostLoadImage, "Loading image to post: " + m_ImageURI);
         Picasso.get().load(m_ImageURI).resize(PostConstants.IMAGE_WIDTH, PostConstants.IMAGE_HEIGHT).noFade().into(this);
     }
 
@@ -92,14 +92,15 @@ public class Post implements Target
         StorageReference postImageRef = FirebaseStorage.getInstance().getReference().child("images/" + UUID.randomUUID().toString() + ".jpg");
         postImageRef.putFile(m_ImageURI).addOnSuccessListener(taskSnapshot -> {
             postImageRef.getDownloadUrl().addOnSuccessListener(uri -> {
-                m_DocRef.update(PostConstants.IMAGE_URI, uri);
-            });
-        });
+                m_DocRef.update(PostConstants.IMAGE_URI, uri).addOnFailureListener(Exception::printStackTrace);
+            }).addOnFailureListener(Exception::printStackTrace);
+        }).addOnFailureListener(Exception::printStackTrace);
     }
 
     public Post(DocumentSnapshot postDoc)
     {
-        m_AlbumID = postDoc.getId();
+        m_PostID = postDoc.getId();
+        m_AlbumID = (String) postDoc.get(PostConstants.ALBUM_ID);
         m_ImageURI = Uri.parse((String)postDoc.get(PostConstants.IMAGE_URI));
         m_Likes = (long) postDoc.get(PostConstants.LIKES);
         m_GeoPoint = (GeoPoint) postDoc.get(PostConstants.GEO_POINT);
