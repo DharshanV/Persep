@@ -33,7 +33,11 @@ import com.otaliastudios.cameraview.CameraOptions;
 import com.otaliastudios.cameraview.CameraView;
 import com.otaliastudios.cameraview.PictureResult;
 import com.perception.persep.album_data.Album;
+import com.perception.persep.album_data.Post;
+import com.perception.persep.data_gatherer.AlbumManager;
 import com.perception.persep.data_gatherer.DataGathererManager;
+import com.perception.persep.data_gatherer.PostManager;
+import com.perception.persep.firebase_helpers.FirebaseUpdates;
 import com.perception.persep.render.RenderView;
 import com.yalantis.ucrop.UCrop;
 
@@ -64,7 +68,7 @@ public class VR_Fragment extends Fragment
     GestureDetector m_GestureDetector;
     ViewPager2 m_ViewPager;
     private boolean m_IsInteractingWithPost = false;
-    private Album m_InteractingWithAlbum = null;
+    private String m_InteractingWithAlbum = null;
     private int m_ViewWidth = 0;
     private int m_ViewHeight = 0;
 
@@ -354,7 +358,7 @@ public class VR_Fragment extends Fragment
         }
     }
 
-    private Album rayCast(MotionEvent event)
+    private String rayCast(MotionEvent event)
     {
         if (m_VRRenderView != null)
         {
@@ -388,11 +392,15 @@ public class VR_Fragment extends Fragment
             m_InteractingWithAlbum = rayCast(event);
             if (m_InteractingWithAlbum != null)
             {
-                FirebaseUser loggedInUser = FirebaseAuth.getInstance().getCurrentUser();
-//                m_InteractingWithAlbum.getCurrentPost().like(loggedInUser, successful -> {
-//                    if (successful)
-//                        Toast.makeText(getContext(), "Liked post!", Toast.LENGTH_LONG).show();
-//                });
+                Album album = AlbumManager.getInstance().getAlbum(m_InteractingWithAlbum);
+                if (album != null) {
+                    Post post = PostManager.getInstance().getPost(album.getCurrentPostID());
+                    if (post != null) {
+                        post.like(successful -> {
+                            Toast.makeText(getContext(), "Liked post!", Toast.LENGTH_LONG).show();
+                        });
+                    }
+                }
             }
             return true;
         }
@@ -416,7 +424,11 @@ public class VR_Fragment extends Fragment
                 if (m_InteractingWithAlbum != null && m_SwipeTimeSpent != 0)
                 {
                     double velocity = m_SwipeDistanceCovered / m_SwipeTimeSpent;
-                    m_InteractingWithAlbum.updatePostIndex(velocity > 0);
+                    Album album = AlbumManager.getInstance().getAlbum(m_InteractingWithAlbum);
+                    if (album != null)
+                    {
+                        album.updatePostIndex(velocity > 0);
+                    }
                     m_SwipeDistanceCovered = 0;
                     m_SwipeTimeSpent = 0;
                 }

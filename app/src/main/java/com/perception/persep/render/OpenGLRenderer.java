@@ -318,51 +318,44 @@ public class OpenGLRenderer
         return (u >= 0.0f && u <= E0.dotProduct(E0) && v >= 0.0f && v <= E1.dotProduct(E1));
     }
 
-    public Album rayCast(float x, float y)
+    public String rayCast(float x, float y)
     {
-//        m_Near[0] = x;
-//        m_Near[1] = y;
-//        m_Near[2] = -1;
-//        m_Near[3] = 1;
-//
-//        m_Far[0] = x;
-//        m_Far[1] = y;
-//        m_Far[2] = 1;
-//        m_Far[3] = 1;
-//
-//        Matrix.multiplyMV(m_Near, 0, m_ScreenToOpenGLMatrix, 0, m_Near, 0);
-//        Matrix.multiplyMV(m_Far, 0, m_ScreenToOpenGLMatrix, 0, m_Far, 0);
-//
-//        m_Near[0] /= m_Near[3];
-//        m_Near[1] /= m_Near[3];
-//        m_Near[2] /= m_Near[3];
-//
-//        m_Far[0] /= m_Far[3];
-//        m_Far[1] /= m_Far[3];
-//        m_Far[2] /= m_Far[3];
-//
-//        Vector3D near = new Vector3D(m_Near[0], m_Near[1], m_Near[2]);
-//        Vector3D far = new Vector3D(m_Far[0], m_Far[1], m_Far[2]);
-//
-//        Vector3D rayDir = (far.subtract(near)).normalize();
-//
-//        m_DataUpdateReadLock.lock();
-//        for (Album album : m_Albums.keySet())
-//        {
-//            float[] albumTransform = m_AlbumTransforms.get(album);
-//            if (albumTransform != null && albumTransform.length == 16)
-//            {
-//                if (intersectRayWithAlbumSurface(rayDir, albumTransform))
-//                {
-//                    m_DataUpdateReadLock.unlock();
-//                    return album;
-//                }
-//            } else
-//            {
-//                m_AlbumTransforms.remove(album);
-//            }
-//        }
-//        m_DataUpdateReadLock.unlock();
+        m_Near[0] = x;
+        m_Near[1] = y;
+        m_Near[2] = -1;
+        m_Near[3] = 1;
+
+        m_Far[0] = x;
+        m_Far[1] = y;
+        m_Far[2] = 1;
+        m_Far[3] = 1;
+
+        Matrix.multiplyMV(m_Near, 0, m_ScreenToOpenGLMatrix, 0, m_Near, 0);
+        Matrix.multiplyMV(m_Far, 0, m_ScreenToOpenGLMatrix, 0, m_Far, 0);
+
+        m_Near[0] /= m_Near[3];
+        m_Near[1] /= m_Near[3];
+        m_Near[2] /= m_Near[3];
+
+        m_Far[0] /= m_Far[3];
+        m_Far[1] /= m_Far[3];
+        m_Far[2] /= m_Far[3];
+
+        Vector3D near = new Vector3D(m_Near[0], m_Near[1], m_Near[2]);
+        Vector3D far = new Vector3D(m_Far[0], m_Far[1], m_Far[2]);
+
+        Vector3D rayDir = (far.subtract(near)).normalize();
+
+        m_DataUpdateReadLock.lock();
+        for(Map.Entry<String, Integer> entry : m_AlbumIDIndex.entrySet()) {
+            float[] albumTransform = m_AlbumTransforms[entry.getValue()];
+            if (intersectRayWithAlbumSurface(rayDir, albumTransform))
+            {
+                m_DataUpdateReadLock.unlock();
+                return entry.getKey();
+            }
+        }
+        m_DataUpdateReadLock.unlock();
         return null;
     }
 }
