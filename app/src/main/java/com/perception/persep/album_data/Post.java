@@ -14,6 +14,7 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.GeoPoint;
 import com.google.firebase.storage.FirebaseStorage;
@@ -33,6 +34,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Stack;
 import java.util.UUID;
 
 public class Post implements Target
@@ -44,7 +46,7 @@ public class Post implements Target
     public Uri m_ImageURI;
     public Bitmap m_Image;
     public long m_Likes = 0;
-    public double m_Lat, m_Lon;
+    public GeoPoint m_GeoPoint;
     public String m_GeoLocation;
     public Timestamp m_TimeCreated;
     public Timestamp m_TimeModified;
@@ -52,14 +54,14 @@ public class Post implements Target
 
     public boolean m_IsImageLoaded = false;
     private PostManager.AddPostListener m_RemovePostListener = null;
+    private Stack<ImageView> m_LoadIntoViews = new Stack<>();
 
-    public Post(Uri postImageURI, String albumID, double lat, double lon, boolean loadNow)
+    public Post(Uri postImageURI, String albumID, double lat, double lon)
     {
         m_AlbumID = albumID;
         m_ImageURI = postImageURI;
         m_Likes = 0;
-        m_Lat = lat;
-        m_Lon = lon;
+        m_GeoPoint = new GeoPoint(lat, lon);
         m_GeoLocation = "";
         Timestamp now = Timestamp.now();
         m_TimeCreated = now;
@@ -80,36 +82,33 @@ public class Post implements Target
         postData.put(PostConstants.USER, UserManager.getInstance().m_DocRef);
         postData.put(PostConstants.LIKES, m_Likes);
         postData.put(PostConstants.USERS_LIKED, Collections.emptyList());
-        postData.put(PostConstants.GEO_POINT, new GeoPoint(m_Lat, m_Lon));
-        postData.put(PostConstants.GEO_LOCATION, GetPostGeoLocation(m_Lat, m_Lon));
+        postData.put(PostConstants.GEO_POINT, m_GeoPoint);
+        postData.put(PostConstants.GEO_LOCATION, GetPostGeoLocation(m_GeoPoint));
         Timestamp now = Timestamp.now();
         postData.put(PostConstants.TIME_CREATED, now);
         postData.put(PostConstants.TIME_MODIFIED, now);
         m_DocRef.set(postData);
 
-//        StorageReference postImageRef = FirebaseStorage.getInstance().getReference().child("images/" + UUID.randomUUID().toString() + ".jpg");
-//        postImageRef.putFile(m_ImageURI).addOnSuccessListener(taskSnapshot -> {
-//            postImageRef.getDownloadUrl().addOnSuccessListener(uri -> {
-//                m_DocRef.update(PostConstants.IMAGE_URI, uri);
-//            });
-//        });
+        StorageReference postImageRef = FirebaseStorage.getInstance().getReference().child("images/" + UUID.randomUUID().toString() + ".jpg");
+        postImageRef.putFile(m_ImageURI).addOnSuccessListener(taskSnapshot -> {
+            postImageRef.getDownloadUrl().addOnSuccessListener(uri -> {
+                m_DocRef.update(PostConstants.IMAGE_URI, uri);
+            });
+        });
     }
 
-    public Post(String postID, Map<String, Object> data, boolean loadNow)
+    public Post(DocumentSnapshot postDoc)
     {
-        m_PostID = postID;
-        m_AlbumID = (String) data.get(PostConstants.ALBUM_ID);
-        m_ImageURI = (Uri) data.get(PostConstants.IMAGE_URI);
-        m_Likes = (Long) data.get(PostConstants.LIKES);
-        m_GeoLocation = (String) data.get(PostConstants.GEO_LOCATION);
-        m_TimeCreated = (Timestamp) data.get(PostConstants.TIME_CREATED);
-        m_TimeModified = (Timestamp) data.get(PostConstants.TIME_MODIFIED);
+        m_AlbumID = postDoc.getId();
+        m_ImageURI = Uri.parse((String)postDoc.get(PostConstants.IMAGE_URI));
+        m_Likes = (long) postDoc.get(PostConstants.LIKES);
+        m_GeoPoint = (GeoPoint) postDoc.get(PostConstants.GEO_POINT);
+        m_GeoLocation = (String) postDoc.get(PostConstants.GEO_LOCATION);
+        m_TimeCreated = (Timestamp) postDoc.get(PostConstants.TIME_CREATED);
+        m_TimeModified = (Timestamp) postDoc.get(PostConstants.TIME_MODIFIED);
 
-        if (loadNow && !m_ImageURI.toString().isEmpty())
-        {
-            Log.d(PostLoadImage, "Loading image to post: " + m_ImageURI);
-            Picasso.get().load(m_ImageURI).resize(PostConstants.IMAGE_WIDTH, PostConstants.IMAGE_HEIGHT).noFade().into(this);
-        }
+        Log.d(PostLoadImage, "Loading image to post: " + m_ImageURI);
+        Picasso.get().load(m_ImageURI).resize(PostConstants.IMAGE_WIDTH, PostConstants.IMAGE_HEIGHT).noFade().into(this);
     }
 
     public void remove(PostManager.RemovePostListener listener)
@@ -117,10 +116,18 @@ public class Post implements Target
 
     }
 
-    public void loadNow(ImageView imageView)
+    public void update(DocumentSnapshot postDoc)
     {
-        Log.d(PostLoadImage, "Loading image to imageview: " + m_ImageURI);
-        Picasso.get().load(m_ImageURI).resize(PostConstants.IMAGE_WIDTH, PostConstants.IMAGE_HEIGHT).into(imageView);
+
+    }
+
+    public void loadInto(ImageView imageView)
+    {
+        if (m_IsImageLoaded) {
+            imageView.setImageBitmap(m_Image);
+            return;
+        }
+        m_LoadIntoViews.add(imageView);
     }
 
     public void like(FirebaseUser user, FirebaseUpdates.PostLikeListener listener)
@@ -139,6 +146,10 @@ public class Post implements Target
         Log.d(PostLoadImage, "Image loaded from: " + from.toString() + " with: " + bitmap.getWidth() + "x" + bitmap.getHeight());
         m_IsImageLoaded = true;
         m_Image = bitmap;
+
+        while (!m_LoadIntoViews.empty()) {
+            loadInto(m_LoadIntoViews.pop());
+        }
     }
 
     @Override
@@ -166,12 +177,12 @@ public class Post implements Target
                 '}';
     }
 
-    private String GetPostGeoLocation(double lat, double lon)
+    private String GetPostGeoLocation(GeoPoint geoPoint)
     {
         Geocoder geocoder = new Geocoder(HomeActivity.getHomeActivityContext());
         try
         {
-            List<Address> addresses = geocoder.getFromLocation(lat, lon, 1);
+            List<Address> addresses = geocoder.getFromLocation(geoPoint.getLatitude(), geoPoint.getLongitude(), 1);
             if (!addresses.isEmpty())
             {
                 Address address = addresses.get(0);

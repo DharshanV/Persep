@@ -31,13 +31,18 @@ import com.perception.persep.album_data.Post;
 import com.perception.persep.constants.PostConstants;
 import com.perception.persep.constants.UserConstants;
 import com.perception.persep.data_gatherer.DataGathererManager;
+import com.perception.persep.data_gatherer.PostManager;
+import com.perception.persep.data_gatherer.UserManager;
 import com.perception.persep.firebase_helpers.FirebaseQueries;
 import com.perception.persep.fragments.UserFeed_Fragment;
 
 import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-public class UserFeedAdapter extends RecyclerView.Adapter<UserFeedAdapter.UserFeedViewHolder> implements FirebaseQueries.UserPostsQueryListener
+public class UserFeedAdapter extends RecyclerView.Adapter<UserFeedAdapter.UserFeedViewHolder>
 {
     private static final String TAG = "UserFeedAdapter";
 
@@ -47,9 +52,8 @@ public class UserFeedAdapter extends RecyclerView.Adapter<UserFeedAdapter.UserFe
     }
     private RefreshQueryCompleteListener m_RefreshListener = null;
 
-    private UserFeed_Fragment m_UserFeedFragment;
-    private boolean m_FirstLoad = true;
-    private final List<Post> m_UserPosts = new ArrayList<>();
+    private final UserFeed_Fragment m_UserFeedFragment;
+    private List<String> m_UserPostIDs = new ArrayList<>();
 
     public UserFeedAdapter(UserFeed_Fragment userFeedFragment)
     {
@@ -57,7 +61,18 @@ public class UserFeedAdapter extends RecyclerView.Adapter<UserFeedAdapter.UserFe
         FirebaseUser loggedInUser = FirebaseAuth.getInstance().getCurrentUser();
         if (loggedInUser != null)
         {
-//            FirebaseQueries.getInstance().QueryUserPosts(loggedInUser, this);
+            PostManager.getInstance(m_UserFeedFragment.getContext().getApplicationContext()).queryUserPosts(loggedInUser.getUid(), postIDs -> {
+                if (postIDs == null || postIDs.isEmpty()) return;
+
+                m_UserPostIDs.addAll(postIDs);
+                m_UserPostIDs.sort((o1, o2) -> {
+                    Post post1 = PostManager.getInstance().getPost(o1);
+                    Post post2 = PostManager.getInstance().getPost(o2);
+
+                    return post2.m_TimeCreated.compareTo(post1.m_TimeCreated);
+                });
+                this.notifyDataSetChanged();
+            });
         }
     }
 
@@ -65,22 +80,9 @@ public class UserFeedAdapter extends RecyclerView.Adapter<UserFeedAdapter.UserFe
     {
         FirebaseUser loggedInUser = FirebaseAuth.getInstance().getCurrentUser();
         if (loggedInUser != null) {
-            m_RefreshListener = listener;
+            listener.onComplete();
 //            FirebaseQueries.getInstance().QueryUserPosts(loggedInUser, this);
         }
-    }
-
-    private int findPostIndex(String postDocID)
-    {
-        for (int i = 0; i < m_UserPosts.size(); i++)
-        {
-            Post post = m_UserPosts.get(i);
-            if (post.m_PostID.equals(postDocID))
-            {
-                return i;
-            }
-        }
-        return -1;
     }
 
     @Override
@@ -100,10 +102,10 @@ public class UserFeedAdapter extends RecyclerView.Adapter<UserFeedAdapter.UserFe
     @Override
     public void onBindViewHolder(@NonNull UserFeedViewHolder holder, int position)
     {
-        Post post = m_UserPosts.get(position);
+        Post post = PostManager.getInstance().getPost(m_UserPostIDs.get(position));
         if (post != null)
         {
-            post.loadNow(holder.m_PostImage);
+            post.loadInto(holder.m_PostImage);
             holder.setLike(post.m_Likes);
             holder.m_PostGeoLocation.setText(post.m_GeoLocation);
         }
@@ -124,81 +126,57 @@ public class UserFeedAdapter extends RecyclerView.Adapter<UserFeedAdapter.UserFe
     @Override
     public int getItemCount()
     {
-        return m_UserPosts.size();
-    }
-
-    @Override
-    public void OnQueryResult(boolean successful, String message, List<DocumentSnapshot> postSnapshots)
-    {
-        if (postSnapshots != null)
-        {
-            if (m_FirstLoad)
-            {
-                FirstPostsLoad(postSnapshots);
-                m_FirstLoad = false;
-            }
-            else {
-                RefreshPostsLoad(postSnapshots);
-                if (m_RefreshListener != null) {
-                    m_RefreshListener.onComplete();
-                    m_RefreshListener = null;
-                }
-            }
-        }
-    }
-
-    private void FirstPostsLoad(List<DocumentSnapshot> posts)
-    {
-        m_UserPosts.clear();
-        for (DocumentSnapshot postDoc : posts)
-        {
-            m_UserPosts.add(new Post(postDoc.getId(), postDoc.getData(), false));
-        }
-        m_UserPosts.sort((o1, o2) -> o2.m_TimeCreated.compareTo(o1.m_TimeCreated));
-        this.notifyDataSetChanged();
+        return m_UserPostIDs.size();
     }
 
     private void RefreshPostsLoad(List<DocumentSnapshot> posts)
     {
-        List<Post> newPostsAdded = new ArrayList<>(posts.size());
-        for(DocumentSnapshot postDoc : posts)
-        {
-            Timestamp postDocTimeModified = (Timestamp) postDoc.get(PostConstants.TIME_MODIFIED);
-
-            int index = findPostIndex(postDoc.getId());
-            if (index != -1)
-            {
-                Post currPost = m_UserPosts.get(index);
-                if (postDocTimeModified != currPost.m_TimeModified)
-                {
-                    currPost.m_Likes = (Long) postDoc.get(PostConstants.LIKES);
-                    this.notifyItemChanged(index, currPost.m_Likes);
-                    currPost.m_TimeModified = postDocTimeModified;
-                }
-            } else
-            {
-                newPostsAdded.add(new Post(postDoc.getId(), postDoc.getData(), false));
-            }
-        }
-        if (!newPostsAdded.isEmpty()) {
-            newPostsAdded.sort((o1, o2) -> o2.m_TimeCreated.compareTo(o1.m_TimeCreated));
-            m_UserPosts.addAll(0, newPostsAdded);
-            this.notifyItemRangeInserted(0, newPostsAdded.size());
-        }
+//        if (m_RefreshListener != null) {
+//            m_RefreshListener.onComplete();
+//            m_RefreshListener = null;
+//        }
+//
+//        if (posts == null) return;
+//
+//        List<Post> newPostsAdded = new ArrayList<>(posts.size());
+//        for(DocumentSnapshot postDoc : posts)
+//        {
+//            Timestamp postDocTimeModified = (Timestamp) postDoc.get(PostConstants.TIME_MODIFIED);
+//
+//            int index = findPostIndex(postDoc.getId());
+//            if (index != -1)
+//            {
+//                Post currPost = m_UserPosts.get(index);
+//                if (postDocTimeModified != currPost.m_TimeModified)
+//                {
+//                    currPost.m_Likes = (Long) postDoc.get(PostConstants.LIKES);
+//                    this.notifyItemChanged(index, currPost.m_Likes);
+//                    currPost.m_TimeModified = postDocTimeModified;
+//                }
+//            } else
+//            {
+//                newPostsAdded.add(new Post(postDoc.getId(), postDoc.getData(), false));
+//            }
+//        }
+//        if (!newPostsAdded.isEmpty()) {
+//            newPostsAdded.sort((o1, o2) -> o2.m_TimeCreated.compareTo(o1.m_TimeCreated));
+//            m_UserPosts.addAll(0, newPostsAdded);
+//            this.notifyItemRangeInserted(0, newPostsAdded.size());
+//        }
     }
 
     public void deletePost(int postPosition)
     {
-        FirebaseUser loggedInUser = FirebaseAuth.getInstance().getCurrentUser();
-        if (loggedInUser != null && postPosition < m_UserPosts.size()) {
-            Post post = m_UserPosts.get(postPosition);
-            post.delete(loggedInUser, successful -> {
-                if (successful) {
-                    m_UserPosts.remove(postPosition);
-                    this.notifyItemRemoved(postPosition);
-                }
-            });
-        }
+//        FirebaseUser loggedInUser = FirebaseAuth.getInstance().getCurrentUser();
+//        if (loggedInUser != null && postPosition < m_UserPosts.size()) {
+//            Post post = m_UserPosts.get(postPosition);
+//            post.delete(loggedInUser, successful -> {
+//                if (successful) {
+//                    m_UserPosts.remove(postPosition);
+//                    this.notifyItemRemoved(postPosition);
+//                }
+//            });
+//        }
     }
 
     public void sharePost(int postPosition)
