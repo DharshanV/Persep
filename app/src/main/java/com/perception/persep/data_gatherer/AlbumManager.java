@@ -106,6 +106,7 @@ public class AlbumManager implements Runnable, GPSSensor.Listener
 
         String postID = PostManager.getInstance(m_Context).addPost(postImageURI, closestAlbum.m_AlbumID, m_QueryLat, m_QueryLon);
         closestAlbum.addPost(postID);
+        UserManager.getInstance().addPost(postID);
     }
 
     public void removePost(String postID)
@@ -119,7 +120,7 @@ public class AlbumManager implements Runnable, GPSSensor.Listener
             else {
                 removeServerAlbumPost(albumID, postRef);
             }
-//            User.getInstance().removePost(postRef);
+            UserManager.getInstance().removePost(postRef);
         });
     }
 

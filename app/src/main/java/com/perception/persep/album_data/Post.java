@@ -23,6 +23,7 @@ import com.perception.persep.activities.HomeActivity;
 import com.perception.persep.constants.AlbumConstants;
 import com.perception.persep.constants.PostConstants;
 import com.perception.persep.data_gatherer.PostManager;
+import com.perception.persep.data_gatherer.UserManager;
 import com.perception.persep.firebase_helpers.FirebaseUpdates;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
@@ -76,7 +77,7 @@ public class Post implements Target
 
         Map<String, Object> postData = new HashMap<>();
         postData.put(PostConstants.ALBUM_ID, m_AlbumID);
-//        postData.put(PostConstants.USER, User.getInstance().m_DocRef);
+        postData.put(PostConstants.USER, UserManager.getInstance().m_DocRef);
         postData.put(PostConstants.LIKES, m_Likes);
         postData.put(PostConstants.USERS_LIKED, Collections.emptyList());
         postData.put(PostConstants.GEO_POINT, new GeoPoint(m_Lat, m_Lon));

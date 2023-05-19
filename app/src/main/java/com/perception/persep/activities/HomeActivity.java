@@ -13,6 +13,7 @@ import androidx.viewpager2.widget.ViewPager2;
 import com.example.persep.R;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.perception.persep.adapters.SlidePagerAdapter;
+import com.perception.persep.data_gatherer.UserManager;
 
 import java.lang.reflect.Field;
 
@@ -34,6 +35,8 @@ public class HomeActivity extends AppCompatActivity
         m_HomeActivityInstance = this;
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
+
+        UserManager.getInstance(getApplicationContext()).create();
 
         Display display = ((WindowManager) getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
         DEFAULT_DISPLAY_REFRESH_RATE = display.getRefreshRate();
