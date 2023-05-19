@@ -61,6 +61,10 @@ public class AlbumManager implements Runnable, GPSSensor.Listener
     private final Handler m_QueryNearbyAlbumHandler;
     private final Stack<Uri> m_AddPostQueue = new Stack<>();
 
+    private final ReadWriteLock m_ReadWriteLock = new ReentrantReadWriteLock();
+    private final Lock m_WriteLock = m_ReadWriteLock.writeLock();
+    private final Lock m_ReadLock = m_ReadWriteLock.writeLock();
+
     private AlbumManager(Context context)
     {
         m_Context = context;
@@ -101,6 +105,7 @@ public class AlbumManager implements Runnable, GPSSensor.Listener
 
     private void addPost(Uri postImageURI)
     {
+        m_WriteLock.lock();
         Album closestAlbum = getClosestLocalAlbum();
         if (closestAlbum == null) {
             closestAlbum = new Album(m_Context, m_QueryLat, m_QueryLon);
@@ -110,10 +115,12 @@ public class AlbumManager implements Runnable, GPSSensor.Listener
         String postID = PostManager.getInstance(m_Context).addPost(postImageURI, closestAlbum.m_AlbumID, m_QueryLat, m_QueryLon);
         closestAlbum.addPost(postID);
         UserManager.getInstance().addPost(postID);
+        m_WriteLock.unlock();
     }
 
     public void removePost(String postID)
     {
+        m_WriteLock.lock();
         Post post = PostManager.getInstance().getPost(postID);
         if (post != null) {
             Album album = m_Albums.get(post.m_AlbumID);
@@ -129,6 +136,7 @@ public class AlbumManager implements Runnable, GPSSensor.Listener
             }
             UserManager.getInstance().removePost(post.m_DocRef);
         }
+        m_WriteLock.unlock();
     }
 
     private void removeServerAlbumPost(String albumID, DocumentReference postRef)
@@ -156,11 +164,13 @@ public class AlbumManager implements Runnable, GPSSensor.Listener
             List<Task<QuerySnapshot>> queryTasks = FirebaseQueries.GetAlbumQueryTasks(queryLocation, QueryConstants.MAX_QUERY_RADIUS);
             Tasks.whenAllSuccess(queryTasks).addOnSuccessListener(albumsResult -> {
                 List<DocumentSnapshot> albumDocs = FirebaseQueries.OnAlbumQueryTasks(albumsResult, queryLocation, QueryConstants.MAX_QUERY_RADIUS);
+                m_WriteLock.lock();
                 for (DocumentSnapshot albumDoc : albumDocs) {
                     if (!m_Albums.containsKey(albumDoc.getId())) {
                         m_Albums.put(albumDoc.getId(), new Album(albumDoc));
                     }
                 }
+                m_WriteLock.unlock();
 
                 while (!m_AddPostQueue.empty()) {
                     addPost(m_AddPostQueue.pop());
@@ -180,6 +190,16 @@ public class AlbumManager implements Runnable, GPSSensor.Listener
         m_QueryNearbyAlbumHandler.post(this);
     }
 
+    public void readLock()
+    {
+        m_ReadLock.lock();
+    }
+
+    public void readUnlock()
+    {
+        m_ReadLock.unlock();
+    }
+
     @Override
     public void onLocationChanged(double lat, double lon)
     {
@@ -196,6 +216,7 @@ public class AlbumManager implements Runnable, GPSSensor.Listener
     {
         if (!m_IsLocationInit) return null;
 
+        m_ReadLock.lock();
         double closestDist = Double.MAX_VALUE;
         Album closestAlbum = null;
         GeoLocation m_QueryLocation = new GeoLocation(m_QueryLat, m_QueryLon);
@@ -209,7 +230,7 @@ public class AlbumManager implements Runnable, GPSSensor.Listener
                 closestDist = distanceInM;
             }
         }
-
+        m_ReadLock.unlock();
         return closestAlbum;
     }
 }

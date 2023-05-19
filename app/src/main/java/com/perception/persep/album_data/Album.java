@@ -30,6 +30,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class Album
 {
@@ -49,6 +52,10 @@ public class Album
     private final Timer m_UpdatePostTimer;
     private PostUpdateIndexTask m_PostUpdateTimerTask;
     private final int TASK_START_DELAY = 5000; // 5 secs
+
+    private final ReadWriteLock m_ReadWriteLock = new ReentrantReadWriteLock();
+    private final Lock m_WriteLock = m_ReadWriteLock.writeLock();
+    private final Lock m_ReadLock = m_ReadWriteLock.writeLock();
 
     public Album(Context context, double lat, double lon)
     {
@@ -106,18 +113,23 @@ public class Album
 
     public void remove()
     {
+        m_ReadLock.lock();
         for (String postID : m_PostIDs) {
             Post post = PostManager.getInstance().getPost(postID);
             if (post != null) {
                 post.remove();
             }
         }
+        m_ReadLock.unlock();
         m_DocRef.delete();
     }
 
     public void addPost(String postID)
     {
+        m_WriteLock.lock();
         m_PostIDs.add(postID);
+        m_WriteLock.unlock();
+
         addPostServer(postID);
     }
 
@@ -131,8 +143,10 @@ public class Album
 
     public void removePost(String postID)
     {
+        m_WriteLock.lock();
         m_PostIDs.remove(postID);
         m_TimeModified = Timestamp.now();
+        m_WriteLock.unlock();
 
         Post post = PostManager.getInstance(m_Context).getPost(postID);
         if (post != null) {
@@ -172,9 +186,11 @@ public class Album
 
     public boolean ShouldUpdateTexture()
     {
+        m_ReadLock.lock();
         if (m_PostIDs.size() == 1)
         {
             Post post = PostManager.getInstance().getPost(m_PostIDs.get(0));
+            m_ReadLock.unlock();
             return post.m_Image != null;
         }
 
@@ -182,33 +198,41 @@ public class Album
         if (m_PendingPostUpdate.contains(m_CurrPostIndex) && post.m_Image != null)
         {
             m_PendingPostUpdate.remove(m_CurrPostIndex);
+            m_ReadLock.unlock();
             return true;
         }
 
         if (m_CurrPostIndex != m_PrevPostIndex)
         {
             m_PrevPostIndex = m_CurrPostIndex;
+            m_ReadLock.unlock();
             return true;
         }
+        m_ReadLock.unlock();
         return true;
     }
 
     public String getCurrentPostID()
     {
+        m_ReadLock.lock();
         if (!m_PostIDs.isEmpty() && m_CurrPostIndex < m_PostIDs.size()) {
+            m_ReadLock.unlock();
             return m_PostIDs.get(m_CurrPostIndex);
         }
+        m_ReadLock.unlock();
         return null;
     }
 
     public void updatePostIndex(boolean next)
     {
+        m_ReadLock.lock();
         if (next) m_CurrPostIndex = mod(m_CurrPostIndex + 1, m_PostIDs.size());
         else m_CurrPostIndex = mod(m_CurrPostIndex - 1, m_PostIDs.size());
 
         m_PostUpdateTimerTask.cancel();
         m_PostUpdateTimerTask = new PostUpdateIndexTask();
         m_UpdatePostTimer.scheduleAtFixedRate(m_PostUpdateTimerTask, TASK_START_DELAY, TASK_START_DELAY);
+        m_ReadLock.unlock();
     }
 
     static int mod(int a, int b)
@@ -223,11 +247,14 @@ public class Album
         @Override
         public void run()
         {
+            m_ReadLock.lock();
             if (m_PostIDs.isEmpty()) {
                 m_CurrPostIndex = 0;
+                m_ReadLock.unlock();
                 return;
             }
             m_CurrPostIndex = mod(m_CurrPostIndex + 1, m_PostIDs.size());
+            m_ReadLock.unlock();
         }
     }
 }

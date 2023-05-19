@@ -264,6 +264,7 @@ public class OpenGLRenderer
     private void updateAlbums()
     {
         // Assign index to new albums
+        AlbumManager.getInstance().readLock();
         for (Album album : AlbumManager.getInstance().getAlbums()) {
             if (!album.m_PostIDs.isEmpty() && !m_AlbumIDIndex.containsKey(album.m_AlbumID)) {
                 int validIndex = m_ValidIndex.pop();
@@ -279,6 +280,7 @@ public class OpenGLRenderer
                 m_ValidIndex.push(freedIndex);
             }
         }
+        AlbumManager.getInstance().readUnlock();
     }
 
     private Vector3D getWorldTriVert(float[] transform, Vector3D vert)
