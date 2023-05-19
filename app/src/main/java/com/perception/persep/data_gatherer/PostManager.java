@@ -40,7 +40,7 @@ public class PostManager
 
     public interface RemovePostListener
     {
-        void onPostRemoved(boolean success, DocumentReference postRef, String albumID);
+        void onPostRemoved(DocumentReference postRef, String albumID);
     }
 
     public interface QueryUserPostListener
@@ -93,13 +93,13 @@ public class PostManager
         });
     }
 
-    public void removePost(String postID, RemovePostListener listener)
+    public Post removePost(String postID)
     {
         Post post = m_Posts.get(postID);
         if (post != null) {
-            post.remove(listener);
+            post.remove();
         }
-        m_Posts.remove(postID);
+        return m_Posts.remove(postID);
     }
 
     public Post getPost(String postID)

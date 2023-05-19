@@ -180,7 +180,10 @@ public class UserFeedAdapter extends RecyclerView.Adapter<UserFeedAdapter.UserFe
     public void deletePost(int postPosition)
     {
         if (postPosition < m_UserPostIDs.size()) {
-            AlbumManager.getInstance().removePost(m_UserPostIDs.get(postPosition));
+            String postID = m_UserPostIDs.remove(postPosition);
+            m_PostModified.remove(postID);
+            AlbumManager.getInstance().removePost(postID);
+            this.notifyItemRemoved(postPosition);
         }
     }
 

@@ -122,9 +122,9 @@ public class Post implements Target
         Picasso.get().load(m_ImageURI).resize(PostConstants.IMAGE_WIDTH, PostConstants.IMAGE_HEIGHT).noFade().into(this);
     }
 
-    public void remove(PostManager.RemovePostListener listener)
+    public void remove()
     {
-
+        m_DocRef.delete();
     }
 
     public void loadInto(ImageView imageView)

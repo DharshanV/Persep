@@ -114,30 +114,20 @@ public class AlbumManager implements Runnable, GPSSensor.Listener
 
     public void removePost(String postID)
     {
-        PostManager.getInstance(m_Context).removePost(postID, (success, postRef, albumID) -> {
-            if (!success) return;
-            Album album = m_Albums.get(albumID);
+        Post post = PostManager.getInstance().getPost(postID);
+        if (post != null) {
+            Album album = m_Albums.get(post.m_AlbumID);
             if (album != null) {
-                removeLocalAlbumPost(albumID, postID);
-            }
-            else {
-                removeServerAlbumPost(albumID, postRef);
-            }
-            UserManager.getInstance().removePost(postRef);
-        });
-    }
-
-    private void removeLocalAlbumPost(String albumID, String postID)
-    {
-        Album album = m_Albums.get(albumID);
-        if (album != null && album.m_PostIDs.contains(postID)) {
-            if (album.m_PostIDs.size() != 1) {
                 album.removePost(postID);
+                if (album.m_PostIDs.isEmpty()) {
+                    album.remove();
+                    m_Albums.remove(album.m_AlbumID);
+                }
             }
             else {
-                album.remove();
-                m_Albums.remove(albumID);
+                removeServerAlbumPost(post.m_AlbumID, post.m_DocRef);
             }
+            UserManager.getInstance().removePost(post.m_DocRef);
         }
     }
 

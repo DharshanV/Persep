@@ -16,6 +16,7 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.GeoPoint;
+import com.google.firebase.firestore.WriteBatch;
 import com.perception.persep.constants.AlbumConstants;
 import com.perception.persep.constants.PostConstants;
 import com.perception.persep.data_gatherer.PostManager;
@@ -105,12 +106,13 @@ public class Album
 
     public void remove()
     {
-
-    }
-
-    private void removeServer()
-    {
-
+        for (String postID : m_PostIDs) {
+            Post post = PostManager.getInstance().getPost(postID);
+            if (post != null) {
+                post.remove();
+            }
+        }
+        m_DocRef.delete();
     }
 
     public void addPost(String postID)
@@ -129,12 +131,17 @@ public class Album
 
     public void removePost(String postID)
     {
-        removePostServer(postID);
-    }
+        m_PostIDs.remove(postID);
+        m_TimeModified = Timestamp.now();
 
-    private void removePostServer(String postID)
-    {
-
+        Post post = PostManager.getInstance(m_Context).getPost(postID);
+        if (post != null) {
+            post.remove();
+            WriteBatch batch = FirebaseFirestore.getInstance().batch();
+            m_DocRef.update(AlbumConstants.TIME_MODIFIED, m_TimeModified);
+            m_DocRef.update(AlbumConstants.POSTS, FieldValue.arrayRemove(post.m_DocRef));
+            batch.commit();
+        }
     }
 
     @Override
@@ -216,6 +223,10 @@ public class Album
         @Override
         public void run()
         {
+            if (m_PostIDs.isEmpty()) {
+                m_CurrPostIndex = 0;
+                return;
+            }
             m_CurrPostIndex = mod(m_CurrPostIndex + 1, m_PostIDs.size());
         }
     }
