@@ -132,6 +132,7 @@ public class AlbumManager implements Runnable, GPSSensor.Listener
                 }
             }
             else {
+                PostManager.getInstance().removePost(postID);
                 removeServerAlbumPost(post.m_AlbumID, post.m_DocRef);
             }
             UserManager.getInstance().removePost(post.m_DocRef);
@@ -212,11 +213,10 @@ public class AlbumManager implements Runnable, GPSSensor.Listener
         }
     }
 
-    public Album getClosestLocalAlbum()
+    private Album getClosestLocalAlbum()
     {
         if (!m_IsLocationInit) return null;
 
-        m_ReadLock.lock();
         double closestDist = Double.MAX_VALUE;
         Album closestAlbum = null;
         GeoLocation m_QueryLocation = new GeoLocation(m_QueryLat, m_QueryLon);
@@ -230,7 +230,6 @@ public class AlbumManager implements Runnable, GPSSensor.Listener
                 closestDist = distanceInM;
             }
         }
-        m_ReadLock.unlock();
         return closestAlbum;
     }
 }

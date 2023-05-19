@@ -24,6 +24,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class PostManager
 {
@@ -32,6 +35,10 @@ public class PostManager
 
     private final Context m_Context;
     private Map<String, Post> m_Posts = new HashMap<>();
+
+    private final ReadWriteLock m_ReadWriteLock = new ReentrantReadWriteLock();
+    private final Lock m_WriteLock = m_ReadWriteLock.writeLock();
+    private final Lock m_ReadLock = m_ReadWriteLock.writeLock();
 
     public interface AddPostListener
     {
@@ -73,8 +80,10 @@ public class PostManager
 
     public String addPost(Uri postImageURI, String albumID, double lat, double lon)
     {
+        m_WriteLock.lock();
         Post post = new Post(postImageURI, albumID, lat, lon);
         m_Posts.put(post.m_PostID, post);
+        m_WriteLock.unlock();
         return post.m_PostID;
     }
 
@@ -88,18 +97,22 @@ public class PostManager
         }
         postRef.get().addOnSuccessListener(postDoc -> {
             String postID = postDoc.getId();
+            m_WriteLock.lock();
             m_Posts.put(postID, new Post(postDoc));
+            m_WriteLock.unlock();
             listener.onPostAdded(true, "", postID);
         });
     }
 
     public Post removePost(String postID)
     {
-        Post post = m_Posts.get(postID);
+        m_WriteLock.lock();
+        Post post = m_Posts.remove(postID);
+        m_WriteLock.unlock();
         if (post != null) {
             post.remove();
         }
-        return m_Posts.remove(postID);
+        return post;
     }
 
     public Post getPost(String postID)
@@ -125,9 +138,11 @@ public class PostManager
                 for(Object postObj : postsResult) {
                     DocumentSnapshot postDoc = (DocumentSnapshot) postObj;
                     String postID = postDoc.getId();
+                    m_WriteLock.lock();
                     if (!m_Posts.containsKey(postID)) {
                         m_Posts.put(postID, new Post(postDoc));
                     }
+                    m_WriteLock.unlock();
                     postIDs.add(postID);
                 }
                 listener.onQuery(postIDs);

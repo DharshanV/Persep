@@ -349,15 +349,18 @@ public class OpenGLRenderer
         Vector3D rayDir = (far.subtract(near)).normalize();
 
         m_DataUpdateReadLock.lock();
+        AlbumManager.getInstance().readLock();
         for(Map.Entry<String, Integer> entry : m_AlbumIDIndex.entrySet()) {
             float[] albumTransform = m_AlbumTransforms[entry.getValue()];
             if (intersectRayWithAlbumSurface(rayDir, albumTransform))
             {
                 m_DataUpdateReadLock.unlock();
+                AlbumManager.getInstance().readUnlock();
                 return entry.getKey();
             }
         }
         m_DataUpdateReadLock.unlock();
+        AlbumManager.getInstance().readUnlock();
         return null;
     }
 }

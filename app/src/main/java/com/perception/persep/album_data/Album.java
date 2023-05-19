@@ -148,9 +148,8 @@ public class Album
         m_TimeModified = Timestamp.now();
         m_WriteLock.unlock();
 
-        Post post = PostManager.getInstance(m_Context).getPost(postID);
+        Post post = PostManager.getInstance(m_Context).removePost(postID);
         if (post != null) {
-            post.remove();
             WriteBatch batch = FirebaseFirestore.getInstance().batch();
             m_DocRef.update(AlbumConstants.TIME_MODIFIED, m_TimeModified);
             m_DocRef.update(AlbumConstants.POSTS, FieldValue.arrayRemove(post.m_DocRef));
