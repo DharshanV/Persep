@@ -33,22 +33,6 @@ public class FirebaseQueries
 {
     private static final String QUERY_NEARBY_TAG = "QueryGeoqueries";
 
-    private static FirebaseQueries m_Instance = null;
-
-    // Database
-    private final FirebaseFirestore m_Firestore;
-
-    public FirebaseQueries()
-    {
-        m_Firestore = FirebaseFirestore.getInstance();
-    }
-
-    public static FirebaseQueries getInstance()
-    {
-        if (m_Instance == null) m_Instance = new FirebaseQueries();
-        return m_Instance;
-    }
-
     static public List<Task<QuerySnapshot>> GetAlbumQueryTasks(GeoLocation queryCenter, double maxQueryRadius)
     {
         List<Task<QuerySnapshot>> tasks = new ArrayList<>();
