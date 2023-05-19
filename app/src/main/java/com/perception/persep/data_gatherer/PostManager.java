@@ -48,6 +48,11 @@ public class PostManager
         void onQuery(List<String> postIDs);
     }
 
+    public interface PostLikeListener
+    {
+        void onLikeUpdate(boolean successful);
+    }
+
     private PostManager(Context context)
     {
         m_Context = context;
@@ -120,11 +125,7 @@ public class PostManager
                 for(Object postObj : postsResult) {
                     DocumentSnapshot postDoc = (DocumentSnapshot) postObj;
                     String postID = postDoc.getId();
-                    if (m_Posts.containsKey(postID)) {
-                        Post post = m_Posts.get(postID);
-                        post.update(postDoc);
-                    }
-                    else {
+                    if (!m_Posts.containsKey(postID)) {
                         m_Posts.put(postID, new Post(postDoc));
                     }
                     postIDs.add(postID);

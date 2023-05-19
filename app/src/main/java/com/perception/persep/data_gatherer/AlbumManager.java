@@ -92,7 +92,6 @@ public class AlbumManager implements Runnable, GPSSensor.Listener
 
     public void tryAddPost(Uri postImageURI)
     {
-        // TODO: || m_IsQueryInProgress
         if (!m_IsLocationInit) {
             m_AddPostQueue.add(postImageURI);
             return;
@@ -115,7 +114,6 @@ public class AlbumManager implements Runnable, GPSSensor.Listener
 
     public void removePost(String postID)
     {
-        // TODO: rework this
         PostManager.getInstance(m_Context).removePost(postID, (success, postRef, albumID) -> {
             if (!success) return;
             Album album = m_Albums.get(albumID);
@@ -132,7 +130,7 @@ public class AlbumManager implements Runnable, GPSSensor.Listener
     private void removeLocalAlbumPost(String albumID, String postID)
     {
         Album album = m_Albums.get(albumID);
-        if (album.m_PostIDs.contains(postID)) {
+        if (album != null && album.m_PostIDs.contains(postID)) {
             if (album.m_PostIDs.size() != 1) {
                 album.removePost(postID);
             }

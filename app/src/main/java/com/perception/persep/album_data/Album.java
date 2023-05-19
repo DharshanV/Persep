@@ -188,7 +188,7 @@ public class Album
 
     public String getCurrentPostID()
     {
-        if (!m_PostIDs.isEmpty()) {
+        if (!m_PostIDs.isEmpty() && m_CurrPostIndex < m_PostIDs.size()) {
             return m_PostIDs.get(m_CurrPostIndex);
         }
         return null;

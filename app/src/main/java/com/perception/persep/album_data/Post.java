@@ -10,13 +10,16 @@ import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
 
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.GeoPoint;
+import com.google.firebase.firestore.WriteBatch;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
@@ -30,6 +33,8 @@ import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -46,6 +51,7 @@ public class Post implements Target
     public Uri m_ImageURI;
     public Bitmap m_Image;
     public long m_Likes;
+    public List<DocumentReference> m_UsersLiked;
     public GeoPoint m_GeoPoint;
     public String m_GeoLocation;
     public Timestamp m_TimeCreated;
@@ -61,6 +67,7 @@ public class Post implements Target
         m_AlbumID = albumID;
         m_ImageURI = postImageURI;
         m_Likes = 0;
+        m_UsersLiked = new ArrayList<>();
         m_GeoPoint = new GeoPoint(lat, lon);
         m_GeoLocation = GetPostGeoLocation(m_GeoPoint);
         Timestamp now = Timestamp.now();
@@ -81,7 +88,7 @@ public class Post implements Target
         postData.put(PostConstants.ALBUM_ID, m_AlbumID);
         postData.put(PostConstants.USER, UserManager.getInstance().m_DocRef);
         postData.put(PostConstants.LIKES, m_Likes);
-        postData.put(PostConstants.USERS_LIKED, Collections.emptyList());
+        postData.put(PostConstants.USERS_LIKED, m_UsersLiked);
         postData.put(PostConstants.GEO_POINT, m_GeoPoint);
         postData.put(PostConstants.GEO_LOCATION, m_GeoLocation);
         Timestamp now = Timestamp.now();
@@ -99,10 +106,12 @@ public class Post implements Target
 
     public Post(DocumentSnapshot postDoc)
     {
+        // TODO: fix there is an error uploading image and IMAGE_URI is null
         m_PostID = postDoc.getId();
         m_AlbumID = (String) postDoc.get(PostConstants.ALBUM_ID);
         m_ImageURI = Uri.parse((String)postDoc.get(PostConstants.IMAGE_URI));
         m_Likes = (long) postDoc.get(PostConstants.LIKES);
+        m_UsersLiked = new ArrayList<>((List<DocumentReference>) postDoc.get(PostConstants.USERS_LIKED));
         m_GeoPoint = (GeoPoint) postDoc.get(PostConstants.GEO_POINT);
         m_GeoLocation = (String) postDoc.get(PostConstants.GEO_LOCATION);
         m_TimeCreated = (Timestamp) postDoc.get(PostConstants.TIME_CREATED);
@@ -118,11 +127,6 @@ public class Post implements Target
 
     }
 
-    public void update(DocumentSnapshot postDoc)
-    {
-
-    }
-
     public void loadInto(ImageView imageView)
     {
         if (m_IsImageLoaded) {
@@ -132,14 +136,22 @@ public class Post implements Target
         m_LoadIntoViews.add(imageView);
     }
 
-    public void like(FirebaseUpdates.PostLikeListener listener)
+    public void like(PostManager.PostLikeListener listener)
     {
-//        FirebaseUpdates.getInstance().likePost(user, m_PostID, listener);
-    }
+        DocumentReference userRef = UserManager.getInstance().m_DocRef;
+        if (userRef == null || m_UsersLiked.contains(userRef)) {
+            return;
+        }
 
-    public void delete(FirebaseUpdates.PostDeleteListener listener)
-    {
-//        FirebaseUpdates.getInstance().deletePost(user, m_ImageURI, m_PostID, m_AlbumID, listener);
+        m_Likes++;
+        m_TimeModified = Timestamp.now();
+        m_UsersLiked.add(userRef);
+
+        WriteBatch batch = FirebaseFirestore.getInstance().batch();
+        m_DocRef.update(PostConstants.LIKES, m_Likes);
+        m_DocRef.update(PostConstants.TIME_CREATED, m_TimeModified);
+        m_DocRef.update(PostConstants.USERS_LIKED, FieldValue.arrayUnion(userRef));
+        batch.commit().addOnSuccessListener(unused -> listener.onLikeUpdate(true));
     }
 
     @Override
