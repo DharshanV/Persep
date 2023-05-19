@@ -87,6 +87,16 @@ public class AlbumManager implements Runnable, GPSSensor.Listener
         return m_Instance;
     }
 
+    public static synchronized AlbumManager getInstance()
+    {
+        return m_Instance;
+    }
+
+    public Album getAlbum(String albumID)
+    {
+        return m_Albums.get(albumID);
+    }
+
     public Collection<Album> getAlbums()
     {
         return m_Albums.values();

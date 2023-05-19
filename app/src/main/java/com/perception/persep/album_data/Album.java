@@ -134,33 +134,43 @@ public class Album
 
     public boolean ShouldUpdateTexture()
     {
-//        if (m_Posts.size() == 1 && m_Posts.get(m_CurrPostIndex).m_Image != null)
-//        {
-//            return true;
-//        }
-//
-//        if (m_PendingPostUpdate.contains(m_CurrPostIndex) && m_Posts.get(m_CurrPostIndex).m_Image != null)
-//        {
-//            m_PendingPostUpdate.remove(m_CurrPostIndex);
-//            return true;
-//        }
-//
-//        if (m_CurrPostIndex != m_PrevPostIndex)
-//        {
-//            m_PrevPostIndex = m_CurrPostIndex;
-//            return true;
-//        }
-        return false;
+        if (m_PostIDs.size() == 1)
+        {
+            Post post = PostManager.getInstance().getPost(m_PostIDs.get(0));
+            return post.m_Image != null;
+        }
+
+        Post post = PostManager.getInstance().getPost(getCurrentPostID());
+        if (m_PendingPostUpdate.contains(m_CurrPostIndex) && post.m_Image != null)
+        {
+            m_PendingPostUpdate.remove(m_CurrPostIndex);
+            return true;
+        }
+
+        if (m_CurrPostIndex != m_PrevPostIndex)
+        {
+            m_PrevPostIndex = m_CurrPostIndex;
+            return true;
+        }
+        return true;
+    }
+
+    public String getCurrentPostID()
+    {
+        if (m_PostIDs != null && !m_PostIDs.isEmpty()) {
+            return m_PostIDs.get(m_CurrPostIndex);
+        }
+        return null;
     }
 
     public void updatePostIndex(boolean next)
     {
-//        if (next) m_CurrPostIndex = mod(m_CurrPostIndex + 1, m_Posts.size());
-//        else m_CurrPostIndex = mod(m_CurrPostIndex - 1, m_Posts.size());
-//
-//        m_PostUpdateTimerTask.cancel();
-//        m_PostUpdateTimerTask = new PostUpdateIndexTask();
-//        m_UpdatePostTimer.scheduleAtFixedRate(m_PostUpdateTimerTask, TASK_START_DELAY, TASK_START_DELAY);
+        if (next) m_CurrPostIndex = mod(m_CurrPostIndex + 1, m_PostIDs.size());
+        else m_CurrPostIndex = mod(m_CurrPostIndex - 1, m_PostIDs.size());
+
+        m_PostUpdateTimerTask.cancel();
+        m_PostUpdateTimerTask = new PostUpdateIndexTask();
+        m_UpdatePostTimer.scheduleAtFixedRate(m_PostUpdateTimerTask, TASK_START_DELAY, TASK_START_DELAY);
     }
 
     static int mod(int a, int b)
@@ -175,7 +185,7 @@ public class Album
         @Override
         public void run()
         {
-//            m_CurrPostIndex = mod(m_CurrPostIndex + 1, m_Posts.size());
+            m_CurrPostIndex = mod(m_CurrPostIndex + 1, m_PostIDs.size());
         }
     }
 }
