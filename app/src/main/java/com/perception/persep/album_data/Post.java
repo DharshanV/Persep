@@ -107,6 +107,7 @@ public class Post implements Target
         m_GeoLocation = (String) postDoc.get(PostConstants.GEO_LOCATION);
         m_TimeCreated = (Timestamp) postDoc.get(PostConstants.TIME_CREATED);
         m_TimeModified = (Timestamp) postDoc.get(PostConstants.TIME_MODIFIED);
+        m_DocRef = postDoc.getReference();
 
         Log.d(PostLoadImage, "Loading image to post: " + m_ImageURI);
         Picasso.get().load(m_ImageURI).resize(PostConstants.IMAGE_WIDTH, PostConstants.IMAGE_HEIGHT).noFade().into(this);

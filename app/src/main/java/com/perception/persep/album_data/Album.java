@@ -1,19 +1,23 @@
 package com.perception.persep.album_data;
 
 import android.content.Context;
+import android.net.Uri;
 
 import androidx.annotation.NonNull;
 
 import com.firebase.geofire.GeoFireUtils;
 import com.firebase.geofire.GeoLocation;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.GeoPoint;
 import com.perception.persep.constants.AlbumConstants;
+import com.perception.persep.constants.PostConstants;
 import com.perception.persep.data_gatherer.PostManager;
 
 import java.util.ArrayList;
@@ -30,8 +34,7 @@ public class Album
 {
     public String m_AlbumID;
     public String m_GeoHash;
-    public double m_Lat;
-    public double m_Lon;
+    public GeoPoint m_GeoPoint;
     public Timestamp m_TimeCreated;
     public Timestamp m_TimeModified;
     public final List<String> m_PostIDs = new ArrayList<>();
@@ -49,13 +52,36 @@ public class Album
     public Album(Context context, double lat, double lon)
     {
         m_Context = context;
-        m_Lat = lat;
-        m_Lon = lon;
+        m_GeoPoint = new GeoPoint(lat, lon);
         m_GeoHash = GeoFireUtils.getGeoHashForLocation(new GeoLocation(lat, lon));
         Timestamp now = Timestamp.now();
         m_TimeCreated = now;
         m_TimeModified = now;
         createAlbumServer();
+
+        m_UpdatePostTimer = new Timer();
+        m_PostUpdateTimerTask = new PostUpdateIndexTask();
+        m_UpdatePostTimer.scheduleAtFixedRate(m_PostUpdateTimerTask, TASK_START_DELAY, TASK_START_DELAY);
+    }
+
+    public Album(DocumentSnapshot albumDoc)
+    {
+        m_AlbumID = albumDoc.getId();
+        m_GeoPoint = (GeoPoint) albumDoc.get(AlbumConstants.GEO_POINT);
+        m_GeoHash = (String) albumDoc.get(AlbumConstants.GEO_HASH);
+        m_TimeCreated = (Timestamp) albumDoc.get(AlbumConstants.TIME_CREATED);
+        m_TimeModified = (Timestamp) albumDoc.get(AlbumConstants.TIME_MODIFIED);
+        m_DocRef = albumDoc.getReference();
+
+        List<DocumentReference> postRefs = (List<DocumentReference>) albumDoc.get(AlbumConstants.POSTS);
+        if (postRefs != null) {
+            for (DocumentReference postRef : postRefs)
+            {
+                PostManager.getInstance().addPost(postRef, (success, message, postID) -> {
+                    m_PostIDs.add(postID);
+                });
+            }
+        }
 
         m_UpdatePostTimer = new Timer();
         m_PostUpdateTimerTask = new PostUpdateIndexTask();
@@ -73,8 +99,8 @@ public class Album
         m_AlbumID = m_DocRef.getId();
 
         Map<String, Object> albumData = new HashMap<>();
-        albumData.put(AlbumConstants.GEO_HASH, GeoFireUtils.getGeoHashForLocation(new GeoLocation(m_Lat, m_Lon)));
-        albumData.put(AlbumConstants.GEO_POINT, new GeoPoint(m_Lat, m_Lon));
+        albumData.put(AlbumConstants.GEO_HASH, GeoFireUtils.getGeoHashForLocation(new GeoLocation(m_GeoPoint.getLatitude(), m_GeoPoint.getLongitude())));
+        albumData.put(AlbumConstants.GEO_POINT, m_GeoPoint);
         albumData.put(AlbumConstants.POSTS, Collections.emptyList());
         albumData.put(AlbumConstants.TIME_CREATED, m_TimeCreated);
         albumData.put(AlbumConstants.TIME_MODIFIED, m_TimeModified);
@@ -127,8 +153,7 @@ public class Album
                 "m_Posts=" + m_PostIDs +
                 ", m_AlbumID='" + m_AlbumID + '\'' +
                 ", m_GeoHash='" + m_GeoHash + '\'' +
-                ", m_Lat=" + m_Lat +
-                ", m_Lon=" + m_Lon +
+                ", m_GeoPoint=" + m_GeoPoint +
                 '}';
     }
 

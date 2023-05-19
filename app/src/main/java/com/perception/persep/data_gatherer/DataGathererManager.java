@@ -60,6 +60,6 @@ public class DataGathererManager
 
     public void AddPost(FirebaseUser user, Uri imageUri)
     {
-        m_AlbumManger.addPost(imageUri);
+        m_AlbumManger.tryAddPost(imageUri);
     }
 }

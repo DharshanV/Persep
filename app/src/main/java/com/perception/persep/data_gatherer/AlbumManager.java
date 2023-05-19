@@ -21,6 +21,7 @@ import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.GeoPoint;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.perception.persep.album_data.Album;
@@ -33,6 +34,7 @@ import com.perception.persep.firebase_helpers.FirebaseUpdates;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -102,12 +104,17 @@ public class AlbumManager implements Runnable, GPSSensor.Listener
         return m_Albums.values();
     }
 
-    public void addPost(Uri postImageURI)
+    public void tryAddPost(Uri postImageURI)
     {
         if (!m_IsLocationInit) {
             m_AddPostQueue.add(postImageURI);
             return;
         }
+        addPost(postImageURI);
+    }
+
+    private void addPost(Uri postImageURI)
+    {
         Album closestAlbum = getClosestLocalAlbum();
         if (closestAlbum == null) {
             closestAlbum = new Album(m_Context, m_QueryLat, m_QueryLon);
@@ -169,6 +176,20 @@ public class AlbumManager implements Runnable, GPSSensor.Listener
         if (m_IsLocationInit && !m_IsQueryInProgress)
         {
             m_IsQueryInProgress = true;
+            GeoLocation queryLocation = new GeoLocation(m_QueryLat, m_QueryLon);
+            List<Task<QuerySnapshot>> queryTasks = FirebaseQueries.GetAlbumQueryTasks(queryLocation, QueryConstants.MAX_QUERY_RADIUS);
+            Tasks.whenAllSuccess(queryTasks).addOnSuccessListener(albumsResult -> {
+                List<DocumentSnapshot> albumDocs = FirebaseQueries.OnAlbumQueryTasks(albumsResult, queryLocation, QueryConstants.MAX_QUERY_RADIUS);
+                for (DocumentSnapshot albumDoc : albumDocs) {
+                    if (!m_Albums.containsKey(albumDoc.getId())) {
+                        m_Albums.put(albumDoc.getId(), new Album(albumDoc));
+                    }
+                }
+
+                while (!m_AddPostQueue.empty()) {
+                    addPost(m_AddPostQueue.pop());
+                }
+            }).addOnFailureListener(Exception::printStackTrace);
         }
         m_QueryNearbyAlbumHandler.postDelayed(this, QueryConstants.QUERY_UPDATE_LOOP_INTERVAL);
     }
@@ -191,11 +212,6 @@ public class AlbumManager implements Runnable, GPSSensor.Listener
         if (!m_IsLocationInit) {
             m_IsLocationInit = true;
             m_QueryNearbyAlbumHandler.removeCallbacks(this);
-
-            while(!m_AddPostQueue.empty()) {
-                addPost(m_AddPostQueue.pop());
-            }
-
             m_QueryNearbyAlbumHandler.post(this);
         }
     }
@@ -213,7 +229,7 @@ public class AlbumManager implements Runnable, GPSSensor.Listener
         GeoLocation m_QueryLocation = new GeoLocation(m_QueryLat, m_QueryLon);
         for (Map.Entry<String, Album> entry : m_Albums.entrySet()) {
             Album album = entry.getValue();
-            GeoLocation albumLocation = new GeoLocation(album.m_Lat, album.m_Lon);
+            GeoLocation albumLocation = new GeoLocation(album.m_GeoPoint.getLatitude(), album.m_GeoPoint.getLongitude());
             double distanceInM = GeoFireUtils.getDistanceBetween(m_QueryLocation, albumLocation);
             if (distanceInM < closestDist)
             {

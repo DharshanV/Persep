@@ -4,6 +4,7 @@ import android.content.Context;
 import android.net.Uri;
 import android.util.Log;
 
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.firestore.DocumentReference;
@@ -66,6 +67,20 @@ public class PostManager
         Post post = new Post(postImageURI, albumID, lat, lon);
         m_Posts.put(post.m_PostID, post);
         return post.m_PostID;
+    }
+
+    public void addPost(DocumentReference postRef, AddPostListener listener)
+    {
+        for(Map.Entry<String, Post> entry : m_Posts.entrySet()) {
+            if (entry.getValue().m_DocRef == postRef) {
+                listener.onPostAdded(true, "", entry.getKey());
+            }
+        }
+        postRef.get().addOnSuccessListener(postDoc -> {
+            String postID = postDoc.getId();
+            m_Posts.put(postID, new Post(postDoc));
+            listener.onPostAdded(true, "", postID);
+        });
     }
 
     private void addPost(DocumentSnapshot postDoc)

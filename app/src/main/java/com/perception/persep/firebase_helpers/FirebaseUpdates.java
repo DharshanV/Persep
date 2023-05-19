@@ -168,13 +168,13 @@ public class FirebaseUpdates
     private Map<String, Object> CreateNewAlbumData(GeoLocation postLocation, double lat, double lon)
     {
         Map<String, Object> albumData = new HashMap<>();
-        albumData.put(AlbumConstants.GEO_HASH, GeoFireUtils.getGeoHashForLocation(postLocation));
-        albumData.put(AlbumConstants.LAT, lat);
-        albumData.put(AlbumConstants.LON, lon);
-        albumData.put(AlbumConstants.POSTS, Collections.emptyList());
-        Timestamp now = Timestamp.now();
-        albumData.put(AlbumConstants.TIME_CREATED, now);
-        albumData.put(AlbumConstants.TIME_MODIFIED, now);
+//        albumData.put(AlbumConstants.GEO_HASH, GeoFireUtils.getGeoHashForLocation(postLocation));
+//        albumData.put(AlbumConstants.LAT, lat);
+//        albumData.put(AlbumConstants.LON, lon);
+//        albumData.put(AlbumConstants.POSTS, Collections.emptyList());
+//        Timestamp now = Timestamp.now();
+//        albumData.put(AlbumConstants.TIME_CREATED, now);
+//        albumData.put(AlbumConstants.TIME_MODIFIED, now);
         return albumData;
     }
 

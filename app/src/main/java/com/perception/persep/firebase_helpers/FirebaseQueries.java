@@ -13,6 +13,7 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.GeoPoint;
 import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
@@ -70,10 +71,8 @@ public class FirebaseQueries
             QuerySnapshot snapshot = (QuerySnapshot) albumSnapshot;
             for (DocumentSnapshot albumDoc : snapshot.getDocuments())
             {
-                double docLat = albumDoc.getDouble(AlbumConstants.LAT);
-                double docLon = albumDoc.getDouble(AlbumConstants.LON);
-
-                GeoLocation docLocation = new GeoLocation(docLat, docLon);
+                GeoPoint geoPoint = (GeoPoint) albumDoc.get(PostConstants.GEO_POINT);
+                GeoLocation docLocation = new GeoLocation(geoPoint.getLatitude(), geoPoint.getLongitude());
                 double distanceInM = GeoFireUtils.getDistanceBetween(docLocation, queryCenter);
                 if (distanceInM < maxQueryRadius)
                 {
@@ -95,10 +94,8 @@ public class FirebaseQueries
             QuerySnapshot snap = task.getResult();
             for (DocumentSnapshot albumDoc : snap.getDocuments())
             {
-                double lat = albumDoc.getDouble(AlbumConstants.LAT);
-                double lon = albumDoc.getDouble(AlbumConstants.LON);
-
-                GeoLocation albumLocation = new GeoLocation(lat, lon);
+                GeoPoint geoPoint = (GeoPoint) albumDoc.get(PostConstants.GEO_POINT);
+                GeoLocation albumLocation = new GeoLocation(geoPoint.getLatitude(), geoPoint.getLongitude());
                 double distanceInM = GeoFireUtils.getDistanceBetween(albumLocation, queryCenter);
                 if (distanceInM < maxQueryRadius && distanceInM < closestDist)
                 {
@@ -272,5 +269,48 @@ public class FirebaseQueries
     {
         ListenerRegistration registration = m_Firestore.collection(AlbumConstants.COLLECTION_NAME).addSnapshotListener((value, error) -> { });
         registration.remove();
+    }
+
+
+    static public List<Task<QuerySnapshot>> GetAlbumQueryTasks(GeoLocation queryCenter, double maxQueryRadius)
+    {
+        List<Task<QuerySnapshot>> tasks = new ArrayList<>();
+
+        List<GeoQueryBounds> queryBounds = GeoFireUtils.getGeoHashQueryBounds(queryCenter, maxQueryRadius);
+        for (GeoQueryBounds bound : queryBounds)
+        {
+            Query query = FirebaseFirestore.getInstance().collection(AlbumConstants.COLLECTION_NAME);
+            query = query.orderBy(AlbumConstants.GEO_HASH)
+                    .startAt(bound.startHash)
+                    .endAt(bound.endHash)
+                    .limit(QueryConstants.MAX_QUERY_COUNT);
+            tasks.add(query.get());
+        }
+        return tasks;
+    }
+
+    static public List<DocumentSnapshot> OnAlbumQueryTasks(List<Object> albumSnapshots, GeoLocation queryCenter, double maxQueryRadius)
+    {
+        Log.d(QUERY_NEARBY_TAG, "===== OnQueryAlbums ====");
+        List<DocumentSnapshot> albumDocSnapshots = new ArrayList<>();
+
+        for (Object albumSnapshot : albumSnapshots)
+        {
+            if (!(albumSnapshot instanceof QuerySnapshot)) continue;
+
+            QuerySnapshot snapshot = (QuerySnapshot) albumSnapshot;
+            for (DocumentSnapshot albumDoc : snapshot.getDocuments())
+            {
+                GeoPoint geoPoint = (GeoPoint) albumDoc.get(PostConstants.GEO_POINT);
+                GeoLocation docLocation = new GeoLocation(geoPoint.getLatitude(), geoPoint.getLongitude());
+                double distanceInM = GeoFireUtils.getDistanceBetween(docLocation, queryCenter);
+                if (distanceInM < maxQueryRadius)
+                {
+                    albumDocSnapshots.add(albumDoc);
+                }
+            }
+        }
+
+        return albumDocSnapshots;
     }
 }

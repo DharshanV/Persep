@@ -126,8 +126,10 @@ public class OpenGLRenderer
                     m_AlbumModel.UpdateSurfaceTexture(albumTextureID, post.m_Image);
                 }
 
-                double bearing = GeoLocationHelper.Heading(m_DeviceLat, m_DeviceLon, album.m_Lat, album.m_Lon);
-                double distance = GeoLocationHelper.Distance(m_DeviceLat, m_DeviceLon, album.m_Lat, album.m_Lon);
+                double albumLat = album.m_GeoPoint.getLatitude();
+                double albumLon = album.m_GeoPoint.getLongitude();
+                double bearing = GeoLocationHelper.Heading(m_DeviceLat, m_DeviceLon, albumLat, albumLon);
+                double distance = GeoLocationHelper.Distance(m_DeviceLat, m_DeviceLon, albumLat, albumLon);
                 distance = Math.max(3.0, distance);
 
                 float x = (float) (distance * Math.sin(bearing));
@@ -263,7 +265,7 @@ public class OpenGLRenderer
     {
         // Assign index to new albums
         for (Album album : AlbumManager.getInstance().getAlbums()) {
-            if (!m_AlbumIDIndex.containsKey(album.m_AlbumID)) {
+            if (!album.m_PostIDs.isEmpty() && !m_AlbumIDIndex.containsKey(album.m_AlbumID)) {
                 int validIndex = m_ValidIndex.pop();
                 m_AlbumIDIndex.put(album.m_AlbumID, validIndex);
             }
