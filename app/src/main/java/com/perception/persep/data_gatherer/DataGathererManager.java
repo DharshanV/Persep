@@ -13,12 +13,14 @@ public class DataGathererManager
     private final RotationSensor m_RotationSensor;
     private final GPSSensor m_GPSSensor;
     private final AlbumManager m_AlbumManger;
+    private final PostManager m_PostManager;
 
     public DataGathererManager(Context context)
     {
         m_RotationSensor = new RotationSensor(context);
         m_GPSSensor = new GPSSensor(context);
         m_AlbumManger = AlbumManager.getInstance(context);
+        m_PostManager = PostManager.getInstance(context);
     }
 
     public void onStart()
