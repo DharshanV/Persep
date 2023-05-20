@@ -31,6 +31,7 @@ public class DataGathererManager
     {
         m_RotationSensor.UnregisterSensor();
         m_GPSSensor.UnregisterSensor();
+        m_AlbumManger.onStop();
     }
 
     public void onResume()

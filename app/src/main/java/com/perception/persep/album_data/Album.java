@@ -47,10 +47,11 @@ public class Album
     private final Set<Integer> m_PendingPostUpdate = new HashSet<>();
 
     private int m_CurrPostIndex = 0;
-    private int m_PrevPostIndex = 0;
+    public int m_PrevPostIndex = 0;
+    private boolean m_ShouldUpdateTexture = false;
     private final Timer m_UpdatePostTimer;
     private PostUpdateIndexTask m_PostUpdateTimerTask;
-    private final int TASK_START_DELAY = 5000; // 5 secs
+    private final int TASK_START_DELAY = 1000; // 5 secs
 
     private final ReadWriteLock m_ReadWriteLock = new ReentrantReadWriteLock();
     private final Lock m_WriteLock = m_ReadWriteLock.writeLock();
@@ -60,9 +61,8 @@ public class Album
     {
         m_GeoPoint = new GeoPoint(lat, lon);
         m_GeoHash = GeoFireUtils.getGeoHashForLocation(new GeoLocation(lat, lon));
-        Timestamp now = Timestamp.now();
-        m_TimeCreated = now;
-        m_TimeModified = now;
+        m_TimeCreated = Timestamp.now();
+        m_TimeModified = m_TimeCreated;
         createAlbumServer();
 
         m_UpdatePostTimer = new Timer();
@@ -98,8 +98,10 @@ public class Album
             for (DocumentReference postRef : postRefs)
             {
                 PostManager.getInstance().addPost(postRef, (success, message, postID) -> {
-                    // TODO: write lock
+                    m_WriteLock.lock();
                     m_PostIDs.add(postID);
+                    m_PendingPostUpdate.add(m_PostIDs.size() - 1);
+                    m_WriteLock.unlock();
                 });
             }
         }
@@ -126,6 +128,7 @@ public class Album
     {
         m_WriteLock.lock();
         m_PostIDs.add(postID);
+        m_PendingPostUpdate.add(m_PostIDs.size() - 1);
         m_WriteLock.unlock();
 
         addPostServer(postID);
@@ -142,7 +145,13 @@ public class Album
     public void removePost(String postID)
     {
         m_WriteLock.lock();
-        m_PostIDs.remove(postID);
+        for (int i = 0; i < m_PostIDs.size(); i++) {
+            if (postID.equals(m_PostIDs.get(i))) {
+                m_PostIDs.remove(postID);
+                if (m_CurrPostIndex == i) m_ShouldUpdateTexture = true;
+                break;
+            }
+        }
         m_TimeModified = Timestamp.now();
         m_WriteLock.unlock();
 
@@ -181,32 +190,21 @@ public class Album
                 '}';
     }
 
-    public boolean ShouldUpdateTexture()
+    public boolean shouldUpdateTexture()
     {
-        m_ReadLock.lock();
-        if (m_PostIDs.size() == 1)
-        {
-            Post post = PostManager.getInstance().getPost(m_PostIDs.get(0));
-            m_ReadLock.unlock();
-            return post.m_Image != null;
-        }
-
         Post post = PostManager.getInstance().getPost(getCurrentPostID());
-        if (m_PendingPostUpdate.contains(m_CurrPostIndex) && post.m_Image != null)
+        if (m_PendingPostUpdate.contains(m_CurrPostIndex) && post != null && post.m_Image != null)
         {
             m_PendingPostUpdate.remove(m_CurrPostIndex);
-            m_ReadLock.unlock();
             return true;
         }
 
-        if (m_CurrPostIndex != m_PrevPostIndex)
-        {
-            m_PrevPostIndex = m_CurrPostIndex;
-            m_ReadLock.unlock();
-            return true;
+        if (m_ShouldUpdateTexture && (post == null || post.m_Image == null)) {
+            return false;
         }
-        m_ReadLock.unlock();
-        return true;
+        boolean shouldUpdate = m_ShouldUpdateTexture;
+        m_ShouldUpdateTexture = false;
+        return shouldUpdate;
     }
 
     public String getCurrentPostID()
@@ -225,6 +223,7 @@ public class Album
         m_ReadLock.lock();
         if (next) m_CurrPostIndex = mod(m_CurrPostIndex + 1, m_PostIDs.size());
         else m_CurrPostIndex = mod(m_CurrPostIndex - 1, m_PostIDs.size());
+        m_ShouldUpdateTexture = true;
 
         m_PostUpdateTimerTask.cancel();
         m_PostUpdateTimerTask = new PostUpdateIndexTask();
@@ -247,10 +246,12 @@ public class Album
             m_ReadLock.lock();
             if (m_PostIDs.isEmpty()) {
                 m_CurrPostIndex = 0;
+                m_ShouldUpdateTexture = true;
                 m_ReadLock.unlock();
                 return;
             }
             m_CurrPostIndex = mod(m_CurrPostIndex + 1, m_PostIDs.size());
+            m_ShouldUpdateTexture = true;
             m_ReadLock.unlock();
         }
     }

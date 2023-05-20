@@ -13,6 +13,7 @@ import com.firebase.geofire.GeoLocation;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
+import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.DocumentReference;
@@ -136,11 +137,13 @@ public class AlbumManager implements Runnable, GPSSensor.Listener
         FirebaseFirestore.getInstance().collection(AlbumConstants.COLLECTION_NAME).document(albumID).get().addOnSuccessListener(albumDoc -> {
             List<DocumentReference> postRefs = (List<DocumentReference>) albumDoc.get(AlbumConstants.POSTS);
             if (postRefs != null && postRefs.contains(postRef)) {
+                DocumentReference albumRef = albumDoc.getReference();
                 if (postRefs.size() != 1) {
-                    albumDoc.getReference().update(AlbumConstants.POSTS, FieldValue.arrayRemove(postRef));
+                    albumRef.update(AlbumConstants.POSTS, FieldValue.arrayRemove(postRef));
+                    albumRef.update(AlbumConstants.TIME_MODIFIED, Timestamp.now());
                 }
                 else {
-                    albumDoc.getReference().delete();
+                    albumRef.delete();
                 }
             }
         });
@@ -173,6 +176,15 @@ public class AlbumManager implements Runnable, GPSSensor.Listener
             });
         }
         m_QueryNearbyAlbumHandler.postDelayed(this, QueryConstants.QUERY_UPDATE_LOOP_INTERVAL);
+    }
+
+    public void onStop()
+    {
+        for (Album album : m_Albums.values()) {
+            if (album != null) {
+                album.m_PrevPostIndex = -1;
+            }
+        }
     }
 
     public void onPause()
@@ -211,6 +223,7 @@ public class AlbumManager implements Runnable, GPSSensor.Listener
     {
         if (!m_IsLocationInit) return null;
 
+        m_ReadLock.lock();
         double closestDist = Double.MAX_VALUE;
         Album closestAlbum = null;
         GeoLocation m_QueryLocation = new GeoLocation(m_QueryLat, m_QueryLon);
@@ -224,6 +237,7 @@ public class AlbumManager implements Runnable, GPSSensor.Listener
                 closestDist = distanceInM;
             }
         }
+        m_ReadLock.unlock();
         return closestAlbum;
     }
 }

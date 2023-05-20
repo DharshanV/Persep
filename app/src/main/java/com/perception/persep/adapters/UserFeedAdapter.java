@@ -51,7 +51,6 @@ public class UserFeedAdapter extends RecyclerView.Adapter<UserFeedAdapter.UserFe
     {
         void onComplete();
     }
-    private RefreshQueryCompleteListener m_RefreshListener = null;
 
     private final UserFeed_Fragment m_UserFeedFragment;
     private List<String> m_UserPostIDs = new ArrayList<>();
@@ -69,15 +68,12 @@ public class UserFeedAdapter extends RecyclerView.Adapter<UserFeedAdapter.UserFe
                 m_UserPostIDs.addAll(postIDs);
                 for(String postID : m_UserPostIDs) {
                     Post post = PostManager.getInstance().getPost(postID);
-                    m_PostModified.put(postID, post.m_TimeModified);
+                    if (post != null) {
+                        m_PostModified.put(postID, post.m_TimeModified);
+                    }
                 }
 
-                m_UserPostIDs.sort((o1, o2) -> {
-                    Post post1 = PostManager.getInstance().getPost(o1);
-                    Post post2 = PostManager.getInstance().getPost(o2);
-
-                    return post2.m_TimeCreated.compareTo(post1.m_TimeCreated);
-                });
+                sortUserPosts(m_UserPostIDs);
                 this.notifyDataSetChanged();
             });
         }
@@ -87,18 +83,16 @@ public class UserFeedAdapter extends RecyclerView.Adapter<UserFeedAdapter.UserFe
     {
         FirebaseUser loggedInUser = FirebaseAuth.getInstance().getCurrentUser();
         if (loggedInUser != null) {
-            listener.onComplete();
             PostManager.getInstance().queryUserPosts(loggedInUser.getUid(), postIDs -> {
                 listener.onComplete();
-
-                if (postIDs == null) return;
+                if (postIDs == null || postIDs.isEmpty()) return;
 
                 List<String> newPostsAdded = new ArrayList<>();
                 for (String postID : postIDs) {
                     int postIndex = getPostIndex(postID);
                     if (postIndex != -1) {
                         Post post = PostManager.getInstance().getPost(postID);
-                        if (post.m_TimeModified != m_PostModified.get(postID)) {
+                        if (post != null && post.m_TimeModified != m_PostModified.get(postID)) {
                             this.notifyItemChanged(postIndex, post.m_Likes);
                         }
                     }
@@ -108,12 +102,7 @@ public class UserFeedAdapter extends RecyclerView.Adapter<UserFeedAdapter.UserFe
                 }
 
                 if (!newPostsAdded.isEmpty()) {
-                    newPostsAdded.sort((o1, o2) -> {
-                        Post post1 = PostManager.getInstance().getPost(o1);
-                        Post post2 = PostManager.getInstance().getPost(o2);
-
-                        return post2.m_TimeCreated.compareTo(post1.m_TimeCreated);
-                    });
+                    sortUserPosts(newPostsAdded);
                     m_UserPostIDs.addAll(0, newPostsAdded);
                     this.notifyItemRangeInserted(0, newPostsAdded.size());
                 }
@@ -195,6 +184,18 @@ public class UserFeedAdapter extends RecyclerView.Adapter<UserFeedAdapter.UserFe
             if (post != null) {
                 m_UserFeedFragment.openGoogleMaps(post.m_GeoPoint.getLatitude(), post.m_GeoPoint.getLongitude());
             }
+        }
+    }
+
+    static private void sortUserPosts(List<String> postIDs)
+    {
+        if (postIDs != null) {
+            postIDs.sort((o1, o2) -> {
+                Post post1 = PostManager.getInstance().getPost(o1);
+                Post post2 = PostManager.getInstance().getPost(o2);
+
+                return post2.m_TimeCreated.compareTo(post1.m_TimeCreated);
+            });
         }
     }
 
