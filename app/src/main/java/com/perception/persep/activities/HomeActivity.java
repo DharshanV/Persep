@@ -36,8 +36,6 @@ public class HomeActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
 
-        UserManager.getInstance(getApplicationContext()).create();
-
         Display display = ((WindowManager) getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
         DEFAULT_DISPLAY_REFRESH_RATE = display.getRefreshRate();
 

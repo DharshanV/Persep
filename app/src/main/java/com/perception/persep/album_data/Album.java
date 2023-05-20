@@ -44,7 +44,6 @@ public class Album
     public final List<String> m_PostIDs = new ArrayList<>();
     public DocumentReference m_DocRef;
 
-    private Context m_Context;
     private final Set<Integer> m_PendingPostUpdate = new HashSet<>();
 
     private int m_CurrPostIndex = 0;
@@ -57,9 +56,8 @@ public class Album
     private final Lock m_WriteLock = m_ReadWriteLock.writeLock();
     private final Lock m_ReadLock = m_ReadWriteLock.writeLock();
 
-    public Album(Context context, double lat, double lon)
+    public Album(double lat, double lon)
     {
-        m_Context = context;
         m_GeoPoint = new GeoPoint(lat, lon);
         m_GeoHash = GeoFireUtils.getGeoHashForLocation(new GeoLocation(lat, lon));
         Timestamp now = Timestamp.now();
@@ -135,7 +133,7 @@ public class Album
 
     private void addPostServer(String postID)
     {
-        Post post = PostManager.getInstance(m_Context).getPost(postID);
+        Post post = PostManager.getInstance().getPost(postID);
         if (post != null) {
             m_DocRef.update(AlbumConstants.POSTS, FieldValue.arrayUnion(post.m_DocRef));
         }
@@ -148,7 +146,7 @@ public class Album
         m_TimeModified = Timestamp.now();
         m_WriteLock.unlock();
 
-        Post post = PostManager.getInstance(m_Context).removePost(postID);
+        Post post = PostManager.getInstance().removePost(postID);
         if (post != null) {
             WriteBatch batch = FirebaseFirestore.getInstance().batch();
             m_DocRef.update(AlbumConstants.TIME_MODIFIED, m_TimeModified);

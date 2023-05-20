@@ -132,7 +132,7 @@ public class VR_Fragment extends Fragment
 
         m_DataGathererManager.SetGyroscopeListener(m_VRRenderView);
         m_DataGathererManager.AddGPSListener(m_VRRenderView);
-        m_DataGathererManager.AddGPSListener(m_DataGathererManager.getAlbumManger());
+        m_DataGathererManager.AddGPSListener(AlbumManager.getInstance());
 //        m_DataGathererManager.SetAlbumListener(m_VRRenderView);
 
         if (forceStart)
@@ -273,7 +273,7 @@ public class VR_Fragment extends Fragment
                             FirebaseUser loggedInUser = FirebaseAuth.getInstance().getCurrentUser();
                             if (loggedInUser != null && m_DataGathererManager != null)
                             {
-                                m_DataGathererManager.AddPost(loggedInUser, croppedImageUri);
+                                AlbumManager.getInstance().tryAddPost(croppedImageUri);
                             } else
                             {
                                 Log.e(TAG, "Unable to find logged in user!");

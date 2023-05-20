@@ -49,8 +49,6 @@ public class AlbumManager implements Runnable, GPSSensor.Listener
 
     private static AlbumManager m_Instance = null;
 
-    private final Context m_Context;
-
     private final Map<String, Album> m_Albums = new HashMap<>();
 
     private double m_QueryLat = 0.0;
@@ -58,29 +56,22 @@ public class AlbumManager implements Runnable, GPSSensor.Listener
     private boolean m_IsLocationInit = false;
 
     private boolean m_IsQueryInProgress = false;
-    private final Handler m_QueryNearbyAlbumHandler;
+    private final Handler m_QueryNearbyAlbumHandler = new Handler();
     private final Stack<Uri> m_AddPostQueue = new Stack<>();
 
     private final ReadWriteLock m_ReadWriteLock = new ReentrantReadWriteLock();
     private final Lock m_WriteLock = m_ReadWriteLock.writeLock();
     private final Lock m_ReadLock = m_ReadWriteLock.writeLock();
 
-    private AlbumManager(Context context)
+    private AlbumManager()
     {
-        m_Context = context;
-        m_QueryNearbyAlbumHandler = new Handler();
-    }
-
-    public static synchronized AlbumManager getInstance(Context context)
-    {
-        if (m_Instance == null) {
-            m_Instance = new AlbumManager(context.getApplicationContext());
-        }
-        return m_Instance;
     }
 
     public static synchronized AlbumManager getInstance()
     {
+        if (m_Instance == null) {
+            m_Instance = new AlbumManager();
+        }
         return m_Instance;
     }
 
@@ -108,11 +99,11 @@ public class AlbumManager implements Runnable, GPSSensor.Listener
         m_WriteLock.lock();
         Album closestAlbum = getClosestLocalAlbum();
         if (closestAlbum == null) {
-            closestAlbum = new Album(m_Context, m_QueryLat, m_QueryLon);
+            closestAlbum = new Album(m_QueryLat, m_QueryLon);
             m_Albums.put(closestAlbum.m_AlbumID, closestAlbum);
         }
 
-        String postID = PostManager.getInstance(m_Context).addPost(postImageURI, closestAlbum.m_AlbumID, m_QueryLat, m_QueryLon);
+        String postID = PostManager.getInstance().addPost(postImageURI, closestAlbum.m_AlbumID, m_QueryLat, m_QueryLon);
         closestAlbum.addPost(postID);
         UserManager.getInstance().addPost(postID);
         m_WriteLock.unlock();

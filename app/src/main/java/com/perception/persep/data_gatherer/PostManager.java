@@ -33,7 +33,6 @@ public class PostManager
 
     private static PostManager m_Instance = null;
 
-    private final Context m_Context;
     private Map<String, Post> m_Posts = new HashMap<>();
 
     private final ReadWriteLock m_ReadWriteLock = new ReentrantReadWriteLock();
@@ -60,21 +59,15 @@ public class PostManager
         void onLikeUpdate(boolean successful);
     }
 
-    private PostManager(Context context)
+    private PostManager()
     {
-        m_Context = context;
-    }
-
-    public static synchronized PostManager getInstance(Context context)
-    {
-        if (m_Instance == null) {
-            m_Instance = new PostManager(context.getApplicationContext());
-        }
-        return m_Instance;
     }
 
     public static synchronized PostManager getInstance()
     {
+        if (m_Instance == null) {
+            m_Instance = new PostManager();
+        }
         return m_Instance;
     }
 

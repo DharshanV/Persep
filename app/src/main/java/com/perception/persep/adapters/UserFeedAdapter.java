@@ -63,7 +63,7 @@ public class UserFeedAdapter extends RecyclerView.Adapter<UserFeedAdapter.UserFe
         FirebaseUser loggedInUser = FirebaseAuth.getInstance().getCurrentUser();
         if (loggedInUser != null)
         {
-            PostManager.getInstance(m_UserFeedFragment.getContext().getApplicationContext()).queryUserPosts(loggedInUser.getUid(), postIDs -> {
+            PostManager.getInstance().queryUserPosts(loggedInUser.getUid(), postIDs -> {
                 if (postIDs == null || postIDs.isEmpty()) return;
 
                 m_UserPostIDs.addAll(postIDs);
@@ -88,7 +88,7 @@ public class UserFeedAdapter extends RecyclerView.Adapter<UserFeedAdapter.UserFe
         FirebaseUser loggedInUser = FirebaseAuth.getInstance().getCurrentUser();
         if (loggedInUser != null) {
             listener.onComplete();
-            PostManager.getInstance(m_UserFeedFragment.getContext().getApplicationContext()).queryUserPosts(loggedInUser.getUid(), postIDs -> {
+            PostManager.getInstance().queryUserPosts(loggedInUser.getUid(), postIDs -> {
                 listener.onComplete();
 
                 if (postIDs == null) return;

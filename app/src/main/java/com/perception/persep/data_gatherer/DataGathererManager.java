@@ -13,14 +13,12 @@ public class DataGathererManager
     private final RotationSensor m_RotationSensor;
     private final GPSSensor m_GPSSensor;
     private final AlbumManager m_AlbumManger;
-    private final PostManager m_PostManager;
 
     public DataGathererManager(Context context)
     {
         m_RotationSensor = new RotationSensor(context);
         m_GPSSensor = new GPSSensor(context);
-        m_AlbumManger = AlbumManager.getInstance(context);
-        m_PostManager = PostManager.getInstance(context);
+        m_AlbumManger = AlbumManager.getInstance();
     }
 
     public void onStart()
@@ -53,15 +51,5 @@ public class DataGathererManager
     public void AddGPSListener(GPSSensor.Listener listener)
     {
         m_GPSSensor.AddListener(listener);
-    }
-
-    public AlbumManager getAlbumManger()
-    {
-        return m_AlbumManger;
-    }
-
-    public void AddPost(FirebaseUser user, Uri imageUri)
-    {
-        m_AlbumManger.tryAddPost(imageUri);
     }
 }

@@ -16,40 +16,29 @@ public class UserManager
 {
     static private UserManager m_Instance = null;
 
-    private final Context m_Context;
     public DocumentReference m_DocRef;
 
-    private UserManager(Context context)
+    private UserManager()
     {
-        m_Context = context;
     }
 
-    static public synchronized UserManager getInstance(Context context)
+    static public synchronized UserManager getInstance()
     {
         if (m_Instance == null) {
-            m_Instance = new UserManager(context.getApplicationContext());
+            m_Instance = new UserManager();
+            FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
+            if (firebaseUser != null) {
+                m_Instance.m_DocRef = FirebaseFirestore.getInstance().collection(UserConstants.COLLECTION_NAME).document(firebaseUser.getUid());
+            }
         }
         return m_Instance;
-    }
-
-    static public UserManager getInstance()
-    {
-        return m_Instance;
-    }
-
-    public void create()
-    {
-        FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
-        if (firebaseUser != null) {
-            m_DocRef = FirebaseFirestore.getInstance().collection(UserConstants.COLLECTION_NAME).document(firebaseUser.getUid());
-        }
     }
 
     public void addPost(String postID)
     {
         FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
         if (firebaseUser != null) {
-            Post post = PostManager.getInstance(m_Context).getPost(postID);
+            Post post = PostManager.getInstance().getPost(postID);
             if (post != null) {
                 m_DocRef.update(UserConstants.POSTS, FieldValue.arrayUnion(post.m_DocRef));
             }
