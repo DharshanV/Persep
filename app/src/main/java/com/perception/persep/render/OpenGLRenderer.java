@@ -149,7 +149,7 @@ public class OpenGLRenderer
                 Matrix.rotateM(m_ModelMatrix, 0, (float) angle, 0, 1, 0);
 
                 // Scale the model based on distance
-                float scale = (float) (1.0 + 4 * Math.log10(length - 2));
+                float scale = (float) (1.0 + 2 * Math.log10(length - 2));
                 Matrix.scaleM(m_ModelMatrix, 0, scale, scale, scale);
                 System.arraycopy(m_ModelMatrix, 0, albumTransform, 0, m_ModelMatrix.length);
 

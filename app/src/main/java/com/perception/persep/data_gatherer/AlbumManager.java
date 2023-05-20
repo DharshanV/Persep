@@ -44,7 +44,7 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-public class AlbumManager implements Runnable, GPSSensor.Listener
+public class AlbumManager implements Runnable, GPSSensor.Listener, BearingSensor.BearingSensorListener
 {
     private static final String TAG = "AlbumManager";
 
@@ -55,6 +55,7 @@ public class AlbumManager implements Runnable, GPSSensor.Listener
     private double m_QueryLat = 0.0;
     private double m_QueryLon = 0.0;
     private boolean m_IsLocationInit = false;
+    private int m_Azimuth = 0;
 
     private boolean m_IsQueryInProgress = false;
     private final Handler m_QueryNearbyAlbumHandler = new Handler();
@@ -97,14 +98,15 @@ public class AlbumManager implements Runnable, GPSSensor.Listener
 
     private void addPost(Uri postImageURI)
     {
+        GeoLocation offsetLocation = offsetAlbumLocation(new GeoLocation(m_QueryLat, m_QueryLon), 10, m_Azimuth);
         m_WriteLock.lock();
         Album closestAlbum = getClosestLocalAlbum();
         if (closestAlbum == null) {
-            closestAlbum = new Album(m_QueryLat, m_QueryLon);
+            closestAlbum = new Album(offsetLocation.latitude, offsetLocation.longitude);
             m_Albums.put(closestAlbum.m_AlbumID, closestAlbum);
         }
 
-        String postID = PostManager.getInstance().addPost(postImageURI, closestAlbum.m_AlbumID, m_QueryLat, m_QueryLon);
+        String postID = PostManager.getInstance().addPost(postImageURI, closestAlbum.m_AlbumID, offsetLocation.latitude, offsetLocation.longitude);
         closestAlbum.addPost(postID);
         UserManager.getInstance().addPost(postID);
         m_WriteLock.unlock();
@@ -239,5 +241,24 @@ public class AlbumManager implements Runnable, GPSSensor.Listener
         }
         m_ReadLock.unlock();
         return closestAlbum;
+    }
+
+    public static GeoLocation offsetAlbumLocation(GeoLocation center, int distance, double bearing)
+    {
+        final double R = 6371e3;
+
+        double lat1 = Math.toRadians(center.latitude);
+        double lon1 = Math.toRadians(center.longitude);
+        double radbear = Math.toRadians(bearing);
+
+        double lat2 = Math.asin( Math.sin(lat1)*Math.cos(distance / R) + Math.cos(lat1)*Math.sin(distance/R)*Math.cos(radbear));
+        double lon2 = lon1 + Math.atan2(Math.sin(radbear)*Math.sin(distance / R) * Math.cos(lat1), Math.cos(distance/R)-Math.sin(lat1)*Math.sin(lat2));
+        return new GeoLocation(Math.toDegrees(lat2), Math.toDegrees(lon2));
+    }
+
+    @Override
+    public void onBearingSensorAngleChanged(int azimuth)
+    {
+        m_Azimuth = azimuth;
     }
 }

@@ -13,18 +13,21 @@ public class DataGathererManager
     private final RotationSensor m_RotationSensor;
     private final GPSSensor m_GPSSensor;
     private final AlbumManager m_AlbumManger;
+    private final BearingSensor m_BearingSensor;
 
     public DataGathererManager(Context context)
     {
         m_RotationSensor = new RotationSensor(context);
         m_GPSSensor = new GPSSensor(context);
         m_AlbumManger = AlbumManager.getInstance();
+        m_BearingSensor = new BearingSensor(context);
     }
 
     public void onStart()
     {
         m_GPSSensor.RegisterSensor();
         m_RotationSensor.RegisterSensor();
+        m_BearingSensor.start();
     }
 
     public void onStop()
@@ -32,6 +35,7 @@ public class DataGathererManager
         m_RotationSensor.UnregisterSensor();
         m_GPSSensor.UnregisterSensor();
         m_AlbumManger.onStop();
+        m_BearingSensor.stop();
     }
 
     public void onResume()
@@ -47,6 +51,11 @@ public class DataGathererManager
     public void SetGyroscopeListener(RotationSensor.Listener listener)
     {
         m_RotationSensor.AddListener(listener);
+    }
+
+    public void AddBearingListener(BearingSensor.BearingSensorListener listener)
+    {
+        m_BearingSensor.addListener(listener);
     }
 
     public void AddGPSListener(GPSSensor.Listener listener)
