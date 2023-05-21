@@ -25,11 +25,13 @@ import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.GeoPoint;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.perception.persep.activities.HomeActivity;
 import com.perception.persep.album_data.Album;
 import com.perception.persep.album_data.Post;
 import com.perception.persep.constants.AlbumConstants;
 import com.perception.persep.constants.PostConstants;
 import com.perception.persep.constants.QueryConstants;
+import com.perception.persep.enums.AlbumError;
 import com.perception.persep.firebase_helpers.FirebaseQueries;
 import com.perception.persep.firebase_helpers.FirebaseUpdates;
 
@@ -134,6 +136,17 @@ public class AlbumManager implements Runnable, GPSSensor.Listener, BearingSensor
         m_WriteLock.unlock();
     }
 
+    private void removeAlbum(String albumID)
+    {
+        m_WriteLock.lock();
+        Album album = m_Albums.get(albumID);
+        if (album != null) {
+            album.remove();
+        }
+        m_Albums.remove(albumID);
+        m_WriteLock.unlock();
+    }
+
     private void removeServerAlbumPost(String albumID, DocumentReference postRef)
     {
         FirebaseFirestore.getInstance().collection(AlbumConstants.COLLECTION_NAME).document(albumID).get().addOnSuccessListener(albumDoc -> {
@@ -202,6 +215,27 @@ public class AlbumManager implements Runnable, GPSSensor.Listener, BearingSensor
     public void readUnlock()
     {
         m_ReadLock.unlock();
+    }
+
+    public void onAlbumError(String albumID, String postID, AlbumError error)
+    {
+        switch (error)
+        {
+            case SET_DOCUMENT_REF:
+            case CREATE_DOCUMENT_SNAPSHOT:
+                showToast("Error occurred creating album.");
+                removeAlbum(albumID);
+                break;
+            case UPDATE_POSTS:
+                showToast("Unable to update album post's. Try again later.");
+                removePost(postID);
+                break;
+        }
+    }
+
+    private void showToast(String message)
+    {
+        Toast.makeText(HomeActivity.getHomeActivityContext(), message, Toast.LENGTH_SHORT).show();
     }
 
     @Override

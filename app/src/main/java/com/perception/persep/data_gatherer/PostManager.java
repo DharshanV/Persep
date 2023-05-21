@@ -104,6 +104,9 @@ public class PostManager
             m_Posts.put(postID, new Post(postDoc));
             m_WriteLock.unlock();
             listener.onPostAdded(true, "", postID);
+        }).addOnFailureListener(e -> {
+            listener.onPostAdded(false, "", postRef.getId());
+            onPostError(postRef.getId(), PostError.GET_DOCUMENT_REF);
         });
     }
 
@@ -162,6 +165,7 @@ public class PostManager
             case UPDATE_IMAGE_URI:
                 showToast("Unable to create post. Try again later.");
                 break;
+            case GET_DOCUMENT_REF:
             case CREATE_DOCUMENT_SNAPSHOT:
                 showToast("Unable to retrieve post: " + postID);
                 break;

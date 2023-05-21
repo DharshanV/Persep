@@ -19,7 +19,9 @@ import com.google.firebase.firestore.GeoPoint;
 import com.google.firebase.firestore.WriteBatch;
 import com.perception.persep.constants.AlbumConstants;
 import com.perception.persep.constants.PostConstants;
+import com.perception.persep.data_gatherer.AlbumManager;
 import com.perception.persep.data_gatherer.PostManager;
+import com.perception.persep.enums.AlbumError;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -47,7 +49,6 @@ public class Album
     private final Set<Integer> m_PendingPostUpdate = new HashSet<>();
 
     private int m_CurrPostIndex = 0;
-    public int m_PrevPostIndex = 0;
     private boolean m_ShouldUpdateTexture = false;
     private final Timer m_UpdatePostTimer;
     private PostUpdateIndexTask m_PostUpdateTimerTask;
@@ -81,29 +82,36 @@ public class Album
         albumData.put(AlbumConstants.POSTS, Collections.emptyList());
         albumData.put(AlbumConstants.TIME_CREATED, m_TimeCreated);
         albumData.put(AlbumConstants.TIME_MODIFIED, m_TimeModified);
-        m_DocRef.set(albumData);
+        m_DocRef.set(albumData).addOnFailureListener(e -> AlbumManager.getInstance().onAlbumError(m_AlbumID, null, AlbumError.SET_DOCUMENT_REF));
     }
 
     public Album(DocumentSnapshot albumDoc)
     {
         m_AlbumID = albumDoc.getId();
-        m_GeoPoint = (GeoPoint) albumDoc.get(AlbumConstants.GEO_POINT);
-        m_GeoHash = (String) albumDoc.get(AlbumConstants.GEO_HASH);
-        m_TimeCreated = (Timestamp) albumDoc.get(AlbumConstants.TIME_CREATED);
-        m_TimeModified = (Timestamp) albumDoc.get(AlbumConstants.TIME_MODIFIED);
         m_DocRef = albumDoc.getReference();
 
-        List<DocumentReference> postRefs = (List<DocumentReference>) albumDoc.get(AlbumConstants.POSTS);
-        if (postRefs != null) {
+        try
+        {
+            m_GeoPoint = (GeoPoint) albumDoc.get(AlbumConstants.GEO_POINT);
+            m_GeoHash = (String) albumDoc.get(AlbumConstants.GEO_HASH);
+            m_TimeCreated = (Timestamp) albumDoc.get(AlbumConstants.TIME_CREATED);
+            m_TimeModified = (Timestamp) albumDoc.get(AlbumConstants.TIME_MODIFIED);
+
+            List<DocumentReference> postRefs = (List<DocumentReference>) albumDoc.get(AlbumConstants.POSTS);
             for (DocumentReference postRef : postRefs)
             {
                 PostManager.getInstance().addPost(postRef, (success, message, postID) -> {
-                    m_WriteLock.lock();
-                    m_PostIDs.add(postID);
-                    m_PendingPostUpdate.add(m_PostIDs.size() - 1);
-                    m_WriteLock.unlock();
+                    if (success) {
+                        m_WriteLock.lock();
+                        m_PostIDs.add(postID);
+                        m_PendingPostUpdate.add(m_PostIDs.size() - 1);
+                        m_WriteLock.unlock();
+                    }
                 });
             }
+        }
+        catch (NullPointerException e) {
+            AlbumManager.getInstance().onAlbumError(m_AlbumID, null, AlbumError.CREATE_DOCUMENT_SNAPSHOT);
         }
 
         m_UpdatePostTimer = new Timer();
@@ -121,6 +129,9 @@ public class Album
             }
         }
         m_ReadLock.unlock();
+        m_WriteLock.lock();
+        m_PostIDs.clear();
+        m_WriteLock.unlock();
         m_DocRef.delete();
     }
 
@@ -138,7 +149,8 @@ public class Album
     {
         Post post = PostManager.getInstance().getPost(postID);
         if (post != null) {
-            m_DocRef.update(AlbumConstants.POSTS, FieldValue.arrayUnion(post.m_DocRef));
+            m_DocRef.update(AlbumConstants.POSTS, FieldValue.arrayUnion(post.m_DocRef))
+                    .addOnFailureListener(e -> AlbumManager.getInstance().onAlbumError(m_AlbumID, postID, AlbumError.UPDATE_POSTS));
         }
     }
 
