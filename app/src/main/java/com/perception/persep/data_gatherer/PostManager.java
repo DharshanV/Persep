@@ -1,6 +1,11 @@
 package com.perception.persep.data_gatherer;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.Rect;
 import android.net.Uri;
 import android.util.Log;
 
@@ -38,6 +43,8 @@ public class PostManager
     private final ReadWriteLock m_ReadWriteLock = new ReentrantReadWriteLock();
     private final Lock m_WriteLock = m_ReadWriteLock.writeLock();
     private final Lock m_ReadLock = m_ReadWriteLock.writeLock();
+
+    private Bitmap m_PostLoadingImage;
 
     public interface AddPostListener
     {
@@ -141,5 +148,36 @@ public class PostManager
                 listener.onQuery(postIDs);
             }).addOnFailureListener(Exception::printStackTrace);
         }).addOnFailureListener(Exception::printStackTrace);
+    }
+
+    public void createPostLoadingImage()
+    {
+        m_PostLoadingImage = Bitmap.createBitmap(1280, 720, Bitmap.Config.ARGB_4444);
+        m_PostLoadingImage.eraseColor(Color.parseColor("#e6e6e6"));
+
+        Paint textPaint = new Paint();
+        textPaint.setTextSize(56);
+        textPaint.setAntiAlias(true);
+        textPaint.setARGB(255,0,0,0);
+
+        Canvas canvas = new Canvas(m_PostLoadingImage);
+        drawCenter(canvas, textPaint, "Loading...");
+    }
+
+    private void drawCenter(Canvas canvas, Paint paint, String text) {
+        Rect r = new Rect();
+        canvas.getClipBounds(r);
+        int cHeight = r.height();
+        int cWidth = r.width();
+        paint.setTextAlign(Paint.Align.LEFT);
+        paint.getTextBounds(text, 0, text.length(), r);
+        float x = cWidth / 2f - r.width() / 2f - r.left;
+        float y = cHeight / 2f + r.height() / 2f - r.bottom;
+        canvas.drawText(text, x, y, paint);
+    }
+
+    public Bitmap getPostLoadingImage()
+    {
+        return m_PostLoadingImage;
     }
 }

@@ -73,10 +73,8 @@ public class Post implements Target
         Timestamp now = Timestamp.now();
         m_TimeCreated = now;
         m_TimeModified = now;
+        m_Image = PostManager.getInstance().getPostLoadingImage();
         createPostServer();
-
-        Log.d(PostLoadImage, "Loading image to post: " + m_ImageURI);
-        Picasso.get().load(m_ImageURI).resize(PostConstants.IMAGE_WIDTH, PostConstants.IMAGE_HEIGHT).noFade().into(this);
     }
 
     private void createPostServer()
@@ -100,6 +98,7 @@ public class Post implements Target
         postImageRef.putFile(m_ImageURI).addOnSuccessListener(taskSnapshot -> {
             postImageRef.getDownloadUrl().addOnSuccessListener(uri -> {
                 m_ImageURI = uri;
+                Picasso.get().load(m_ImageURI).resize(PostConstants.IMAGE_WIDTH, PostConstants.IMAGE_HEIGHT).noFade().into(this);
                 m_DocRef.update(PostConstants.IMAGE_URI, uri).addOnFailureListener(Exception::printStackTrace);
             }).addOnFailureListener(Exception::printStackTrace);
         }).addOnFailureListener(Exception::printStackTrace);
@@ -118,6 +117,7 @@ public class Post implements Target
         m_TimeCreated = (Timestamp) postDoc.get(PostConstants.TIME_CREATED);
         m_TimeModified = (Timestamp) postDoc.get(PostConstants.TIME_MODIFIED);
         m_DocRef = postDoc.getReference();
+        m_Image = PostManager.getInstance().getPostLoadingImage();
 
         Log.d(PostLoadImage, "Loading image to post: " + m_ImageURI);
         Picasso.get().load(m_ImageURI).resize(PostConstants.IMAGE_WIDTH, PostConstants.IMAGE_HEIGHT).noFade().into(this);
@@ -132,11 +132,10 @@ public class Post implements Target
 
     public void loadInto(ImageView imageView)
     {
-        if (m_IsImageLoaded) {
-            imageView.setImageBitmap(m_Image);
-            return;
+        imageView.setImageBitmap(m_Image);
+        if (!m_IsImageLoaded) {
+            m_LoadIntoViews.add(imageView);
         }
-        m_LoadIntoViews.add(imageView);
     }
 
     public void like(PostManager.PostLikeListener listener)
@@ -165,7 +164,7 @@ public class Post implements Target
         m_Image = bitmap;
 
         while (!m_LoadIntoViews.empty()) {
-            loadInto(m_LoadIntoViews.pop());
+            m_LoadIntoViews.pop().setImageBitmap(m_Image);
         }
     }
 

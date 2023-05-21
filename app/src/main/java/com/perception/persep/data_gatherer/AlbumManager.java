@@ -182,11 +182,6 @@ public class AlbumManager implements Runnable, GPSSensor.Listener, BearingSensor
 
     public void onStop()
     {
-        for (Album album : m_Albums.values()) {
-            if (album != null) {
-                album.m_PrevPostIndex = -1;
-            }
-        }
     }
 
     public void onPause()

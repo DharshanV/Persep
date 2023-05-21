@@ -51,7 +51,7 @@ public class Album
     private boolean m_ShouldUpdateTexture = false;
     private final Timer m_UpdatePostTimer;
     private PostUpdateIndexTask m_PostUpdateTimerTask;
-    private final int TASK_START_DELAY = 1000; // 5 secs
+    private final int TASK_START_DELAY = 5000; // 5 secs
 
     private final ReadWriteLock m_ReadWriteLock = new ReentrantReadWriteLock();
     private final Lock m_WriteLock = m_ReadWriteLock.writeLock();
@@ -192,16 +192,15 @@ public class Album
 
     public boolean shouldUpdateTexture()
     {
-        Post post = PostManager.getInstance().getPost(getCurrentPostID());
-        if (m_PendingPostUpdate.contains(m_CurrPostIndex) && post != null && post.m_Image != null)
+        if (m_PendingPostUpdate.contains(m_CurrPostIndex))
         {
-            m_PendingPostUpdate.remove(m_CurrPostIndex);
+            Post post = PostManager.getInstance().getPost(getCurrentPostID());
+            if (post != null && post.m_IsImageLoaded) {
+                m_PendingPostUpdate.remove(m_CurrPostIndex);
+            }
             return true;
         }
 
-        if (m_ShouldUpdateTexture && (post == null || post.m_Image == null)) {
-            return false;
-        }
         boolean shouldUpdate = m_ShouldUpdateTexture;
         m_ShouldUpdateTexture = false;
         return shouldUpdate;

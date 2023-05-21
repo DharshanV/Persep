@@ -21,6 +21,7 @@ public class DataGathererManager
         m_GPSSensor = new GPSSensor(context);
         m_AlbumManger = AlbumManager.getInstance();
         m_BearingSensor = new BearingSensor(context);
+        PostManager.getInstance().createPostLoadingImage();
     }
 
     public void onStart()

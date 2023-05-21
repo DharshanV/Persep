@@ -122,7 +122,7 @@ public class OpenGLRenderer
                 int albumTextureID = m_AlbumTextureIDs[index];
                 float[] albumTransform = m_AlbumTransforms[index];
 
-                if (album.shouldUpdateTexture() && post.m_Image != null) {
+                if (album.shouldUpdateTexture()) {
                     m_AlbumModel.UpdateSurfaceTexture(albumTextureID, post.m_Image);
                 }
 
