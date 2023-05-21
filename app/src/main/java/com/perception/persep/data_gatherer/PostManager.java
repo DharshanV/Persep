@@ -45,7 +45,7 @@ public class PostManager
 
     private final ReadWriteLock m_ReadWriteLock = new ReentrantReadWriteLock();
     private final Lock m_WriteLock = m_ReadWriteLock.writeLock();
-    private final Lock m_ReadLock = m_ReadWriteLock.writeLock();
+    private final Lock m_ReadLock = m_ReadWriteLock.readLock();
 
     private Bitmap m_PostLoadingImage;
 
@@ -123,7 +123,10 @@ public class PostManager
 
     public Post getPost(String postID)
     {
-        return m_Posts.get(postID);
+        m_ReadLock.lock();
+        Post post = m_Posts.get(postID);
+        m_ReadLock.unlock();
+        return post;
     }
 
     public void queryUserPosts(String userID, QueryUserPostListener listener)

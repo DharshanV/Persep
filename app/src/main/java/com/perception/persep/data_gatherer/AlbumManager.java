@@ -65,7 +65,7 @@ public class AlbumManager implements Runnable, GPSSensor.Listener, BearingSensor
 
     private final ReadWriteLock m_ReadWriteLock = new ReentrantReadWriteLock();
     private final Lock m_WriteLock = m_ReadWriteLock.writeLock();
-    private final Lock m_ReadLock = m_ReadWriteLock.writeLock();
+    private final Lock m_ReadLock = m_ReadWriteLock.readLock();
 
     private AlbumManager()
     {
@@ -81,12 +81,18 @@ public class AlbumManager implements Runnable, GPSSensor.Listener, BearingSensor
 
     public Album getAlbum(String albumID)
     {
-        return m_Albums.get(albumID);
+        m_ReadLock.lock();
+        Album album = m_Albums.get(albumID);
+        m_ReadLock.unlock();
+        return album;
     }
 
     public Collection<Album> getAlbums()
     {
-        return m_Albums.values();
+        m_ReadLock.lock();
+        Collection<Album> albums = m_Albums.values();
+        m_ReadLock.unlock();
+        return albums;
     }
 
     public void tryAddPost(Uri postImageURI)
