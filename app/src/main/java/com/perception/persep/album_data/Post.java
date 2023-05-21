@@ -10,10 +10,7 @@ import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
 
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.Timestamp;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
@@ -22,20 +19,16 @@ import com.google.firebase.firestore.GeoPoint;
 import com.google.firebase.firestore.WriteBatch;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
-import com.google.firebase.storage.UploadTask;
 import com.perception.persep.activities.HomeActivity;
-import com.perception.persep.constants.AlbumConstants;
 import com.perception.persep.constants.PostConstants;
 import com.perception.persep.data_gatherer.PostManager;
 import com.perception.persep.data_gatherer.UserManager;
-import com.perception.persep.firebase_helpers.FirebaseUpdates;
+import com.perception.persep.enums.PostError;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -59,8 +52,7 @@ public class Post implements Target
     public DocumentReference m_DocRef;
 
     public boolean m_IsImageLoaded = false;
-    private PostManager.AddPostListener m_RemovePostListener = null;
-    private Stack<ImageView> m_LoadIntoViews = new Stack<>();
+    private final Stack<ImageView> m_LoadIntoViews = new Stack<>();
 
     public Post(Uri postImageURI, String albumID, double lat, double lon)
     {
@@ -92,48 +84,55 @@ public class Post implements Target
         Timestamp now = Timestamp.now();
         postData.put(PostConstants.TIME_CREATED, now);
         postData.put(PostConstants.TIME_MODIFIED, now);
-        m_DocRef.set(postData);
+        m_DocRef.set(postData).addOnFailureListener(e -> PostManager.getInstance().onPostError(m_PostID, PostError.SET_DOCUMENT_REF));
 
         StorageReference postImageRef = FirebaseStorage.getInstance().getReference().child("images/" + UUID.randomUUID().toString() + ".jpg");
         postImageRef.putFile(m_ImageURI).addOnSuccessListener(taskSnapshot -> {
             postImageRef.getDownloadUrl().addOnSuccessListener(uri -> {
                 m_ImageURI = uri;
                 Picasso.get().load(m_ImageURI).resize(PostConstants.IMAGE_WIDTH, PostConstants.IMAGE_HEIGHT).noFade().into(this);
-                m_DocRef.update(PostConstants.IMAGE_URI, uri).addOnFailureListener(Exception::printStackTrace);
-            }).addOnFailureListener(Exception::printStackTrace);
-        }).addOnFailureListener(Exception::printStackTrace);
+                m_DocRef.update(PostConstants.IMAGE_URI, m_ImageURI).addOnFailureListener(e -> PostManager.getInstance().onPostError(m_PostID, PostError.UPDATE_IMAGE_URI));
+            }).addOnFailureListener(e -> PostManager.getInstance().onPostError(m_PostID, PostError.PUT_FILE_STORAGE_REF));
+        }).addOnFailureListener(e -> PostManager.getInstance().onPostError(m_PostID, PostError.PUT_FILE_STORAGE_REF));
     }
 
     public Post(DocumentSnapshot postDoc)
     {
-        // TODO: fix there is an error uploading image and IMAGE_URI is null
         m_PostID = postDoc.getId();
-        m_AlbumID = (String) postDoc.get(PostConstants.ALBUM_ID);
-        m_ImageURI = Uri.parse((String)postDoc.get(PostConstants.IMAGE_URI));
-        m_Likes = (long) postDoc.get(PostConstants.LIKES);
-        m_UsersLiked = new ArrayList<>((List<DocumentReference>) postDoc.get(PostConstants.USERS_LIKED));
-        m_GeoPoint = (GeoPoint) postDoc.get(PostConstants.GEO_POINT);
-        m_GeoLocation = (String) postDoc.get(PostConstants.GEO_LOCATION);
-        m_TimeCreated = (Timestamp) postDoc.get(PostConstants.TIME_CREATED);
-        m_TimeModified = (Timestamp) postDoc.get(PostConstants.TIME_MODIFIED);
-        m_DocRef = postDoc.getReference();
         m_Image = PostManager.getInstance().getPostLoadingImage();
+        m_DocRef = postDoc.getReference();
 
-        Log.d(PostLoadImage, "Loading image to post: " + m_ImageURI);
-        Picasso.get().load(m_ImageURI).resize(PostConstants.IMAGE_WIDTH, PostConstants.IMAGE_HEIGHT).noFade().into(this);
+        try
+        {
+            m_AlbumID = (String) postDoc.get(PostConstants.ALBUM_ID);
+            m_ImageURI = Uri.parse((String) postDoc.get(PostConstants.IMAGE_URI));
+            m_Likes = (long) postDoc.get(PostConstants.LIKES);
+            m_UsersLiked = new ArrayList<>((List<DocumentReference>) postDoc.get(PostConstants.USERS_LIKED));
+            m_GeoPoint = (GeoPoint) postDoc.get(PostConstants.GEO_POINT);
+            m_GeoLocation = (String) postDoc.get(PostConstants.GEO_LOCATION);
+            m_TimeCreated = (Timestamp) postDoc.get(PostConstants.TIME_CREATED);
+            m_TimeModified = (Timestamp) postDoc.get(PostConstants.TIME_MODIFIED);
+
+            Picasso.get().load(m_ImageURI).resize(PostConstants.IMAGE_WIDTH, PostConstants.IMAGE_HEIGHT).noFade().into(this);
+        } catch (NullPointerException e)
+        {
+            PostManager.getInstance().onPostError(m_PostID, PostError.CREATE_DOCUMENT_SNAPSHOT);
+        }
     }
 
     public void remove()
     {
         StorageReference postImageRef = FirebaseStorage.getInstance().getReferenceFromUrl(m_ImageURI.toString());
         postImageRef.delete();
+        m_Image = null;
         m_DocRef.delete();
     }
 
     public void loadInto(ImageView imageView)
     {
         imageView.setImageBitmap(m_Image);
-        if (!m_IsImageLoaded) {
+        if (!m_IsImageLoaded)
+        {
             m_LoadIntoViews.add(imageView);
         }
     }
@@ -141,7 +140,8 @@ public class Post implements Target
     public void like(PostManager.PostLikeListener listener)
     {
         DocumentReference userRef = UserManager.getInstance().m_DocRef;
-        if (userRef == null || m_UsersLiked.contains(userRef)) {
+        if (userRef == null || m_UsersLiked.contains(userRef))
+        {
             return;
         }
 
@@ -163,7 +163,8 @@ public class Post implements Target
         m_IsImageLoaded = true;
         m_Image = bitmap;
 
-        while (!m_LoadIntoViews.empty()) {
+        while (!m_LoadIntoViews.empty())
+        {
             m_LoadIntoViews.pop().setImageBitmap(m_Image);
         }
     }

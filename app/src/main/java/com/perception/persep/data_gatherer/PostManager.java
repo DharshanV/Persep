@@ -8,6 +8,7 @@ import android.graphics.Paint;
 import android.graphics.Rect;
 import android.net.Uri;
 import android.util.Log;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
@@ -20,8 +21,10 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
+import com.perception.persep.activities.HomeActivity;
 import com.perception.persep.album_data.Post;
 import com.perception.persep.constants.UserConstants;
+import com.perception.persep.enums.PostError;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -148,6 +151,27 @@ public class PostManager
                 listener.onQuery(postIDs);
             }).addOnFailureListener(Exception::printStackTrace);
         }).addOnFailureListener(Exception::printStackTrace);
+    }
+
+    public void onPostError(String postID, PostError error)
+    {
+        switch (error)
+        {
+            case SET_DOCUMENT_REF:
+            case PUT_FILE_STORAGE_REF:
+            case UPDATE_IMAGE_URI:
+                showToast("Unable to create post. Try again later.");
+                break;
+            case CREATE_DOCUMENT_SNAPSHOT:
+                showToast("Unable to retrieve post: " + postID);
+                break;
+        }
+        AlbumManager.getInstance().removePost(postID);
+    }
+
+    private void showToast(String message)
+    {
+        Toast.makeText(HomeActivity.getHomeActivityContext(), message, Toast.LENGTH_SHORT).show();
     }
 
     public void createPostLoadingImage()
