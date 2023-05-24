@@ -101,9 +101,13 @@ public class PostManager
         postRef.get().addOnSuccessListener(postDoc -> {
             String postID = postDoc.getId();
             m_WriteLock.lock();
-            m_Posts.put(postID, new Post(postDoc));
+            try {
+                m_Posts.put(postID, new Post(postDoc));
+                listener.onPostAdded(true, "", postID);
+            } catch (NullPointerException ignored) {
+                listener.onPostAdded(false, "", postID);
+            }
             m_WriteLock.unlock();
-            listener.onPostAdded(true, "", postID);
         }).addOnFailureListener(e -> {
             listener.onPostAdded(false, "", postRef.getId());
             onPostError(postRef.getId(), PostError.GET_DOCUMENT_REF);
@@ -149,10 +153,16 @@ public class PostManager
                     String postID = postDoc.getId();
                     m_WriteLock.lock();
                     if (!m_Posts.containsKey(postID)) {
-                        m_Posts.put(postID, new Post(postDoc));
+                        try {
+                            m_Posts.put(postID, new Post(postDoc));
+                        } catch (NullPointerException ignored) {
+                        }
+                    }
+                    Post post = m_Posts.get(postID);
+                    if (post != null) {
+                        postIDs.add(postID);
                     }
                     m_WriteLock.unlock();
-                    postIDs.add(postID);
                 }
                 listener.onQuery(postIDs);
             }).addOnFailureListener(Exception::printStackTrace);
@@ -173,7 +183,6 @@ public class PostManager
                 showToast("Unable to retrieve post: " + postID);
                 break;
         }
-        AlbumManager.getInstance().removePost(postID);
     }
 
     private void showToast(String message)

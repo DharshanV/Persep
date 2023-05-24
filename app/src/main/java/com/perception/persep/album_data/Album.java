@@ -107,6 +107,9 @@ public class Album
                         m_PendingPostUpdate.add(m_PostIDs.size() - 1);
                         m_WriteLock.unlock();
                     }
+                    else {
+                        AlbumManager.getInstance().removePost(m_AlbumID, postRef);
+                    }
                 });
             }
         }

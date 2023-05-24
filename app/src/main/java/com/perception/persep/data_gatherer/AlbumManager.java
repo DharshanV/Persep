@@ -142,6 +142,11 @@ public class AlbumManager implements Runnable, GPSSensor.Listener, BearingSensor
         m_WriteLock.unlock();
     }
 
+    public void removePost(String albumID, DocumentReference postRef)
+    {
+        removeServerAlbumPost(albumID, postRef);
+    }
+
     private void removeAlbum(String albumID)
     {
         m_WriteLock.lock();

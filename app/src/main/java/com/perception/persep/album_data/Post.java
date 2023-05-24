@@ -96,28 +96,22 @@ public class Post implements Target
         }).addOnFailureListener(e -> PostManager.getInstance().onPostError(m_PostID, PostError.PUT_FILE_STORAGE_REF));
     }
 
-    public Post(DocumentSnapshot postDoc)
+    public Post(DocumentSnapshot postDoc) throws NullPointerException
     {
         m_PostID = postDoc.getId();
         m_Image = PostManager.getInstance().getPostLoadingImage();
         m_DocRef = postDoc.getReference();
 
-        try
-        {
-            m_AlbumID = (String) postDoc.get(PostConstants.ALBUM_ID);
-            m_ImageURI = Uri.parse((String) postDoc.get(PostConstants.IMAGE_URI));
-            m_Likes = (long) postDoc.get(PostConstants.LIKES);
-            m_UsersLiked = new ArrayList<>((List<DocumentReference>) postDoc.get(PostConstants.USERS_LIKED));
-            m_GeoPoint = (GeoPoint) postDoc.get(PostConstants.GEO_POINT);
-            m_GeoLocation = (String) postDoc.get(PostConstants.GEO_LOCATION);
-            m_TimeCreated = (Timestamp) postDoc.get(PostConstants.TIME_CREATED);
-            m_TimeModified = (Timestamp) postDoc.get(PostConstants.TIME_MODIFIED);
+        m_AlbumID = (String) postDoc.get(PostConstants.ALBUM_ID);
+        m_ImageURI = Uri.parse((String) postDoc.get(PostConstants.IMAGE_URI));
+        m_Likes = (long) postDoc.get(PostConstants.LIKES);
+        m_UsersLiked = new ArrayList<>((List<DocumentReference>) postDoc.get(PostConstants.USERS_LIKED));
+        m_GeoPoint = (GeoPoint) postDoc.get(PostConstants.GEO_POINT);
+        m_GeoLocation = (String) postDoc.get(PostConstants.GEO_LOCATION);
+        m_TimeCreated = (Timestamp) postDoc.get(PostConstants.TIME_CREATED);
+        m_TimeModified = (Timestamp) postDoc.get(PostConstants.TIME_MODIFIED);
 
-            Picasso.get().load(m_ImageURI).resize(PostConstants.IMAGE_WIDTH, PostConstants.IMAGE_HEIGHT).noFade().into(this);
-        } catch (NullPointerException e)
-        {
-            PostManager.getInstance().onPostError(m_PostID, PostError.CREATE_DOCUMENT_SNAPSHOT);
-        }
+        Picasso.get().load(m_ImageURI).resize(PostConstants.IMAGE_WIDTH, PostConstants.IMAGE_HEIGHT).noFade().into(this);
     }
 
     public void remove()
