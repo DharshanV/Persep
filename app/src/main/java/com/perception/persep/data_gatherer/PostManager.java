@@ -23,6 +23,7 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.perception.persep.activities.HomeActivity;
 import com.perception.persep.album_data.Post;
+import com.perception.persep.constants.PostConstants;
 import com.perception.persep.constants.UserConstants;
 import com.perception.persep.enums.PostError;
 
@@ -92,12 +93,14 @@ public class PostManager
 
     public void addPost(DocumentReference postRef, AddPostListener listener)
     {
+        m_ReadLock.lock();
         for(Map.Entry<String, Post> entry : m_Posts.entrySet()) {
             if (entry.getValue().m_DocRef == postRef) {
                 listener.onPostAdded(true, "", entry.getKey());
                 return;
             }
         }
+        m_ReadLock.unlock();
         postRef.get().addOnSuccessListener(postDoc -> {
             String postID = postDoc.getId();
             m_WriteLock.lock();
@@ -106,11 +109,15 @@ public class PostManager
                 listener.onPostAdded(true, "", postID);
             } catch (NullPointerException ignored) {
                 listener.onPostAdded(false, "", postID);
+                UserManager.getInstance().removePost(postRef);
+                postRef.delete();
             }
             m_WriteLock.unlock();
         }).addOnFailureListener(e -> {
             listener.onPostAdded(false, "", postRef.getId());
             onPostError(postRef.getId(), PostError.GET_DOCUMENT_REF);
+            UserManager.getInstance().removePost(postRef);
+            postRef.delete();
         });
     }
 
@@ -156,6 +163,12 @@ public class PostManager
                         try {
                             m_Posts.put(postID, new Post(postDoc));
                         } catch (NullPointerException ignored) {
+                            String albumID = (String) postDoc.get(PostConstants.ALBUM_ID);
+                            if (albumID != null) {
+                                AlbumManager.getInstance().removePost(albumID, postDoc.getReference());
+                            }
+                            UserManager.getInstance().removePost(postDoc.getReference());
+                            postDoc.getReference().delete();
                         }
                     }
                     Post post = m_Posts.get(postID);
