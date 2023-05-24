@@ -35,6 +35,7 @@ import com.otaliastudios.cameraview.PictureResult;
 import com.perception.persep.album_data.Album;
 import com.perception.persep.album_data.Post;
 import com.perception.persep.data_gatherer.AlbumManager;
+import com.perception.persep.data_gatherer.BearingSensor;
 import com.perception.persep.data_gatherer.DataGathererManager;
 import com.perception.persep.data_gatherer.PostManager;
 import com.perception.persep.render.RenderView;
@@ -43,7 +44,7 @@ import com.yalantis.ucrop.UCrop;
 import java.io.File;
 import java.io.IOException;
 
-public class VR_Fragment extends Fragment
+public class VR_Fragment extends Fragment implements BearingSensor.BearingSensorListener
 {
     private static final String TAG = "VR_Fragment";
 
@@ -66,6 +67,9 @@ public class VR_Fragment extends Fragment
     private String m_InteractingWithAlbum = null;
     private int m_ViewWidth = 0;
     private int m_ViewHeight = 0;
+
+    private int m_DeviceBearing = 0;
+    private int m_PostBearing = 0;
 
     public VR_Fragment(ViewPager2 viewPager)
     {
@@ -128,7 +132,7 @@ public class VR_Fragment extends Fragment
         m_DataGathererManager.SetGyroscopeListener(m_VRRenderView);
         m_DataGathererManager.AddGPSListener(m_VRRenderView);
         m_DataGathererManager.AddGPSListener(AlbumManager.getInstance());
-        m_DataGathererManager.AddBearingListener(AlbumManager.getInstance());
+        m_DataGathererManager.AddBearingListener(this);
 //        m_DataGathererManager.SetAlbumListener(m_VRRenderView);
 
         if (forceStart)
@@ -227,6 +231,7 @@ public class VR_Fragment extends Fragment
             {
                 try
                 {
+                    m_PostBearing = m_DeviceBearing;
                     File previewCroppedFile = File.createTempFile("cameraPreview-cropped", ".jpg");
                     result.toFile(previewCroppedFile, file -> {
                         Uri savedPreviewUri = Uri.fromFile(file);
@@ -269,7 +274,7 @@ public class VR_Fragment extends Fragment
                             FirebaseUser loggedInUser = FirebaseAuth.getInstance().getCurrentUser();
                             if (loggedInUser != null && m_DataGathererManager != null)
                             {
-                                AlbumManager.getInstance().tryAddPost(croppedImageUri);
+                                AlbumManager.getInstance().tryAddPost(croppedImageUri, m_PostBearing);
                             } else
                             {
                                 Log.e(TAG, "Unable to find logged in user!");
@@ -367,6 +372,12 @@ public class VR_Fragment extends Fragment
             return m_VRRenderView.rayCast(x, y);
         }
         return null;
+    }
+
+    @Override
+    public void onBearingSensorAngleChanged(int azimuth)
+    {
+        m_DeviceBearing = azimuth;
     }
 
     class VR_Fragment_GestureListener extends GestureDetector.SimpleOnGestureListener implements VR_Fragment_GestureDetector.Listener

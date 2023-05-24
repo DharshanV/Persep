@@ -31,7 +31,7 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-public class AlbumManager implements Runnable, GPSSensor.Listener, BearingSensor.BearingSensorListener
+public class AlbumManager implements Runnable, GPSSensor.Listener
 {
     private static final String TAG = "AlbumManager";
 
@@ -40,13 +40,13 @@ public class AlbumManager implements Runnable, GPSSensor.Listener, BearingSensor
     private final Map<String, Album> m_Albums = new HashMap<>();
     private final Handler m_QueryNearbyAlbumHandler = new Handler();
     private final Stack<Uri> m_AddPostQueue = new Stack<>();
+    private final Map<Uri, Integer> m_PostBearing = new HashMap<>();
     private final ReadWriteLock m_ReadWriteLock = new ReentrantReadWriteLock();
     private final Lock m_WriteLock = m_ReadWriteLock.writeLock();
     private final Lock m_ReadLock = m_ReadWriteLock.readLock();
     private double m_QueryLat = 0.0;
     private double m_QueryLon = 0.0;
     private boolean m_IsLocationInit = false;
-    private int m_Azimuth = 0;
     private boolean m_IsQueryInProgress = false;
 
     private AlbumManager()
@@ -91,8 +91,9 @@ public class AlbumManager implements Runnable, GPSSensor.Listener, BearingSensor
         return albums;
     }
 
-    public void tryAddPost(Uri postImageURI)
+    public void tryAddPost(Uri postImageURI, int bearing)
     {
+        m_PostBearing.put(postImageURI, bearing);
         if (!m_IsLocationInit || m_IsQueryInProgress)
         {
             m_AddPostQueue.add(postImageURI);
@@ -103,7 +104,8 @@ public class AlbumManager implements Runnable, GPSSensor.Listener, BearingSensor
 
     private void addPost(Uri postImageURI)
     {
-        GeoLocation offsetLocation = offsetAlbumLocation(new GeoLocation(m_QueryLat, m_QueryLon), 10, m_Azimuth);
+        int postBearing = m_PostBearing.containsKey(postImageURI) ? m_PostBearing.remove(postImageURI) : 0;
+        GeoLocation offsetLocation = offsetAlbumLocation(new GeoLocation(m_QueryLat, m_QueryLon), 10, postBearing);
         m_WriteLock.lock();
         Album closestAlbum = getClosestLocalAlbum();
         if (closestAlbum == null)
@@ -290,11 +292,5 @@ public class AlbumManager implements Runnable, GPSSensor.Listener, BearingSensor
         }
         m_ReadLock.unlock();
         return closestAlbum;
-    }
-
-    @Override
-    public void onBearingSensorAngleChanged(int azimuth)
-    {
-        m_Azimuth = azimuth;
     }
 }
