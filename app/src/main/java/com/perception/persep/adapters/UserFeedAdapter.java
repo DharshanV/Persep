@@ -1,6 +1,7 @@
 package com.perception.persep.adapters;
 
 import android.content.Context;
+import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,7 +13,9 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.ListPopupWindow;
+import androidx.core.content.res.ResourcesCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.persep.R;
@@ -208,6 +211,8 @@ public class UserFeedAdapter extends RecyclerView.Adapter<UserFeedAdapter.UserFe
         ArrayAdapter<String> m_ItemsAdapter;
         ListPopupWindow m_PopupWindow;
 
+        private final AlertDialog m_ConfirmDeleteDialog;
+
         public UserFeedViewHolder(@NonNull View itemView, UserFeedAdapter userFeedAdapter)
         {
             super(itemView);
@@ -229,10 +234,31 @@ public class UserFeedAdapter extends RecyclerView.Adapter<UserFeedAdapter.UserFe
             m_PopupWindow.setModal(true);
             m_PopupWindow.setDropDownGravity(Gravity.END);
 
+            m_ConfirmDeleteDialog = new AlertDialog.Builder(m_Context)
+                    .setTitle("Delete Post")
+                    .setMessage("Do you really want to delete this post?")
+                    .setPositiveButton("Yes", (dialog, which) -> {
+                        m_UserFeed.deletePost(getAdapterPosition());
+                    })
+                    .setNegativeButton("Cancel", null)
+                    .create();
+
+            m_ConfirmDeleteDialog.setOnShowListener(dialog -> {
+                TextView messageTextview = m_ConfirmDeleteDialog.findViewById(android.R.id.message);
+                if (messageTextview != null)
+                {
+                    messageTextview.setTypeface(ResourcesCompat.getFont(m_Context, R.font.playfair_display_regular));
+                }
+
+                float size = m_Context.getResources().getDimension(R.dimen.delete_post_button_text_size);
+                m_ConfirmDeleteDialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextSize(TypedValue.COMPLEX_UNIT_PX, size);
+                m_ConfirmDeleteDialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextSize(TypedValue.COMPLEX_UNIT_PX, size);
+            });
+
             m_PopupWindow.setOnItemClickListener((parent, view, position, id) -> {
                 if (position == 0)
                 {
-                    m_UserFeed.deletePost(getAdapterPosition());
+                    m_ConfirmDeleteDialog.show();
                 } else if (position == 1)
                 {
                     m_UserFeed.sharePost(getAdapterPosition());

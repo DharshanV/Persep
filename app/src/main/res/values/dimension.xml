@@ -2,4 +2,5 @@
 <resources>
     <dimen name="vr_enable_disable_vector_size">30dp</dimen>
     <integer name="vr_enable_disable_vector_viewport_size">23</integer>
+    <dimen name="delete_post_button_text_size">18sp</dimen>
 </resources>
