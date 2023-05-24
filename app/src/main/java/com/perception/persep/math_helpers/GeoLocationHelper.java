@@ -1,8 +1,5 @@
 package com.perception.persep.math_helpers;
 
-import com.firebase.geofire.GeoLocation;
-import com.google.firebase.firestore.GeoPoint;
-
 import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
 
 public class GeoLocationHelper

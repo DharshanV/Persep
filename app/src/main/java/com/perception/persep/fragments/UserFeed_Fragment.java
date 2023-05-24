@@ -21,8 +21,6 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import com.example.persep.R;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.perception.persep.activities.HomeActivity;
-import com.perception.persep.activities.LoginActivity;
 import com.perception.persep.activities.SettingsActivity;
 import com.perception.persep.adapters.UserFeedAdapter;
 
@@ -33,9 +31,8 @@ import java.util.TimerTask;
 public class UserFeed_Fragment extends Fragment
 {
     private static final String TAG = "UserFeed_Fragment";
-
-    private SwipeRefreshLayout m_SwipeRefreshLayout;
     private final Timer m_RefreshTimer;
+    private SwipeRefreshLayout m_SwipeRefreshLayout;
     private UserFeedAdapter m_UserFeedAdapter;
     private RecyclerView m_UserFeedRecycleView;
 
@@ -83,10 +80,12 @@ public class UserFeed_Fragment extends Fragment
         TextView userFeedHeaderText = view.findViewById(R.id.username_text_view);
         String username = "Temp-Username";
         Context context = getContext();
-        if (context != null) {
+        if (context != null)
+        {
             FirebaseUser loggedInUser = FirebaseAuth.getInstance().getCurrentUser();
             String firebaseUsername = loggedInUser.getDisplayName();
-            if (firebaseUsername != null && !firebaseUsername.isEmpty()) {
+            if (firebaseUsername != null && !firebaseUsername.isEmpty())
+            {
                 username = context.getString(R.string.user_feed_username, firebaseUsername);
             }
         }

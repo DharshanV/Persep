@@ -13,7 +13,6 @@ import androidx.viewpager2.widget.ViewPager2;
 import com.example.persep.R;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.perception.persep.adapters.SlidePagerAdapter;
-import com.perception.persep.data_gatherer.UserManager;
 
 import java.lang.reflect.Field;
 
@@ -22,12 +21,15 @@ public class HomeActivity extends AppCompatActivity
     private static final String TAG = "HomeActivity";
 
     public static HomeActivity m_HomeActivityInstance;
-
+    public static float DEFAULT_DISPLAY_REFRESH_RATE = 0.0f;
     ViewPager2 m_ViewPager;
     SlidePagerAdapter m_SlidePagerAdapter;
     BottomNavigationView m_BottomNavigationView;
 
-    public static float DEFAULT_DISPLAY_REFRESH_RATE = 0.0f;
+    public static Context getHomeActivityContext()
+    {
+        return m_HomeActivityInstance.getApplicationContext();
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -60,7 +62,8 @@ public class HomeActivity extends AppCompatActivity
             return true;
         });
 
-        for (int i = 0; i < m_BottomNavigationView.getMenu().size(); i++) {
+        for (int i = 0; i < m_BottomNavigationView.getMenu().size(); i++)
+        {
             m_BottomNavigationView.findViewById(m_BottomNavigationView.getMenu().getItem(i).getItemId()).setOnLongClickListener(view -> true);
         }
 
@@ -114,10 +117,5 @@ public class HomeActivity extends AppCompatActivity
             return;
         }
         m_ViewPager.setCurrentItem(currentPageIndex + (currentPageIndex < SlidePagerAdapter.MIDDLE_PAGE_INDEX ? 1 : -1));
-    }
-
-    public static Context getHomeActivityContext()
-    {
-        return m_HomeActivityInstance.getApplicationContext();
     }
 }

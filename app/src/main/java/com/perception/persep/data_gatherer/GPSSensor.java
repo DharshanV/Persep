@@ -3,7 +3,6 @@ package com.perception.persep.data_gatherer;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.location.Location;
-import android.util.Log;
 
 import java.util.ArrayList;
 
@@ -15,23 +14,6 @@ import mad.location.manager.lib.Services.Settings;
 
 public class GPSSensor implements LocationServiceInterface, ILogger
 {
-    private static final String TAG = "GPSSensor";
-
-    @Override
-    public void log2file(String format, Object... args)
-    {
-//        Log.d("Debug", String.format(format, args));
-    }
-
-    public interface Listener
-    {
-        void onLocationChanged(double lat, double lon);
-    }
-
-    private final ArrayList<Listener> m_Listeners = new ArrayList<>();
-    private Context m_Context;
-
-    public static double ACCELEROMETER_DEFAULT_DEVIATION = 0.1;     //0.1
     public static final int SENSOR_POSITION_MIN_TIME = 0;         //500
     public static final int GPS_MIN_TIME = 1_000;                    //2000
     public static final int GPS_MIN_DISTANCE = 0;                   //0
@@ -40,15 +22,23 @@ public class GPSSensor implements LocationServiceInterface, ILogger
     public static final int GEOHASH_DEFAULT_MIN_POINT_COUNT = 2;    //2
     public static final double DEFAULT_VEL_FACTOR = 1.0;
     public static final double DEFAULT_POS_FACTOR = 1.0;
-
-    private double accumLat = 0;
-    private double accumLon = 0;
-    private int count = 0;
-
+    private static final String TAG = "GPSSensor";
+    public static double ACCELEROMETER_DEFAULT_DEVIATION = 0.1;     //0.1
+    private final ArrayList<Listener> m_Listeners = new ArrayList<>();
+    private final Context m_Context;
+    private final double accumLat = 0;
+    private final double accumLon = 0;
+    private final int count = 0;
     public GPSSensor(Context context)
     {
         m_Context = context;
         ServicesHelper.addLocationServiceInterface(this);
+    }
+
+    @Override
+    public void log2file(String format, Object... args)
+    {
+//        Log.d("Debug", String.format(format, args));
     }
 
     @Override
@@ -60,7 +50,8 @@ public class GPSSensor implements LocationServiceInterface, ILogger
 //        double avgLat = accumLat / count;
 //        double avgLon = accumLon / count;
 //        Log.d("Debug", avgLat + ", " + avgLon);
-        for (Listener listener : m_Listeners) {
+        for (Listener listener : m_Listeners)
+        {
             listener.onLocationChanged(location.getLatitude(), location.getLongitude());
         }
     }
@@ -104,5 +95,10 @@ public class GPSSensor implements LocationServiceInterface, ILogger
     public void AddListener(GPSSensor.Listener listener)
     {
         m_Listeners.add(listener);
+    }
+
+    public interface Listener
+    {
+        void onLocationChanged(double lat, double lon);
     }
 }

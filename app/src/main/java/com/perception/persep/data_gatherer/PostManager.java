@@ -1,26 +1,18 @@
 package com.perception.persep.data_gatherer;
 
-import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.net.Uri;
-import android.util.Log;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
-
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
 import com.perception.persep.activities.HomeActivity;
 import com.perception.persep.album_data.Post;
 import com.perception.persep.constants.PostConstants;
@@ -28,11 +20,9 @@ import com.perception.persep.constants.UserConstants;
 import com.perception.persep.enums.PostError;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -41,34 +31,11 @@ public class PostManager
 {
 
     private static PostManager m_Instance = null;
-
-    private Map<String, Post> m_Posts = new HashMap<>();
-
     private final ReadWriteLock m_ReadWriteLock = new ReentrantReadWriteLock();
     private final Lock m_WriteLock = m_ReadWriteLock.writeLock();
     private final Lock m_ReadLock = m_ReadWriteLock.readLock();
-
+    private final Map<String, Post> m_Posts = new HashMap<>();
     private Bitmap m_PostLoadingImage;
-
-    public interface AddPostListener
-    {
-        void onPostAdded(boolean success, String message, String postID);
-    }
-
-    public interface RemovePostListener
-    {
-        void onPostRemoved(DocumentReference postRef, String albumID);
-    }
-
-    public interface QueryUserPostListener
-    {
-        void onQuery(List<String> postIDs);
-    }
-
-    public interface PostLikeListener
-    {
-        void onLikeUpdate(boolean successful);
-    }
 
     private PostManager()
     {
@@ -76,7 +43,8 @@ public class PostManager
 
     public static synchronized PostManager getInstance()
     {
-        if (m_Instance == null) {
+        if (m_Instance == null)
+        {
             m_Instance = new PostManager();
         }
         return m_Instance;
@@ -94,8 +62,10 @@ public class PostManager
     public void addPost(DocumentReference postRef, AddPostListener listener)
     {
         m_ReadLock.lock();
-        for(Map.Entry<String, Post> entry : m_Posts.entrySet()) {
-            if (entry.getValue().m_DocRef == postRef) {
+        for (Map.Entry<String, Post> entry : m_Posts.entrySet())
+        {
+            if (entry.getValue().m_DocRef == postRef)
+            {
                 listener.onPostAdded(true, "", entry.getKey());
                 return;
             }
@@ -104,10 +74,12 @@ public class PostManager
         postRef.get().addOnSuccessListener(postDoc -> {
             String postID = postDoc.getId();
             m_WriteLock.lock();
-            try {
+            try
+            {
                 m_Posts.put(postID, new Post(postDoc));
                 listener.onPostAdded(true, "", postID);
-            } catch (NullPointerException ignored) {
+            } catch (NullPointerException ignored)
+            {
                 listener.onPostAdded(false, "", postID);
                 UserManager.getInstance().removePost(postRef);
                 postRef.delete();
@@ -126,7 +98,8 @@ public class PostManager
         m_WriteLock.lock();
         Post post = m_Posts.remove(postID);
         m_WriteLock.unlock();
-        if (post != null) {
+        if (post != null)
+        {
             post.remove();
         }
         return post;
@@ -155,16 +128,21 @@ public class PostManager
 
             Tasks.whenAllSuccess(postQueryTasks).addOnSuccessListener(postsResult -> {
                 List<String> postIDs = new ArrayList<>();
-                for(Object postObj : postsResult) {
+                for (Object postObj : postsResult)
+                {
                     DocumentSnapshot postDoc = (DocumentSnapshot) postObj;
                     String postID = postDoc.getId();
                     m_WriteLock.lock();
-                    if (!m_Posts.containsKey(postID)) {
-                        try {
+                    if (!m_Posts.containsKey(postID))
+                    {
+                        try
+                        {
                             m_Posts.put(postID, new Post(postDoc));
-                        } catch (NullPointerException ignored) {
+                        } catch (NullPointerException ignored)
+                        {
                             String albumID = (String) postDoc.get(PostConstants.ALBUM_ID);
-                            if (albumID != null) {
+                            if (albumID != null)
+                            {
                                 AlbumManager.getInstance().removePost(albumID, postDoc.getReference());
                             }
                             UserManager.getInstance().removePost(postDoc.getReference());
@@ -172,7 +150,8 @@ public class PostManager
                         }
                     }
                     Post post = m_Posts.get(postID);
-                    if (post != null) {
+                    if (post != null)
+                    {
                         postIDs.add(postID);
                     }
                     m_WriteLock.unlock();
@@ -211,13 +190,14 @@ public class PostManager
         Paint textPaint = new Paint();
         textPaint.setTextSize(56);
         textPaint.setAntiAlias(true);
-        textPaint.setARGB(255,0,0,0);
+        textPaint.setARGB(255, 0, 0, 0);
 
         Canvas canvas = new Canvas(m_PostLoadingImage);
         drawCenter(canvas, textPaint, "Loading...");
     }
 
-    private void drawCenter(Canvas canvas, Paint paint, String text) {
+    private void drawCenter(Canvas canvas, Paint paint, String text)
+    {
         Rect r = new Rect();
         canvas.getClipBounds(r);
         int cHeight = r.height();
@@ -232,5 +212,25 @@ public class PostManager
     public Bitmap getPostLoadingImage()
     {
         return m_PostLoadingImage;
+    }
+
+    public interface AddPostListener
+    {
+        void onPostAdded(boolean success, String message, String postID);
+    }
+
+    public interface RemovePostListener
+    {
+        void onPostRemoved(DocumentReference postRef, String albumID);
+    }
+
+    public interface QueryUserPostListener
+    {
+        void onQuery(List<String> postIDs);
+    }
+
+    public interface PostLikeListener
+    {
+        void onLikeUpdate(boolean successful);
     }
 }

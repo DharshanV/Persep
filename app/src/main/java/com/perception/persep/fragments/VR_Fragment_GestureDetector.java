@@ -6,11 +6,6 @@ import android.view.MotionEvent;
 
 public class VR_Fragment_GestureDetector extends GestureDetector
 {
-    public interface Listener
-    {
-        void onUp(MotionEvent ev);
-    }
-
     Listener m_VRFragmentGestureListener;
 
     public VR_Fragment_GestureDetector(Context context, OnGestureListener listener)
@@ -35,5 +30,10 @@ public class VR_Fragment_GestureDetector extends GestureDetector
             m_VRFragmentGestureListener.onUp(ev);
         }
         return super.onTouchEvent(ev);
+    }
+
+    public interface Listener
+    {
+        void onUp(MotionEvent ev);
     }
 }

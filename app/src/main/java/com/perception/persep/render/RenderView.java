@@ -7,20 +7,16 @@ import android.view.TextureView;
 
 import androidx.annotation.NonNull;
 
-import com.perception.persep.album_data.Album;
-import com.perception.persep.data_gatherer.AlbumManager;
 import com.perception.persep.data_gatherer.GPSSensor;
 import com.perception.persep.data_gatherer.RotationSensor;
 
-import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class RenderView extends TextureView implements TextureView.SurfaceTextureListener, RotationSensor.Listener, GPSSensor.Listener
 {
     private static final String TAG = "RenderView";
-
-    private GLProducerThread m_GLThread = null;
     private final OpenGLRenderer m_Renderer;
+    private GLProducerThread m_GLThread = null;
 
     public RenderView(Context context)
     {

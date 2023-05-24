@@ -9,7 +9,7 @@ public class QuaternionsHelpers
 
     public static double dot(float[] a, float[] b)
     {
-        return a[0]*b[0] + a[1]*b[1] + a[2]*b[2] + a[3]*b[3];
+        return a[0] * b[0] + a[1] * b[1] + a[2] * b[2] + a[3] * b[3];
     }
 
     public static float[] normalise(float[] a)

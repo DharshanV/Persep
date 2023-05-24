@@ -1,10 +1,8 @@
 package com.perception.persep.render;
 
 import android.content.Context;
-import android.graphics.Bitmap;
 import android.opengl.GLES30;
 import android.opengl.Matrix;
-import android.os.Trace;
 import android.util.Log;
 
 import com.perception.persep.album_data.Album;
@@ -18,11 +16,7 @@ import com.perception.persep.shapes.AlbumModel;
 import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
 
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.Stack;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
@@ -31,38 +25,31 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 public class OpenGLRenderer
 {
     private static final String TAG = "OpenGLRenderer";
-
+    static private final float[] DEVICE_TO_OPENGL = {-1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f};
     private final Context m_Context;
-    private int m_Width;
-    private int m_Height;
-
     private final float[] m_ModelMatrix = new float[16];
     private final float[] m_ProjectionMatrix = new float[16];
     private final float[] m_ViewMatrix = new float[16];
     private final float[] m_ScreenToOpenGLMatrix = new float[16];
     private final float[] m_Near = {0, 0, 0, 0};
     private final float[] m_Far = {0, 0, 0, 0};
-
-    // N(+z): <0,0,1>, S(-z): <0,0,-1>, W(+x): <1,0,0>, E(-x): <-1,0,0>
-    private float[] m_OrientationMatrix = new float[16];
-    static private final float[] DEVICE_TO_OPENGL = {-1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f};
-
-    private AlbumModel m_AlbumModel;
     private final float[] m_AlbumRotMatrix = new float[16];
-
-    private Stack<Integer> m_ValidIndex = new Stack<>();
-    private Map<String, Integer> m_AlbumIDIndex = new HashMap<>();
     private final float[][] m_AlbumTransforms = new float[QueryConstants.MAX_QUERY_COUNT][16];
     private final int[] m_AlbumTextureIDs = new int[QueryConstants.MAX_QUERY_COUNT];
-
     private final ReadWriteLock m_DataUpdateReadWriteLock = new ReentrantReadWriteLock();
     private final Lock m_DataUpdateWriteLock = m_DataUpdateReadWriteLock.writeLock();
     private final Lock m_DataUpdateReadLock = m_DataUpdateReadWriteLock.writeLock();
+    private final Vector3D[] ALBUM_SURFACE_VERT = new Vector3D[4];
+    private final Stack<Integer> m_ValidIndex = new Stack<>();
+    private final Map<String, Integer> m_AlbumIDIndex = new HashMap<>();
+    private int m_Width;
+    private int m_Height;
+    // N(+z): <0,0,1>, S(-z): <0,0,-1>, W(+x): <1,0,0>, E(-x): <-1,0,0>
+    private float[] m_OrientationMatrix = new float[16];
+    private AlbumModel m_AlbumModel;
     private double m_DeviceLat = 0;
     private double m_DeviceLon = 0;
     private boolean m_DeviceCoordInit = false;
-
-    private final Vector3D[] ALBUM_SURFACE_VERT = new Vector3D[4];
 
     OpenGLRenderer(Context context)
     {
@@ -78,7 +65,8 @@ public class OpenGLRenderer
         Matrix.setLookAtM(m_ViewMatrix, 0, 0f, 0f, 0.0f, 0f, 0f, -1.0f, 0f, 1.0f, 0.0f);
         Matrix.setIdentityM(m_OrientationMatrix, 0);
 
-        for (int i=0;i<QueryConstants.MAX_QUERY_COUNT; i++) {
+        for (int i = 0; i < QueryConstants.MAX_QUERY_COUNT; i++)
+        {
             m_ValidIndex.push(i);
         }
     }
@@ -113,7 +101,8 @@ public class OpenGLRenderer
         if (!m_DeviceCoordInit) return;
 
         updateAlbums();
-        for(Map.Entry<String, Integer> entry : m_AlbumIDIndex.entrySet()) {
+        for (Map.Entry<String, Integer> entry : m_AlbumIDIndex.entrySet())
+        {
             Integer index = entry.getValue();
             Album album = AlbumManager.getInstance().getAlbum(entry.getKey());
             Post post = PostManager.getInstance().getPost(album.getCurrentPostID());
@@ -122,7 +111,8 @@ public class OpenGLRenderer
                 int albumTextureID = m_AlbumTextureIDs[index];
                 float[] albumTransform = m_AlbumTransforms[index];
 
-                if (album.shouldUpdateTexture()) {
+                if (album.shouldUpdateTexture())
+                {
                     m_AlbumModel.UpdateSurfaceTexture(albumTextureID, post.m_Image);
                 }
 
@@ -159,70 +149,6 @@ public class OpenGLRenderer
 
             }
         }
-
-//        m_DataUpdateReadLock.lock();
-//        for (Album album : m_Albums.keySet())
-//        {
-//            if (album != null)
-//            {
-//                Integer textureIndex = m_Albums.get(album);
-//                if (textureIndex != null)
-//                {
-//                    int albumTextureID = m_AlbumTextureIDs[textureIndex];
-//                    if (album.ShouldUpdateTexture())
-//                    {
-//                        Bitmap image = album.getCurrentPost().m_Image;
-//                        if (image != null)
-//                        {
-//                            m_AlbumModel.UpdateSurfaceTexture(albumTextureID, image);
-//                        }
-//                    }
-//
-//                    double bearing = GeoLocationHelper.Heading(m_DeviceLat, m_DeviceLon, album.m_Lat, album.m_Lon);
-//                    double distance = GeoLocationHelper.Distance(m_DeviceLat, m_DeviceLon, album.m_Lat, album.m_Lon);
-//                    distance = Math.max(3.0, distance);
-//
-//                    float x = (float) (distance * Math.sin(bearing));
-//                    float z = (float) (distance * Math.cos(bearing));
-//
-//                    Matrix.setIdentityM(m_ModelMatrix, 0);
-//                    Matrix.multiplyMM(m_ModelMatrix, 0, m_ModelMatrix, 0, m_OrientationMatrix, 0);
-//                    Matrix.multiplyMM(m_ModelMatrix, 0, m_ModelMatrix, 0, DEVICE_TO_OPENGL, 0);
-//                    Matrix.translateM(m_ModelMatrix, 0, x, 0.0f, z);
-//
-//                    // Rotate the album to always face the camera
-//                    float originToModelX = -x;
-//                    float originToModelZ = -z;
-//                    double length = Math.sqrt(originToModelX * originToModelX + originToModelZ * originToModelZ);
-//                    double angle = Math.toDegrees(Math.acos(originToModelX / length));
-//                    if (originToModelZ > 0.0f) angle *= -1;
-//                    Matrix.rotateM(m_ModelMatrix, 0, (float) angle, 0, 1, 0);
-//
-//                    // Scale the model based on distance
-//                    float scale = (float) (1.0 + 4 * Math.log10(length - 2));
-//                    Matrix.scaleM(m_ModelMatrix, 0, scale, scale, scale);
-//                    float[] albumTransform = m_AlbumTransforms.get(album);
-//                    if (albumTransform != null)
-//                    {
-//                        System.arraycopy(m_ModelMatrix, 0, albumTransform, 0, m_ModelMatrix.length);
-//                    } else
-//                    {
-//                        m_AlbumTransforms.put(album, m_ModelMatrix.clone());
-//                    }
-//
-//                    m_AlbumModel.SetMVP(m_ModelMatrix, m_ViewMatrix, m_ProjectionMatrix);
-//                    m_AlbumModel.DrawFrame();
-//                    m_AlbumModel.DrawSurface(albumTextureID);
-//                } else
-//                {
-//                    Log.e(TAG, "Couldn't find texture ID for album!!");
-//                }
-//            } else
-//            {
-//                Log.e(TAG, "Found a null album to render!!");
-//            }
-//        }
-//        m_DataUpdateReadLock.unlock();
     }
 
     public void DrawClear()
@@ -265,17 +191,21 @@ public class OpenGLRenderer
     {
         // Assign index to new albums
         AlbumManager.getInstance().readLock();
-        for (Album album : AlbumManager.getInstance().getAlbums()) {
-            if (!album.m_PostIDs.isEmpty() && !m_AlbumIDIndex.containsKey(album.m_AlbumID)) {
+        for (Album album : AlbumManager.getInstance().getAlbums())
+        {
+            if (!album.m_PostIDs.isEmpty() && !m_AlbumIDIndex.containsKey(album.m_AlbumID))
+            {
                 int validIndex = m_ValidIndex.pop();
                 m_AlbumIDIndex.put(album.m_AlbumID, validIndex);
             }
         }
 
         // Unassign index of invalid albums
-        for (String currAlbumID : m_AlbumIDIndex.keySet()) {
+        for (String currAlbumID : m_AlbumIDIndex.keySet())
+        {
             Album album = AlbumManager.getInstance().getAlbum(currAlbumID);
-            if (album == null) {
+            if (album == null)
+            {
                 int freedIndex = m_AlbumIDIndex.remove(currAlbumID);
                 m_ValidIndex.push(freedIndex);
             }
@@ -350,7 +280,8 @@ public class OpenGLRenderer
 
         m_DataUpdateReadLock.lock();
         AlbumManager.getInstance().readLock();
-        for(Map.Entry<String, Integer> entry : m_AlbumIDIndex.entrySet()) {
+        for (Map.Entry<String, Integer> entry : m_AlbumIDIndex.entrySet())
+        {
             float[] albumTransform = m_AlbumTransforms[entry.getValue()];
             if (intersectRayWithAlbumSurface(rayDir, albumTransform))
             {

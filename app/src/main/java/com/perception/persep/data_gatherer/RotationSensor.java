@@ -7,32 +7,17 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Handler;
 import android.os.HandlerThread;
-import android.util.Log;
-
-import org.apache.commons.numbers.quaternion.Quaternion;
-import org.apache.commons.numbers.quaternion.Slerp;
-
-import java.util.Arrays;
 
 public class RotationSensor
 {
     private static final String TAG = "RotationSensor";
-
-    public interface Listener
-    {
-        void onRotationDelta(float[] deltaRotationMatrix);
-    }
-
-    private Listener m_Listener;
-
     private final SensorManager m_SensorManager;
     private final Sensor m_RotationSensor;
     private final SensorEventListener m_SensorEventListener;
-
+    private final float[] m_RotationMatrix = new float[16];
+    private Listener m_Listener;
     private HandlerThread m_SensorThread;
     private Handler m_SensorHandler;
-
-    private final float[] m_RotationMatrix = new float[16];
 
     public RotationSensor(Context context)
     {
@@ -75,7 +60,8 @@ public class RotationSensor
         {
             try
             {
-                if (m_SensorThread != null) {
+                if (m_SensorThread != null)
+                {
                     m_SensorThread.quitSafely();
                     m_SensorThread.join();
                 }
@@ -92,5 +78,10 @@ public class RotationSensor
     public void AddListener(Listener listener)
     {
         m_Listener = listener;
+    }
+
+    public interface Listener
+    {
+        void onRotationDelta(float[] deltaRotationMatrix);
     }
 }

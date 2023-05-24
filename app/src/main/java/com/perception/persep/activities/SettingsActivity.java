@@ -28,7 +28,8 @@ public class SettingsActivity extends AppCompatActivity
             m_UserPressedSignOut = true;
 
             FirebaseUser loggedInUser = FirebaseAuth.getInstance().getCurrentUser();
-            if (loggedInUser != null) {
+            if (loggedInUser != null)
+            {
                 m_SignOutButton.setEnabled(false);
                 m_SignOutButton.setText("Signing out...");
                 FirebaseAuth.getInstance().signOut();
@@ -39,7 +40,8 @@ public class SettingsActivity extends AppCompatActivity
         backButton.setOnClickListener(v -> finish());
 
         FirebaseAuth.getInstance().addAuthStateListener(firebaseAuth -> {
-            if (firebaseAuth.getCurrentUser() == null) {
+            if (firebaseAuth.getCurrentUser() == null)
+            {
                 Toast.makeText(getApplicationContext(), "Signed out successfully", Toast.LENGTH_SHORT).show();
                 Intent intent = new Intent(SettingsActivity.this, LoginActivity.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -51,7 +53,8 @@ public class SettingsActivity extends AppCompatActivity
     @Override
     public void onBackPressed()
     {
-        if (!m_UserPressedSignOut) {
+        if (!m_UserPressedSignOut)
+        {
             super.onBackPressed();
         }
     }

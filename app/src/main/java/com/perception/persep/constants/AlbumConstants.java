@@ -1,7 +1,5 @@
 package com.perception.persep.constants;
 
-import com.google.firebase.firestore.GeoPoint;
-
 public class AlbumConstants
 {
     public static final String COLLECTION_NAME = "albums";

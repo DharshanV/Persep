@@ -16,20 +16,8 @@ public class FirebaseUserAuthentication
     private static final String TAG = "UserAuthentication";
 
     private static FirebaseUserAuthentication m_Instance = null;
-
-    public interface UserRegisterAuthListener
-    {
-        void WasRegisterSuccessful(boolean successful, String message);
-    }
-
-    public interface UserLoginAuthListener
-    {
-        void WasLoginSuccessful(boolean successful, User user, String message);
-    }
-
     // Authentication
     private FirebaseAuth m_FirebaseAuth;
-
     // Database
     private FirebaseFirestore m_FirebaseDB;
     private User m_User;
@@ -123,5 +111,15 @@ public class FirebaseUserAuthentication
         Log.d(TAG, "Setting up Firebase auth.");
         m_FirebaseAuth = FirebaseAuth.getInstance();
         m_FirebaseDB = FirebaseFirestore.getInstance();
+    }
+
+    public interface UserRegisterAuthListener
+    {
+        void WasRegisterSuccessful(boolean successful, String message);
+    }
+
+    public interface UserLoginAuthListener
+    {
+        void WasLoginSuccessful(boolean successful, User user, String message);
     }
 }

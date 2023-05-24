@@ -18,26 +18,22 @@ import javax.microedition.khronos.egl.EGLSurface;
 public class GLProducerThread extends Thread
 {
     private static final String TAG = "GL_Thread";
-
+    private static final int EGL_CONTEXT_CLIENT_VERSION = 0x3098;
+    private static final int EGL_OPENGL_ES2_BIT = 4;
     private final AtomicBoolean m_RunningFlag;
     private final AtomicBoolean m_ShouldRender;
     private final SurfaceTexture m_SurfaceTexture;
-    private OpenGLRenderer m_Renderer;
-    private int m_SurfaceWidth;
-    private int m_SurfaceHeight;
-
-    private EGL10 m_Egl;
-    private EGLDisplay m_EglDisplay = EGL10.EGL_NO_DISPLAY;
-    private EGLContext m_EglContext = EGL10.EGL_NO_CONTEXT;
-    private EGLSurface m_EglSurface = EGL10.EGL_NO_SURFACE;
-
-    private static final int EGL_CONTEXT_CLIENT_VERSION = 0x3098;
-    private static final int EGL_OPENGL_ES2_BIT = 4;
-
     //Framerate
     private final double m_StartTime;
     private final double m_TargetFPS;
     private final double m_FrameInterval;
+    private OpenGLRenderer m_Renderer;
+    private int m_SurfaceWidth;
+    private int m_SurfaceHeight;
+    private EGL10 m_Egl;
+    private EGLDisplay m_EglDisplay = EGL10.EGL_NO_DISPLAY;
+    private EGLContext m_EglContext = EGL10.EGL_NO_CONTEXT;
+    private EGLSurface m_EglSurface = EGL10.EGL_NO_SURFACE;
 
     public GLProducerThread(SurfaceTexture surfaceTexture, OpenGLRenderer renderer, int width, int height, AtomicBoolean runningFlag)
     {

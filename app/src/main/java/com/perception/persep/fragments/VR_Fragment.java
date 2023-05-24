@@ -37,7 +37,6 @@ import com.perception.persep.album_data.Post;
 import com.perception.persep.data_gatherer.AlbumManager;
 import com.perception.persep.data_gatherer.DataGathererManager;
 import com.perception.persep.data_gatherer.PostManager;
-import com.perception.persep.firebase_helpers.FirebaseUpdates;
 import com.perception.persep.render.RenderView;
 import com.yalantis.ucrop.UCrop;
 
@@ -49,24 +48,20 @@ public class VR_Fragment extends Fragment
     private static final String TAG = "VR_Fragment";
 
     public DataGathererManager m_DataGathererManager;
-
+    GestureDetector m_GestureDetector;
+    ViewPager2 m_ViewPager;
     private RelativeLayout m_VRLayout;
     private RenderView m_VRRenderView;
     private boolean m_IsVRInitialized = false;
     private boolean m_PrevIsVREnabled = false;
     private boolean m_IsVREnabled = false;
-
     private CameraView m_CameraView;
     private ActivityResultLauncher<Intent> m_UCropActivityResultLauncher = null;
-
     // widgets
     private ImageButton m_TakePhotoButton = null;
     private ImageButton m_ToggleVRButton = null;
     private ImageButton m_ToggleCameraButton = null;
     private boolean m_IsBackCamera = true;
-
-    GestureDetector m_GestureDetector;
-    ViewPager2 m_ViewPager;
     private boolean m_IsInteractingWithPost = false;
     private String m_InteractingWithAlbum = null;
     private int m_ViewWidth = 0;
@@ -292,7 +287,8 @@ public class VR_Fragment extends Fragment
 
     private void ToggleVREnabled()
     {
-        if (m_IsVRInitialized) {
+        if (m_IsVRInitialized)
+        {
             m_IsVREnabled = !m_IsVREnabled;
             m_ToggleVRButton.setImageResource(m_IsVREnabled ? R.drawable.ic_ar_enabled_button : R.drawable.ic_ar_disabled_button);
             if (m_VRRenderView != null) m_VRRenderView.ShouldRender(m_IsVREnabled);
@@ -302,19 +298,22 @@ public class VR_Fragment extends Fragment
 
     private void ToggleCamera()
     {
-        if (m_CameraView != null && m_CameraView.isOpened()) {
+        if (m_CameraView != null && m_CameraView.isOpened())
+        {
             m_IsBackCamera = !m_IsBackCamera;
             m_ToggleCameraButton.setImageResource(m_IsBackCamera ? R.drawable.ic_baseline_camera_rear_24 : R.drawable.ic_baseline_camera_front_24);
             m_CameraView.toggleFacing();
         }
 
-        if (m_IsVRInitialized) {
-            if (m_IsBackCamera) {
+        if (m_IsVRInitialized)
+        {
+            if (m_IsBackCamera)
+            {
                 m_ToggleVRButton.setEnabled(true);
                 m_ToggleVRButton.setImageResource(m_PrevIsVREnabled ? R.drawable.ic_ar_enabled_button : R.drawable.ic_ar_disabled_button);
                 if (m_VRRenderView != null) m_VRRenderView.ShouldRender(m_PrevIsVREnabled);
-            }
-            else {
+            } else
+            {
                 m_ToggleVRButton.setEnabled(false);
                 m_ToggleVRButton.setImageResource(R.drawable.ic_ar_disabled_button);
                 if (m_VRRenderView != null) m_VRRenderView.ShouldRender(false);
@@ -394,9 +393,11 @@ public class VR_Fragment extends Fragment
             if (m_InteractingWithAlbum != null)
             {
                 Album album = AlbumManager.getInstance().getAlbum(m_InteractingWithAlbum);
-                if (album != null) {
+                if (album != null)
+                {
                     Post post = PostManager.getInstance().getPost(album.getCurrentPostID());
-                    if (post != null) {
+                    if (post != null)
+                    {
                         post.like(successful -> {
                             Toast.makeText(getContext(), "Liked post!", Toast.LENGTH_LONG).show();
                         });

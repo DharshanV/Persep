@@ -15,6 +15,13 @@ public class Shader
 
     private int m_ProgramId;
 
+    public static Shader CreateShader(Context context, String vertPath, String fragPath)
+    {
+        Shader shader = new Shader();
+        shader.CreateShaderProgram(context, vertPath, fragPath);
+        return shader;
+    }
+
     public void CreateShaderProgram(Context context, String vertexShaderPath, String fragmentShaderPath)
     {
         String vertexShaderCode = LoadStringFromAssetFile(context, vertexShaderPath);
@@ -102,12 +109,5 @@ public class Shader
             Log.e(TAG, "Could not load shader file");
             return null;
         }
-    }
-
-    public static Shader CreateShader(Context context, String vertPath, String fragPath)
-    {
-        Shader shader = new Shader();
-        shader.CreateShaderProgram(context, vertPath, fragPath);
-        return shader;
     }
 }

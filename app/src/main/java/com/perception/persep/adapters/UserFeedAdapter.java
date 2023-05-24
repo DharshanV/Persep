@@ -1,17 +1,14 @@
 package com.perception.persep.adapters;
 
 import android.content.Context;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
-import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.PopupMenu;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -19,26 +16,15 @@ import androidx.appcompat.widget.ListPopupWindow;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.persep.R;
-import com.google.android.gms.tasks.Task;
-import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.FirebaseFirestore;
 import com.perception.persep.album_data.Post;
-import com.perception.persep.constants.PostConstants;
-import com.perception.persep.constants.UserConstants;
 import com.perception.persep.data_gatherer.AlbumManager;
-import com.perception.persep.data_gatherer.DataGathererManager;
 import com.perception.persep.data_gatherer.PostManager;
-import com.perception.persep.data_gatherer.UserManager;
-import com.perception.persep.firebase_helpers.FirebaseQueries;
 import com.perception.persep.fragments.UserFeed_Fragment;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -46,16 +32,9 @@ import java.util.Map;
 public class UserFeedAdapter extends RecyclerView.Adapter<UserFeedAdapter.UserFeedViewHolder>
 {
     private static final String TAG = "UserFeedAdapter";
-
-    public interface RefreshQueryCompleteListener
-    {
-        void onComplete();
-    }
-
     private final UserFeed_Fragment m_UserFeedFragment;
-    private List<String> m_UserPostIDs = new ArrayList<>();
-    private Map<String, Timestamp> m_PostModified = new HashMap<>();
-
+    private final List<String> m_UserPostIDs = new ArrayList<>();
+    private final Map<String, Timestamp> m_PostModified = new HashMap<>();
     public UserFeedAdapter(UserFeed_Fragment userFeedFragment)
     {
         m_UserFeedFragment = userFeedFragment;
@@ -66,9 +45,11 @@ public class UserFeedAdapter extends RecyclerView.Adapter<UserFeedAdapter.UserFe
                 if (postIDs == null || postIDs.isEmpty()) return;
 
                 m_UserPostIDs.addAll(postIDs);
-                for(String postID : m_UserPostIDs) {
+                for (String postID : m_UserPostIDs)
+                {
                     Post post = PostManager.getInstance().getPost(postID);
-                    if (post != null) {
+                    if (post != null)
+                    {
                         m_PostModified.put(postID, post.m_TimeModified);
                     }
                 }
@@ -79,29 +60,47 @@ public class UserFeedAdapter extends RecyclerView.Adapter<UserFeedAdapter.UserFe
         }
     }
 
+    static private void sortUserPosts(List<String> postIDs)
+    {
+        if (postIDs != null)
+        {
+            postIDs.sort((o1, o2) -> {
+                Post post1 = PostManager.getInstance().getPost(o1);
+                Post post2 = PostManager.getInstance().getPost(o2);
+
+                return post2.m_TimeCreated.compareTo(post1.m_TimeCreated);
+            });
+        }
+    }
+
     public void refresh(RefreshQueryCompleteListener listener)
     {
         FirebaseUser loggedInUser = FirebaseAuth.getInstance().getCurrentUser();
-        if (loggedInUser != null) {
+        if (loggedInUser != null)
+        {
             PostManager.getInstance().queryUserPosts(loggedInUser.getUid(), postIDs -> {
                 listener.onComplete();
                 if (postIDs == null || postIDs.isEmpty()) return;
 
                 List<String> newPostsAdded = new ArrayList<>();
-                for (String postID : postIDs) {
+                for (String postID : postIDs)
+                {
                     int postIndex = getPostIndex(postID);
-                    if (postIndex != -1) {
+                    if (postIndex != -1)
+                    {
                         Post post = PostManager.getInstance().getPost(postID);
-                        if (post != null && post.m_TimeModified != m_PostModified.get(postID)) {
+                        if (post != null && post.m_TimeModified != m_PostModified.get(postID))
+                        {
                             this.notifyItemChanged(postIndex, post.m_Likes);
                         }
-                    }
-                    else {
+                    } else
+                    {
                         newPostsAdded.add(postID);
                     }
                 }
 
-                if (!newPostsAdded.isEmpty()) {
+                if (!newPostsAdded.isEmpty())
+                {
                     sortUserPosts(newPostsAdded);
                     m_UserPostIDs.addAll(0, newPostsAdded);
                     this.notifyItemRangeInserted(0, newPostsAdded.size());
@@ -115,7 +114,8 @@ public class UserFeedAdapter extends RecyclerView.Adapter<UserFeedAdapter.UserFe
     {
         for (int i = 0; i < m_UserPostIDs.size(); i++)
         {
-            if (m_UserPostIDs.get(i).equals(postID)) {
+            if (m_UserPostIDs.get(i).equals(postID))
+            {
                 return i;
             }
         }
@@ -168,7 +168,8 @@ public class UserFeedAdapter extends RecyclerView.Adapter<UserFeedAdapter.UserFe
 
     public void deletePost(int postPosition)
     {
-        if (postPosition < m_UserPostIDs.size()) {
+        if (postPosition < m_UserPostIDs.size())
+        {
             String postID = m_UserPostIDs.remove(postPosition);
             m_PostModified.remove(postID);
             AlbumManager.getInstance().removePost(postID);
@@ -181,36 +182,29 @@ public class UserFeedAdapter extends RecyclerView.Adapter<UserFeedAdapter.UserFe
         if (postPosition < m_UserPostIDs.size())
         {
             Post post = PostManager.getInstance().getPost(m_UserPostIDs.get(postPosition));
-            if (post != null) {
+            if (post != null)
+            {
                 m_UserFeedFragment.openGoogleMaps(post.m_GeoPoint.getLatitude(), post.m_GeoPoint.getLongitude());
             }
         }
     }
 
-    static private void sortUserPosts(List<String> postIDs)
+    public interface RefreshQueryCompleteListener
     {
-        if (postIDs != null) {
-            postIDs.sort((o1, o2) -> {
-                Post post1 = PostManager.getInstance().getPost(o1);
-                Post post2 = PostManager.getInstance().getPost(o2);
-
-                return post2.m_TimeCreated.compareTo(post1.m_TimeCreated);
-            });
-        }
+        void onComplete();
     }
 
     public static class UserFeedViewHolder extends RecyclerView.ViewHolder
     {
+        final static String[] POST_OPTION_ITEMS = new String[]{"Delete", "Share"};
         private final Context m_Context;
+        private final UserFeedAdapter m_UserFeed;
         public ImageView m_PostImage;
         public TextView m_PostLikeCount;
         public TextView m_PostGeoLocation;
         public ImageButton m_PostOptionButton;
-        private final UserFeedAdapter m_UserFeed;
-
         int m_PopupWidth;
         int m_PopupHeight;
-        final static String[] POST_OPTION_ITEMS = new String[]{"Delete", "Share"};
         ArrayAdapter<String> m_ItemsAdapter;
         ListPopupWindow m_PopupWindow;
 
@@ -236,17 +230,19 @@ public class UserFeedAdapter extends RecyclerView.Adapter<UserFeedAdapter.UserFe
             m_PopupWindow.setDropDownGravity(Gravity.END);
 
             m_PopupWindow.setOnItemClickListener((parent, view, position, id) -> {
-                if (position == 0) {
+                if (position == 0)
+                {
                     m_UserFeed.deletePost(getAdapterPosition());
-                }
-                else if(position == 1) {
+                } else if (position == 1)
+                {
                     m_UserFeed.sharePost(getAdapterPosition());
                 }
                 m_PopupWindow.dismiss();
             });
 
             m_PostOptionButton.setOnClickListener(v -> {
-                if (!m_PopupWindow.isShowing()) {
+                if (!m_PopupWindow.isShowing())
+                {
                     m_PopupWindow.setAnchorView(v);
                     m_PopupWindow.show();
                 }
@@ -269,16 +265,19 @@ public class UserFeedAdapter extends RecyclerView.Adapter<UserFeedAdapter.UserFe
             int widthMeasureSpec = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED);
             int heightMeasureSpec = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED);
 
-            for(int i=0;i<items.getCount();i++) {
+            for (int i = 0; i < items.getCount(); i++)
+            {
                 int positionType = items.getItemViewType(i);
-                if (positionType != itemType) {
+                if (positionType != itemType)
+                {
                     itemType = positionType;
                     itemView = null;
                 }
                 itemView = items.getView(i, itemView, measureParentViewGroup);
                 itemView.measure(widthMeasureSpec, heightMeasureSpec);
                 int itemWidth = itemView.getMeasuredWidth();
-                if (itemWidth > maxWidth) {
+                if (itemWidth > maxWidth)
+                {
                     maxWidth = itemWidth;
                 }
             }

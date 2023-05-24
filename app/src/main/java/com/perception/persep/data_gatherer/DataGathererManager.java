@@ -1,10 +1,6 @@
 package com.perception.persep.data_gatherer;
 
 import android.content.Context;
-import android.net.Uri;
-import android.util.Log;
-
-import com.google.firebase.auth.FirebaseUser;
 
 public class DataGathererManager
 {

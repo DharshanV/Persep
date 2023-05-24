@@ -19,9 +19,8 @@ public class SlidePagerAdapter extends FragmentStateAdapter
     public static final int MIDDLE_PAGE_INDEX = 1;
     @ViewPager2.OffscreenPageLimit
     public static final int NUM_PAGES = 2;
-
-    public HashMap<Integer, Fragment> m_PosFragmentMap = new HashMap<>();
     private final ViewPager2 m_ViewPager;
+    public HashMap<Integer, Fragment> m_PosFragmentMap = new HashMap<>();
 
     public SlidePagerAdapter(ViewPager2 viewPager, @NonNull FragmentManager fragmentManager, @NonNull Lifecycle lifecycle)
     {

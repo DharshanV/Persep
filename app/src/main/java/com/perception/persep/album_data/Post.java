@@ -38,7 +38,7 @@ import java.util.UUID;
 public class Post implements Target
 {
     private static final String PostLoadImage = "PostLoadImage";
-
+    private final Stack<ImageView> m_LoadIntoViews = new Stack<>();
     public String m_PostID;
     public String m_AlbumID;
     public Uri m_ImageURI;
@@ -50,9 +50,7 @@ public class Post implements Target
     public Timestamp m_TimeCreated;
     public Timestamp m_TimeModified;
     public DocumentReference m_DocRef;
-
     public boolean m_IsImageLoaded = false;
-    private final Stack<ImageView> m_LoadIntoViews = new Stack<>();
 
     public Post(Uri postImageURI, String albumID, double lat, double lon)
     {
@@ -67,6 +65,24 @@ public class Post implements Target
         m_TimeModified = now;
         m_Image = PostManager.getInstance().getPostLoadingImage();
         createPostServer();
+    }
+
+    public Post(DocumentSnapshot postDoc) throws NullPointerException
+    {
+        m_PostID = postDoc.getId();
+        m_Image = PostManager.getInstance().getPostLoadingImage();
+        m_DocRef = postDoc.getReference();
+
+        m_AlbumID = (String) postDoc.get(PostConstants.ALBUM_ID);
+        m_ImageURI = Uri.parse((String) postDoc.get(PostConstants.IMAGE_URI));
+        m_Likes = (long) postDoc.get(PostConstants.LIKES);
+        m_UsersLiked = new ArrayList<>((List<DocumentReference>) postDoc.get(PostConstants.USERS_LIKED));
+        m_GeoPoint = (GeoPoint) postDoc.get(PostConstants.GEO_POINT);
+        m_GeoLocation = (String) postDoc.get(PostConstants.GEO_LOCATION);
+        m_TimeCreated = (Timestamp) postDoc.get(PostConstants.TIME_CREATED);
+        m_TimeModified = (Timestamp) postDoc.get(PostConstants.TIME_MODIFIED);
+
+        Picasso.get().load(m_ImageURI).resize(PostConstants.IMAGE_WIDTH, PostConstants.IMAGE_HEIGHT).noFade().into(this);
     }
 
     private void createPostServer()
@@ -94,24 +110,6 @@ public class Post implements Target
                 m_DocRef.update(PostConstants.IMAGE_URI, m_ImageURI).addOnFailureListener(e -> PostManager.getInstance().onPostError(m_PostID, PostError.UPDATE_IMAGE_URI));
             }).addOnFailureListener(e -> PostManager.getInstance().onPostError(m_PostID, PostError.PUT_FILE_STORAGE_REF));
         }).addOnFailureListener(e -> PostManager.getInstance().onPostError(m_PostID, PostError.PUT_FILE_STORAGE_REF));
-    }
-
-    public Post(DocumentSnapshot postDoc) throws NullPointerException
-    {
-        m_PostID = postDoc.getId();
-        m_Image = PostManager.getInstance().getPostLoadingImage();
-        m_DocRef = postDoc.getReference();
-
-        m_AlbumID = (String) postDoc.get(PostConstants.ALBUM_ID);
-        m_ImageURI = Uri.parse((String) postDoc.get(PostConstants.IMAGE_URI));
-        m_Likes = (long) postDoc.get(PostConstants.LIKES);
-        m_UsersLiked = new ArrayList<>((List<DocumentReference>) postDoc.get(PostConstants.USERS_LIKED));
-        m_GeoPoint = (GeoPoint) postDoc.get(PostConstants.GEO_POINT);
-        m_GeoLocation = (String) postDoc.get(PostConstants.GEO_LOCATION);
-        m_TimeCreated = (Timestamp) postDoc.get(PostConstants.TIME_CREATED);
-        m_TimeModified = (Timestamp) postDoc.get(PostConstants.TIME_MODIFIED);
-
-        Picasso.get().load(m_ImageURI).resize(PostConstants.IMAGE_WIDTH, PostConstants.IMAGE_HEIGHT).noFade().into(this);
     }
 
     public void remove()

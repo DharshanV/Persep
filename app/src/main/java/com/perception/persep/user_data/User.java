@@ -8,6 +8,20 @@ import java.util.Map;
 
 public class User implements Parcelable
 {
+    public static final Creator<User> CREATOR = new Creator<User>()
+    {
+        @Override
+        public User createFromParcel(Parcel in)
+        {
+            return new User(in);
+        }
+
+        @Override
+        public User[] newArray(int size)
+        {
+            return new User[size];
+        }
+    };
     public String m_UserID;
     public String m_Username;
     public String m_Email;
@@ -23,13 +37,13 @@ public class User implements Parcelable
         m_Email = in.readString();
     }
 
+
     public User(Map<String, Object> data)
     {
         m_UserID = (String) data.get("user_id");
         m_Username = (String) data.get("username");
         m_Email = (String) data.get("email");
     }
-
 
     public Map<String, Object> getMap()
     {
@@ -39,21 +53,6 @@ public class User implements Parcelable
         user.put("email", m_Email);
         return user;
     }
-
-    public static final Creator<User> CREATOR = new Creator<User>()
-    {
-        @Override
-        public User createFromParcel(Parcel in)
-        {
-            return new User(in);
-        }
-
-        @Override
-        public User[] newArray(int size)
-        {
-            return new User[size];
-        }
-    };
 
     @Override
     public int describeContents()
