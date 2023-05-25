@@ -118,6 +118,7 @@ public class AlbumManager implements Runnable, GPSSensor.Listener
         closestAlbum.addPost(postID);
         UserManager.getInstance().addPost(postID);
         m_WriteLock.unlock();
+        showToast("Successfully created your post!");
     }
 
     public void removePost(String postID)
