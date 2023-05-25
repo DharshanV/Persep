@@ -140,7 +140,7 @@ public class LoginActivity extends AppCompatActivity
         }
 
         // Password
-        boolean isPasswordValid = !password.isEmpty() && password.length() >= 5;
+        boolean isPasswordValid = !password.isEmpty();
         if (!isPasswordValid)
         {
             m_PasswordLayout.setError("Invalid password");
