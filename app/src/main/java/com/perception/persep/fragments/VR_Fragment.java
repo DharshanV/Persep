@@ -94,7 +94,7 @@ public class VR_Fragment extends Fragment implements BearingSensor.BearingSensor
         ActivityResultLauncher<String[]> multiplePermissionResultLauncher = registerForActivityResult(new ActivityResultContracts.RequestMultiplePermissions(), isGranted -> {
             if (isGranted.containsValue(false))
             {
-                Toast.makeText(getActivity(), "Please enable all required permission for the AR feature.", Toast.LENGTH_LONG).show();
+                Toast.makeText(getActivity(), "Please enable all required permission for the AR feature.", Toast.LENGTH_SHORT).show();
             } else
             {
                 InitializeFragment(true);
@@ -388,7 +388,7 @@ public class VR_Fragment extends Fragment implements BearingSensor.BearingSensor
                     if (post != null)
                     {
                         post.like(successful -> {
-                            Toast.makeText(getContext(), "Liked post!", Toast.LENGTH_LONG).show();
+                            Toast.makeText(getContext(), "Liked post!", Toast.LENGTH_SHORT).show();
                         });
                     }
                 }

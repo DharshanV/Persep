@@ -62,13 +62,12 @@ public class RegisterActivity extends AppCompatActivity
                 FirebaseUserAuthentication.getInstance().RegisterNewUser(username, email, password, (successful, message) -> {
                     if (successful)
                     {
-                        Toast.makeText(getApplicationContext(), "Registered successfully. Loading...", Toast.LENGTH_LONG).show();
                         StartHomeActivity();
                     } else
                     {
                         m_RegisterButton.setEnabled(true);
                         m_RegisterButton.setText(R.string.register_button_register_text);
-                        Toast.makeText(getApplicationContext(), "Error registering. Please try again...", Toast.LENGTH_LONG).show();
+                        Toast.makeText(getApplicationContext(), "Error registering. Please try again...", Toast.LENGTH_SHORT).show();
                     }
                 });
             }

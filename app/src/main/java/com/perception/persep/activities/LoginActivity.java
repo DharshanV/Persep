@@ -59,7 +59,6 @@ public class LoginActivity extends AppCompatActivity
                 FirebaseUserAuthentication.getInstance().LoginUser(email, password, (successful, user, message) -> {
                     if (successful)
                     {
-                        Toast.makeText(getApplicationContext(), "Login successful. Loading...", Toast.LENGTH_SHORT).show();
                         StartHomeActivity();
                     } else
                     {
