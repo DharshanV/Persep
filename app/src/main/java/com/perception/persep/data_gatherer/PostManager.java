@@ -118,7 +118,10 @@ public class PostManager
         FirebaseFirestore.getInstance().collection(UserConstants.COLLECTION_NAME).document(userID).get().addOnSuccessListener(userDoc -> {
             List<DocumentReference> userDocPostRefs = (List<DocumentReference>) userDoc.get(UserConstants.POSTS);
 
-            if (userDocPostRefs == null) return;
+            if (userDocPostRefs == null) {
+                listener.onQuery(null);
+                return;
+            }
 
             List<Task<DocumentSnapshot>> postQueryTasks = new ArrayList<>(userDocPostRefs.size());
             for (DocumentReference postRef : userDocPostRefs)
@@ -157,8 +160,8 @@ public class PostManager
                     m_WriteLock.unlock();
                 }
                 listener.onQuery(postIDs);
-            }).addOnFailureListener(Exception::printStackTrace);
-        }).addOnFailureListener(Exception::printStackTrace);
+            }).addOnFailureListener(e -> listener.onQuery(null));
+        }).addOnFailureListener(e -> listener.onQuery(null));
     }
 
     public void onPostError(String postID, PostError error)

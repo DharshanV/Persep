@@ -173,10 +173,10 @@ public class RegisterActivity extends AppCompatActivity
         }
 
         // Password
-        boolean isPasswordValid = !password.isEmpty() && password.length() >= 4;
+        boolean isPasswordValid = !password.isEmpty() && password.length() >= 6;
         if (!isPasswordValid)
         {
-            m_PasswordLayout.setError("Invalid password. Must be more than 4.");
+            m_PasswordLayout.setError("Invalid password. Must be more than 6.");
         }
 
         return isUsernameValid && isEmailValid && isPasswordValid;
