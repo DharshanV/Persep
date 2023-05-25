@@ -5,16 +5,19 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.SystemClock;
-import android.util.Log;
 import android.view.View;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.splashscreen.SplashScreen;
 
+import com.example.persep.BuildConfig;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.perception.persep.constants.UserConstants;
+
+import timber.log.Timber;
 
 public class SplashScreenActivity extends Activity
 {
@@ -27,6 +30,18 @@ public class SplashScreenActivity extends Activity
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState)
     {
+        if (BuildConfig.DEBUG)
+        {
+            Timber.plant(new Timber.DebugTree() {
+                @Nullable
+                @Override
+                protected String createStackElementTag(@NonNull StackTraceElement element)
+                {
+                    return "Persep-" + super.createStackElementTag(element) + "[" + element.getLineNumber() + "]";
+                }
+            });
+        }
+
         SplashScreen.installSplashScreen(this);
         super.onCreate(savedInstanceState);
 
