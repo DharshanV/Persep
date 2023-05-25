@@ -40,7 +40,6 @@ public class RegisterActivity extends AppCompatActivity
 
     private void InitWidgets()
     {
-        Log.d(TAG, "Initializing Widgets.");
         m_Username = findViewById(R.id.register_input_username);
         m_Email = findViewById(R.id.register_input_email);
         m_Password = findViewById(R.id.register_input_password);
@@ -179,7 +178,6 @@ public class RegisterActivity extends AppCompatActivity
 
     private void StartHomeActivity()
     {
-        Log.d(TAG, "Starting home activity.");
         new Handler().postDelayed(() -> {
             Intent intent = new Intent(RegisterActivity.this, HomeActivity.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);

@@ -73,7 +73,6 @@ public class OpenGLRenderer
 
     public void Initialize()
     {
-        Log.d(TAG, "Initialized renderer");
         InitGLSettings();
 
         GLES30.glGenTextures(m_AlbumTextureIDs.length, m_AlbumTextureIDs, 0);
@@ -158,7 +157,6 @@ public class OpenGLRenderer
 
     public void Resize(int width, int height)
     {
-        Log.d(TAG, "Resized | width: " + width + " height: " + height);
         m_Width = width;
         m_Height = height;
         GLES30.glViewport(0, 0, m_Width, m_Height);

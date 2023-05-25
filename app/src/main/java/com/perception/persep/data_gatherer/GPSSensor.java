@@ -38,7 +38,6 @@ public class GPSSensor implements LocationServiceInterface, ILogger
     @Override
     public void log2file(String format, Object... args)
     {
-//        Log.d("Debug", String.format(format, args));
     }
 
     @Override
@@ -49,7 +48,6 @@ public class GPSSensor implements LocationServiceInterface, ILogger
 //        count++;
 //        double avgLat = accumLat / count;
 //        double avgLon = accumLon / count;
-//        Log.d("Debug", avgLat + ", " + avgLon);
         for (Listener listener : m_Listeners)
         {
             listener.onLocationChanged(location.getLatitude(), location.getLongitude());

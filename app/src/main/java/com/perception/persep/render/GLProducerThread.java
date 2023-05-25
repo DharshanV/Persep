@@ -51,7 +51,6 @@ public class GLProducerThread extends Thread
 
     private void InitGLContext()
     {
-        Log.d(TAG, "Initialized GL context");
         m_Egl = (EGL10) EGLContext.getEGL();
 
         m_EglDisplay = m_Egl.eglGetDisplay(EGL10.EGL_DEFAULT_DISPLAY);
@@ -108,7 +107,6 @@ public class GLProducerThread extends Thread
 
     private void DestroyGLContext()
     {
-        Log.d(TAG, "Destroyed GL context");
         m_Egl.eglDestroyContext(m_EglDisplay, m_EglContext);
         m_Egl.eglDestroySurface(m_EglDisplay, m_EglSurface);
         m_EglContext = EGL10.EGL_NO_CONTEXT;

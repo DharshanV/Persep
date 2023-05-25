@@ -146,7 +146,6 @@ public class LoginActivity extends AppCompatActivity
 
     private void StartHomeActivity()
     {
-        Log.d(TAG, "Starting home activity.");
         new Handler().postDelayed(() -> {
             startActivity(new Intent(LoginActivity.this, HomeActivity.class));
             finish();

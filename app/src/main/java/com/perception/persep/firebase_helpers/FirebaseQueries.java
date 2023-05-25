@@ -42,7 +42,6 @@ public class FirebaseQueries
 
     static public List<DocumentSnapshot> OnAlbumQueryTasks(List<Object> albumSnapshots, GeoLocation queryCenter, double maxQueryRadius)
     {
-        Log.d(QUERY_NEARBY_TAG, "===== OnQueryAlbums ====");
         List<DocumentSnapshot> albumDocSnapshots = new ArrayList<>();
 
         for (Object albumSnapshot : albumSnapshots)

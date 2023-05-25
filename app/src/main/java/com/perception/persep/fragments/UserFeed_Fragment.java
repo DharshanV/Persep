@@ -60,7 +60,6 @@ public class UserFeed_Fragment extends Fragment
 
         m_SwipeRefreshLayout = view.findViewById(R.id.user_feed_swipe_refresh_layout);
         m_SwipeRefreshLayout.setOnRefreshListener(() -> {
-            Log.d(TAG, "Refresh...");
             m_UserFeedAdapter.refresh(() -> {
                 m_UserFeedRecycleView.smoothScrollToPosition(0);
                 m_SwipeRefreshLayout.setRefreshing(false);

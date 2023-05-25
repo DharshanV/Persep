@@ -42,8 +42,6 @@ public class RenderView extends TextureView implements TextureView.SurfaceTextur
     @Override
     public boolean onSurfaceTextureDestroyed(@NonNull SurfaceTexture surface)
     {
-        Log.d(TAG, "Texture view destroyed");
-
         //Clean up running threads
         m_GLThread.SetShouldRender(false);
         m_GLThread.SetRunningFlag(false);

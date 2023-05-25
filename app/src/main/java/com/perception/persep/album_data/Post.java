@@ -151,7 +151,6 @@ public class Post implements Target
     @Override
     public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from)
     {
-        Log.d(PostLoadImage, "Image loaded from: " + from.toString() + " with: " + bitmap.getWidth() + "x" + bitmap.getHeight());
         m_IsImageLoaded = true;
         m_Image = bitmap;
 
@@ -164,7 +163,6 @@ public class Post implements Target
     @Override
     public void onBitmapFailed(Exception e, Drawable errorDrawable)
     {
-        Log.d(PostLoadImage, "Couldn't load image: " + e.toString());
     }
 
     @Override

@@ -83,7 +83,6 @@ public class Shader
 
         if (compiled[0] == 0)
         {
-            Log.e(TAG, GLES30.glGetShaderInfoLog(shader));
             GLES30.glDeleteShader(shader);
             return 0;
         }
@@ -106,7 +105,6 @@ public class Shader
         } catch (IOException e)
         {
             e.printStackTrace();
-            Log.e(TAG, "Could not load shader file");
             return null;
         }
     }

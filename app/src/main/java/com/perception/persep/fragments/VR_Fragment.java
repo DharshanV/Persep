@@ -79,7 +79,6 @@ public class VR_Fragment extends Fragment implements BearingSensor.BearingSensor
     @Override
     public void onCreate(Bundle savedInstanceState)
     {
-        Log.d(TAG, "Created");
         super.onCreate(savedInstanceState);
     }
 
@@ -93,19 +92,15 @@ public class VR_Fragment extends Fragment implements BearingSensor.BearingSensor
         }
 
         ActivityResultLauncher<String[]> multiplePermissionResultLauncher = registerForActivityResult(new ActivityResultContracts.RequestMultiplePermissions(), isGranted -> {
-            Log.d(TAG, "Permission launcher result: " + isGranted.toString());
             if (isGranted.containsValue(false))
             {
-                Log.d(TAG, "At least one of the permissions was not granted");
                 Toast.makeText(getActivity(), "Please enable all required permission for the AR feature.", Toast.LENGTH_LONG).show();
             } else
             {
-                Log.d(TAG, "All permissions granted...");
                 InitializeFragment(true);
             }
         });
 
-        Log.d(TAG, "Launching multiple contract permission launcher for ALL required permissions");
         multiplePermissionResultLauncher.launch(manifestPermissions);
     }
 
@@ -113,7 +108,6 @@ public class VR_Fragment extends Fragment implements BearingSensor.BearingSensor
     {
         if (m_VRLayout == null)
         {
-            Log.e(TAG, "Null VR layout");
             return;
         }
 
@@ -145,7 +139,6 @@ public class VR_Fragment extends Fragment implements BearingSensor.BearingSensor
     @Override
     public void onStart()
     {
-        Log.d(TAG, "Started");
         super.onStart();
 
         if (m_VRRenderView != null) m_VRRenderView.onStart();
@@ -155,7 +148,6 @@ public class VR_Fragment extends Fragment implements BearingSensor.BearingSensor
     @Override
     public void onStop()
     {
-        Log.d(TAG, "Stopped");
         super.onStop();
 
         if (m_VRRenderView != null) m_VRRenderView.onStop();
@@ -165,7 +157,6 @@ public class VR_Fragment extends Fragment implements BearingSensor.BearingSensor
     @Override
     public void onPause()
     {
-        Log.d(TAG, "Paused");
         super.onPause();
 
         if (m_VRRenderView != null) m_VRRenderView.onPause();
@@ -175,7 +166,6 @@ public class VR_Fragment extends Fragment implements BearingSensor.BearingSensor
     @Override
     public void onResume()
     {
-        Log.d(TAG, "Resumed");
         super.onResume();
 
         if (m_VRRenderView != null) m_VRRenderView.onResume(m_IsVREnabled);
@@ -241,7 +231,6 @@ public class VR_Fragment extends Fragment implements BearingSensor.BearingSensor
                     });
                 } catch (IOException e)
                 {
-                    Log.e(TAG, e.toString());
                 }
             }
         });
@@ -275,17 +264,8 @@ public class VR_Fragment extends Fragment implements BearingSensor.BearingSensor
                             if (loggedInUser != null && m_DataGathererManager != null)
                             {
                                 AlbumManager.getInstance().tryAddPost(croppedImageUri, m_PostBearing);
-                            } else
-                            {
-                                Log.e(TAG, "Unable to find logged in user!");
                             }
-                        } else
-                        {
-                            Log.e(TAG, "Cropped image uri is null!");
                         }
-                    } else
-                    {
-                        Log.e(TAG, UCrop.getError(result.getData()).toString());
                     }
                 });
     }
@@ -340,10 +320,8 @@ public class VR_Fragment extends Fragment implements BearingSensor.BearingSensor
             {
                 if (ActivityCompat.checkSelfPermission(getActivity(), permission) != PackageManager.PERMISSION_GRANTED)
                 {
-                    Log.d(TAG, "Permission is not granted: " + permission);
                     return false;
                 }
-                Log.d(TAG, "Permission granted: " + permission);
             }
         }
         return true;
