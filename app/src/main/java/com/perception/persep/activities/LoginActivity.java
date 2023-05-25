@@ -61,7 +61,6 @@ public class LoginActivity extends AppCompatActivity
             {
                 m_LoginButton.setEnabled(false);
                 m_LoginButton.setText(R.string.button_loading_text);
-                hideKeyboard();
 
                 FirebaseUserAuthentication.getInstance().LoginUser(email, password, (successful, user, message) -> {
                     if (successful)
@@ -77,10 +76,14 @@ public class LoginActivity extends AppCompatActivity
             }
         });
 
+        TextView signInHelpTextView = findViewById(R.id.textview_sign_in_help);
+        signInHelpTextView.setOnClickListener(v -> {
+            startActivity(new Intent(LoginActivity.this, SignInHelpActivity.class));
+        });
+
         TextView signUpTextView = findViewById(R.id.textview_signup);
         signUpTextView.setOnClickListener(v -> {
             startActivity(new Intent(LoginActivity.this, RegisterActivity.class));
-            hideKeyboard();
         });
 
         m_Email.addTextChangedListener(new TextWatcher()
@@ -156,9 +159,5 @@ public class LoginActivity extends AppCompatActivity
             startActivity(new Intent(LoginActivity.this, HomeActivity.class));
             finish();
         }, HOME_ACTIVITY_DELAY_MS);
-    }
-
-    private void hideKeyboard()
-    {
     }
 }

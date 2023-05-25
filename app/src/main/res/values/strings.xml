@@ -5,4 +5,6 @@
     <string name="login_button_login_text">login</string>
     <string name="register_button_register_text">register</string>
     <string name="button_loading_text">loading</string>
+    <string name="button_send_email_text">Send reset email</string>
+    <string name="button_sending_email_text">Sending</string>
 </resources>

@@ -65,7 +65,6 @@ public class RegisterActivity extends AppCompatActivity
             {
                 m_RegisterButton.setEnabled(false);
                 m_RegisterButton.setText(R.string.button_loading_text);
-                hideKeyboard();
                 FirebaseUserAuthentication.getInstance().RegisterNewUser(username, email, password, (successful, message) -> {
                     if (successful)
                     {
@@ -190,9 +189,5 @@ public class RegisterActivity extends AppCompatActivity
             startActivity(intent);
             finish();
         }, HOME_ACTIVITY_DELAY_MS);
-    }
-
-    private void hideKeyboard()
-    {
     }
 }
