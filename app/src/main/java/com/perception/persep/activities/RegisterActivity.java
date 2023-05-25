@@ -1,11 +1,12 @@
 package com.perception.persep.activities;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -50,6 +51,12 @@ public class RegisterActivity extends AppCompatActivity
         m_PasswordLayout = findViewById(R.id.register_passwordTextInputLayout);
 
         m_RegisterButton.setOnClickListener(v -> {
+            InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(Activity.INPUT_METHOD_SERVICE);
+            if (inputMethodManager.isAcceptingText())
+            {
+                inputMethodManager.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
+            }
+
             String username = m_Username.getText().toString();
             String email = m_Email.getText().toString();
             String password = m_Password.getText().toString();
@@ -144,12 +151,12 @@ public class RegisterActivity extends AppCompatActivity
         boolean isUsernameValid = false;
         if (!username.isEmpty())
         {
-            final String regexPattern = "^(?=.{5,20}$)(?![_.])(?!.*[_.]{2})[a-zA-Z0-9._]+(?<![_.])$";
+            final String regexPattern = "^(?=.{3,15}$)(?![_.])(?!.*[_.]{2})[a-zA-Z0-9._]+(?<![_.])$";
             isUsernameValid = Pattern.compile(regexPattern).matcher(username).matches();
         }
         if (!isUsernameValid)
         {
-            m_UsernameLayout.setError("Invalid username");
+            m_UsernameLayout.setError("Invalid username. Must be between 3-15 characters.");
         }
 
         // Email
@@ -166,10 +173,10 @@ public class RegisterActivity extends AppCompatActivity
         }
 
         // Password
-        boolean isPasswordValid = !password.isEmpty() && password.length() >= 5;
+        boolean isPasswordValid = !password.isEmpty() && password.length() >= 4;
         if (!isPasswordValid)
         {
-            m_PasswordLayout.setError("Invalid password");
+            m_PasswordLayout.setError("Invalid password. Must be more than 4.");
         }
 
         return isUsernameValid && isEmailValid && isPasswordValid;

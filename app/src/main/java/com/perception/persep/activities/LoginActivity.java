@@ -1,11 +1,12 @@
 package com.perception.persep.activities;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -48,6 +49,12 @@ public class LoginActivity extends AppCompatActivity
 
         m_LoginButton = findViewById(R.id.button_login);
         m_LoginButton.setOnClickListener(v -> {
+            InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(Activity.INPUT_METHOD_SERVICE);
+            if (inputMethodManager.isAcceptingText())
+            {
+                inputMethodManager.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
+            }
+
             String email = m_Email.getText().toString();
             String password = m_Password.getText().toString();
             if (CheckInputs(email, password))
