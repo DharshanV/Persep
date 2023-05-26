@@ -32,6 +32,7 @@ import com.otaliastudios.cameraview.CameraListener;
 import com.otaliastudios.cameraview.CameraOptions;
 import com.otaliastudios.cameraview.CameraView;
 import com.otaliastudios.cameraview.PictureResult;
+import com.otaliastudios.cameraview.controls.Facing;
 import com.perception.persep.album_data.Album;
 import com.perception.persep.album_data.Post;
 import com.perception.persep.data_gatherer.AlbumManager;
@@ -62,7 +63,6 @@ public class VR_Fragment extends Fragment implements BearingSensor.BearingSensor
     private ImageButton m_TakePhotoButton = null;
     private ImageButton m_ToggleVRButton = null;
     private ImageButton m_ToggleCameraButton = null;
-    private boolean m_IsBackCamera = true;
     private boolean m_IsInteractingWithPost = false;
     private String m_InteractingWithAlbum = null;
     private int m_ViewWidth = 0;
@@ -113,7 +113,7 @@ public class VR_Fragment extends Fragment implements BearingSensor.BearingSensor
 
         m_IsVRInitialized = true;
         m_IsVREnabled = true;
-        m_PrevIsVREnabled = true;
+        m_PrevIsVREnabled = false;
         m_ToggleVRButton.setEnabled(true);
         m_ToggleVRButton.setImageResource(R.drawable.ic_ar_enabled_button);
 
@@ -274,10 +274,10 @@ public class VR_Fragment extends Fragment implements BearingSensor.BearingSensor
     {
         if (m_IsVRInitialized)
         {
+            m_PrevIsVREnabled = m_IsVREnabled;
             m_IsVREnabled = !m_IsVREnabled;
             m_ToggleVRButton.setImageResource(m_IsVREnabled ? R.drawable.ic_ar_enabled_button : R.drawable.ic_ar_disabled_button);
             if (m_VRRenderView != null) m_VRRenderView.ShouldRender(m_IsVREnabled);
-            m_PrevIsVREnabled = m_IsVREnabled;
         }
     }
 
@@ -285,23 +285,25 @@ public class VR_Fragment extends Fragment implements BearingSensor.BearingSensor
     {
         if (m_CameraView != null && m_CameraView.isOpened())
         {
-            m_IsBackCamera = !m_IsBackCamera;
-            m_ToggleCameraButton.setImageResource(m_IsBackCamera ? R.drawable.ic_baseline_camera_rear_24 : R.drawable.ic_baseline_camera_front_24);
-            m_CameraView.toggleFacing();
-        }
-
-        if (m_IsVRInitialized)
-        {
-            if (m_IsBackCamera)
-            {
-                m_ToggleVRButton.setEnabled(true);
-                m_ToggleVRButton.setImageResource(m_PrevIsVREnabled ? R.drawable.ic_ar_enabled_button : R.drawable.ic_ar_disabled_button);
-                if (m_VRRenderView != null) m_VRRenderView.ShouldRender(m_PrevIsVREnabled);
-            } else
-            {
-                m_ToggleVRButton.setEnabled(false);
-                m_ToggleVRButton.setImageResource(R.drawable.ic_ar_disabled_button);
-                if (m_VRRenderView != null) m_VRRenderView.ShouldRender(false);
+            Facing cameraFacing = m_CameraView.toggleFacing();
+            if (cameraFacing == Facing.BACK) {
+                m_IsVREnabled = m_PrevIsVREnabled;
+                m_ToggleCameraButton.setImageResource(R.drawable.ic_baseline_camera_rear_24);
+                if (m_IsVRInitialized) {
+                    m_ToggleVRButton.setEnabled(true);
+                    m_ToggleVRButton.setImageResource(m_IsVREnabled ? R.drawable.ic_ar_enabled_button : R.drawable.ic_ar_disabled_button);
+                    if (m_VRRenderView != null) m_VRRenderView.ShouldRender(m_IsVREnabled);
+                }
+            }
+            else if (cameraFacing == Facing.FRONT) {
+                m_PrevIsVREnabled = m_IsVREnabled;
+                m_IsVREnabled = false;
+                m_ToggleCameraButton.setImageResource(R.drawable.ic_baseline_camera_front_24);
+                if (m_IsVRInitialized) {
+                    m_ToggleVRButton.setEnabled(false);
+                    m_ToggleVRButton.setImageResource(R.drawable.ic_ar_disabled_button);
+                    if (m_VRRenderView != null) m_VRRenderView.ShouldRender(false);
+                }
             }
         }
     }
