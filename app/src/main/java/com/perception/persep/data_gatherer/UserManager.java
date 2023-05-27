@@ -19,6 +19,11 @@ public class UserManager
 
     public DocumentReference m_DocRef;
 
+    public interface DeleteUserListener
+    {
+        void onDeleteListener(boolean successful);
+    }
+
     private UserManager()
     {
     }
@@ -57,20 +62,21 @@ public class UserManager
 
     public void deleteUser()
     {
-        m_DocRef.get().addOnSuccessListener(userDoc -> {
-            List<DocumentReference> userPostRefs = (List<DocumentReference>) userDoc.get(UserConstants.POSTS);
-            if (userPostRefs != null && !userPostRefs.isEmpty()) {
-                for (DocumentReference postRef : userPostRefs) {
-                    postRef.get().addOnSuccessListener(postDoc -> {
-                        String albumID = (String) postDoc.get(PostConstants.ALBUM_ID);
-                        if (albumID != null) {
-                            AlbumManager.getInstance().removePost(albumID, postRef);
-                        }
-                    });
-                    postRef.delete();
-                }
-            }
-            m_DocRef.delete();
-        });
+        m_DocRef.delete();
+//        m_DocRef.get().addOnSuccessListener(userDoc -> {
+//            List<DocumentReference> userPostRefs = (List<DocumentReference>) userDoc.get(UserConstants.POSTS);
+//            if (userPostRefs != null && !userPostRefs.isEmpty()) {
+//                for (DocumentReference postRef : userPostRefs) {
+//                    postRef.get().addOnSuccessListener(postDoc -> {
+//                        String albumID = (String) postDoc.get(PostConstants.ALBUM_ID);
+//                        if (albumID != null) {
+//                            AlbumManager.getInstance().removePost(albumID, postRef);
+//                        }
+//                    });
+//                    postRef.delete();
+//                }
+//            }
+//            m_DocRef.delete();
+//        });
     }
 }

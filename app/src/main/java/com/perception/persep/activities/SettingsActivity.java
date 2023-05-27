@@ -1,5 +1,6 @@
 package com.perception.persep.activities;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.TypedValue;
@@ -18,12 +19,15 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.perception.persep.constants.UserConstants;
 import com.perception.persep.data_gatherer.UserManager;
+
+import timber.log.Timber;
 
 public class SettingsActivity extends AppCompatActivity
 {
-    private boolean m_AllowUserToExit = true;
-
     private Button m_SignOutButton;
     private AlertDialog m_ConfirmSignOutDialog;
 
@@ -31,6 +35,8 @@ public class SettingsActivity extends AppCompatActivity
     private AlertDialog m_ConfirmDeleteAccountDialog;
 
     private ImageButton m_BackButton;
+
+    private ProgressDialog m_ProgressDialog;
 
     protected void onCreate(Bundle savedInstanceState)
     {
@@ -41,13 +47,10 @@ public class SettingsActivity extends AppCompatActivity
                 .setTitle("Sign Out")
                 .setMessage("Do you really want to sign out?")
                 .setPositiveButton("Yes", (dialog, which) -> {
-                    m_BackButton.setEnabled(false);
-                    m_AllowUserToExit = false;
+                    createProgressDialog("Signing out...");
                     FirebaseUser loggedInUser = FirebaseAuth.getInstance().getCurrentUser();
                     if (loggedInUser != null)
                     {
-                        m_SignOutButton.setEnabled(false);
-                        m_SignOutButton.setText("Signing out...");
                         FirebaseAuth.getInstance().signOut();
                     }
                 })
@@ -61,11 +64,23 @@ public class SettingsActivity extends AppCompatActivity
             m_ConfirmSignOutDialog.show();
         });
 
-        m_ConfirmDeleteAccountDialog = new AlertDialog.Builder(getApplicationContext())
+        m_ConfirmDeleteAccountDialog = new AlertDialog.Builder(this)
                 .setTitle("Delete Account")
                 .setMessage("Do you really want to delete your account?")
                 .setPositiveButton("Yes", (dialog, which) -> {
+                    createProgressDialog("Deleting account...");
 
+                    FirebaseUser loggedInUser = FirebaseAuth.getInstance().getCurrentUser();
+                    if (loggedInUser != null) {
+                        DocumentReference userDocRef = FirebaseFirestore.getInstance().collection(UserConstants.COLLECTION_NAME).document(loggedInUser.getUid());
+                        userDocRef.delete().addOnSuccessListener(unused -> {
+                            loggedInUser.delete().addOnSuccessListener(unused2 -> {
+                                Timber.d("Deleted successful");
+                            }).addOnFailureListener(e -> {
+                                Timber.d("Deleted failed: %s", e.toString());
+                            });
+                        });
+                    }
                 })
                 .setNegativeButton("Cancel", null)
                 .create();
@@ -83,20 +98,9 @@ public class SettingsActivity extends AppCompatActivity
             if (firebaseAuth.getCurrentUser() == null)
             {
                 Toast.makeText(getApplicationContext(), "Signed out successfully", Toast.LENGTH_SHORT).show();
-                Intent intent = new Intent(SettingsActivity.this, LoginActivity.class);
-                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
-                startActivity(intent);
+                onSignOutLaunchLogin();
             }
         });
-    }
-
-    @Override
-    public void onBackPressed()
-    {
-        if (m_AllowUserToExit)
-        {
-            super.onBackPressed();
-        }
     }
 
     private void setupDialog(AlertDialog alertDialog)
@@ -112,5 +116,24 @@ public class SettingsActivity extends AppCompatActivity
             alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextSize(TypedValue.COMPLEX_UNIT_PX, size);
             alertDialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextSize(TypedValue.COMPLEX_UNIT_PX, size);
         });
+    }
+
+    private void createProgressDialog(String message)
+    {
+        m_ProgressDialog = new ProgressDialog(this);
+        m_ProgressDialog.setMessage(message);
+        m_ProgressDialog.show();
+        m_ProgressDialog.setCancelable(false);
+    }
+
+    private void onSignOutLaunchLogin()
+    {
+        if (m_ProgressDialog != null) {
+            m_ProgressDialog.dismiss();
+            m_ProgressDialog = null;
+        }
+        Intent intent = new Intent(SettingsActivity.this, LoginActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(intent);
     }
 }
