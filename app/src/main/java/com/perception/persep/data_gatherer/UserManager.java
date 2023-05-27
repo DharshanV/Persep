@@ -1,13 +1,17 @@
 package com.perception.persep.data_gatherer;
 
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.perception.persep.album_data.Post;
-import com.perception.persep.constants.AlbumConstants;
+import com.perception.persep.constants.PostConstants;
 import com.perception.persep.constants.UserConstants;
+
+import java.util.List;
 
 public class UserManager
 {
@@ -48,6 +52,25 @@ public class UserManager
 
     public void removePost(DocumentReference postRef)
     {
-        m_DocRef.update(AlbumConstants.POSTS, FieldValue.arrayRemove(postRef));
+        m_DocRef.update(UserConstants.POSTS, FieldValue.arrayRemove(postRef));
+    }
+
+    public void deleteUser()
+    {
+        m_DocRef.get().addOnSuccessListener(userDoc -> {
+            List<DocumentReference> userPostRefs = (List<DocumentReference>) userDoc.get(UserConstants.POSTS);
+            if (userPostRefs != null && !userPostRefs.isEmpty()) {
+                for (DocumentReference postRef : userPostRefs) {
+                    postRef.get().addOnSuccessListener(postDoc -> {
+                        String albumID = (String) postDoc.get(PostConstants.ALBUM_ID);
+                        if (albumID != null) {
+                            AlbumManager.getInstance().removePost(albumID, postRef);
+                        }
+                    });
+                    postRef.delete();
+                }
+            }
+            m_DocRef.delete();
+        });
     }
 }
