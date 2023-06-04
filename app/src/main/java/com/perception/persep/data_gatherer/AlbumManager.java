@@ -14,10 +14,12 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.firestore.WriteBatch;
 import com.perception.persep.activities.HomeActivity;
 import com.perception.persep.album_data.Album;
 import com.perception.persep.album_data.Post;
 import com.perception.persep.constants.AlbumConstants;
+import com.perception.persep.constants.PostConstants;
 import com.perception.persep.constants.QueryConstants;
 import com.perception.persep.enums.AlbumError;
 import com.perception.persep.firebase_helpers.FirebaseQueries;
@@ -146,7 +148,28 @@ public class AlbumManager implements Runnable, GPSSensor.Listener
         m_WriteLock.unlock();
     }
 
-    public void removePost(String albumID, DocumentReference postRef)
+    public void removePost(DocumentSnapshot postDoc)
+    {
+        String albumID = (String) postDoc.get(PostConstants.ALBUM_ID);
+        if (albumID != null) {
+            Album album = m_Albums.get(albumID);
+            if (album != null)
+            {
+                album.removePost(postDoc.getId());
+                if (album.m_PostIDs.isEmpty())
+                {
+                    album.remove();
+                    m_Albums.remove(album.m_AlbumID);
+                }
+            } else
+            {
+                removeServerAlbumPost(albumID, postDoc.getReference());
+                PostManager.getInstance().removePost(postDoc);
+            }
+        }
+    }
+
+    public void removeInvalidAlbumPost(String albumID, DocumentReference postRef)
     {
         removeServerAlbumPost(albumID, postRef);
     }
@@ -172,8 +195,10 @@ public class AlbumManager implements Runnable, GPSSensor.Listener
                 DocumentReference albumRef = albumDoc.getReference();
                 if (postRefs.size() != 1)
                 {
+                    WriteBatch batch = FirebaseFirestore.getInstance().batch();
                     albumRef.update(AlbumConstants.POSTS, FieldValue.arrayRemove(postRef));
                     albumRef.update(AlbumConstants.TIME_MODIFIED, Timestamp.now());
+                    batch.commit();
                 } else
                 {
                     albumRef.delete();

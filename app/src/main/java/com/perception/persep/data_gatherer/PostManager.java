@@ -13,6 +13,8 @@ import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 import com.perception.persep.activities.HomeActivity;
 import com.perception.persep.album_data.Post;
 import com.perception.persep.constants.PostConstants;
@@ -105,6 +107,26 @@ public class PostManager
         return post;
     }
 
+    public void removePost(DocumentSnapshot postDoc)
+    {
+        m_WriteLock.lock();
+        Post post = m_Posts.remove(postDoc.getId());
+        m_WriteLock.unlock();
+        if (post != null)
+        {
+            post.remove();
+        }
+        else {
+            String imageURIStr = (String) postDoc.get(PostConstants.IMAGE_URI);
+            if (imageURIStr != null) {
+                Uri imageURI = Uri.parse(imageURIStr);
+                StorageReference postImageRef = FirebaseStorage.getInstance().getReferenceFromUrl(imageURI.toString());
+                postImageRef.delete();
+                postDoc.getReference().delete();
+            }
+        }
+    }
+
     public Post getPost(String postID)
     {
         m_ReadLock.lock();
@@ -146,7 +168,7 @@ public class PostManager
                             String albumID = (String) postDoc.get(PostConstants.ALBUM_ID);
                             if (albumID != null)
                             {
-                                AlbumManager.getInstance().removePost(albumID, postDoc.getReference());
+                                AlbumManager.getInstance().removeInvalidAlbumPost(albumID, postDoc.getReference());
                             }
                             UserManager.getInstance().removePost(postDoc.getReference());
                             postDoc.getReference().delete();

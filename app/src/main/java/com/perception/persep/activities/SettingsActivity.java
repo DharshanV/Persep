@@ -69,18 +69,15 @@ public class SettingsActivity extends AppCompatActivity
                 .setMessage("Do you really want to delete your account?")
                 .setPositiveButton("Yes", (dialog, which) -> {
                     createProgressDialog("Deleting account...");
-
-                    FirebaseUser loggedInUser = FirebaseAuth.getInstance().getCurrentUser();
-                    if (loggedInUser != null) {
-                        DocumentReference userDocRef = FirebaseFirestore.getInstance().collection(UserConstants.COLLECTION_NAME).document(loggedInUser.getUid());
-                        userDocRef.delete().addOnSuccessListener(unused -> {
-                            loggedInUser.delete().addOnSuccessListener(unused2 -> {
-                                Timber.d("Deleted successful");
-                            }).addOnFailureListener(e -> {
-                                Timber.d("Deleted failed: %s", e.toString());
-                            });
-                        });
-                    }
+                    UserManager.getInstance().deleteUser(successful -> {
+                        if (!successful) {
+                            Toast.makeText(getApplicationContext(), "Failed to delete account. Try again later.", Toast.LENGTH_SHORT).show();
+                            if (m_ProgressDialog != null) {
+                                m_ProgressDialog.dismiss();
+                                m_ProgressDialog = null;
+                            }
+                        }
+                    });
                 })
                 .setNegativeButton("Cancel", null)
                 .create();
@@ -97,8 +94,7 @@ public class SettingsActivity extends AppCompatActivity
         FirebaseAuth.getInstance().addAuthStateListener(firebaseAuth -> {
             if (firebaseAuth.getCurrentUser() == null)
             {
-                Toast.makeText(getApplicationContext(), "Signed out successfully", Toast.LENGTH_SHORT).show();
-                onSignOutLaunchLogin();
+                onInvalidCurrentUser();
             }
         });
     }
@@ -126,7 +122,7 @@ public class SettingsActivity extends AppCompatActivity
         m_ProgressDialog.setCancelable(false);
     }
 
-    private void onSignOutLaunchLogin()
+    private void onInvalidCurrentUser()
     {
         if (m_ProgressDialog != null) {
             m_ProgressDialog.dismiss();

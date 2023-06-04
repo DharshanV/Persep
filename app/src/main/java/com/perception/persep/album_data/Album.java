@@ -85,7 +85,7 @@ public class Album
                         m_WriteLock.unlock();
                     } else
                     {
-                        AlbumManager.getInstance().removePost(m_AlbumID, postRef);
+                        AlbumManager.getInstance().removeInvalidAlbumPost(m_AlbumID, postRef);
                     }
                 });
             }

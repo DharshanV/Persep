@@ -17,7 +17,7 @@ public class UserManager
 {
     static private UserManager m_Instance = null;
 
-    public DocumentReference m_DocRef;
+    public DocumentReference m_DocRef = null;
 
     public interface DeleteUserListener
     {
@@ -33,13 +33,17 @@ public class UserManager
         if (m_Instance == null)
         {
             m_Instance = new UserManager();
-            FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
-            if (firebaseUser != null)
-            {
-                m_Instance.m_DocRef = FirebaseFirestore.getInstance().collection(UserConstants.COLLECTION_NAME).document(firebaseUser.getUid());
-            }
         }
         return m_Instance;
+    }
+
+    public void init()
+    {
+        FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
+        if (firebaseUser != null)
+        {
+            m_Instance.m_DocRef = FirebaseFirestore.getInstance().collection(UserConstants.COLLECTION_NAME).document(firebaseUser.getUid());
+        }
     }
 
     public void addPost(String postID)
@@ -60,23 +64,23 @@ public class UserManager
         m_DocRef.update(UserConstants.POSTS, FieldValue.arrayRemove(postRef));
     }
 
-    public void deleteUser()
+    public void deleteUser(DeleteUserListener listener)
     {
-        m_DocRef.delete();
-//        m_DocRef.get().addOnSuccessListener(userDoc -> {
-//            List<DocumentReference> userPostRefs = (List<DocumentReference>) userDoc.get(UserConstants.POSTS);
-//            if (userPostRefs != null && !userPostRefs.isEmpty()) {
-//                for (DocumentReference postRef : userPostRefs) {
-//                    postRef.get().addOnSuccessListener(postDoc -> {
-//                        String albumID = (String) postDoc.get(PostConstants.ALBUM_ID);
-//                        if (albumID != null) {
-//                            AlbumManager.getInstance().removePost(albumID, postRef);
-//                        }
-//                    });
-//                    postRef.delete();
-//                }
-//            }
-//            m_DocRef.delete();
-//        });
+        FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
+        if (firebaseUser != null) {
+            m_DocRef.get().addOnSuccessListener(userDoc -> {
+                List<DocumentReference> userPostRefs = (List<DocumentReference>) userDoc.get(UserConstants.POSTS);
+                if (userPostRefs != null) {
+                    for (DocumentReference postRef : userPostRefs) {
+                        postRef.get().addOnSuccessListener(postDoc -> {
+                            AlbumManager.getInstance().removePost(postDoc);
+                        });
+                    }
+                }
+                m_DocRef.delete();
+                m_DocRef = null;
+                firebaseUser.delete().addOnFailureListener(e -> listener.onDeleteListener(false));
+            }).addOnFailureListener(e -> listener.onDeleteListener(false));
+        }
     }
 }
