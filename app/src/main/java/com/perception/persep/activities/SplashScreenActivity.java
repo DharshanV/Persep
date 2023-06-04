@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.SystemClock;
-import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -24,15 +23,14 @@ public class SplashScreenActivity extends Activity
     private static final String TAG = "SplashScreen";
 
     private static final int SPLASH_SCREEN_ANIMATION_TIME = 1000;
-    private Class<?> m_LaunchActivityClass = null;
-    private boolean m_LaunchedActivity = false;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState)
     {
         if (BuildConfig.DEBUG)
         {
-            Timber.plant(new Timber.DebugTree() {
+            Timber.plant(new Timber.DebugTree()
+            {
                 @Nullable
                 @Override
                 protected String createStackElementTag(@NonNull StackTraceElement element)
@@ -42,20 +40,10 @@ public class SplashScreenActivity extends Activity
             });
         }
 
-        SplashScreen.installSplashScreen(this);
+        SplashScreen splashScreen = SplashScreen.installSplashScreen(this);
         super.onCreate(savedInstanceState);
 
-        final View content = findViewById(android.R.id.content);
-        content.getViewTreeObserver().addOnPreDrawListener(() -> {
-            if (m_LaunchActivityClass != null && !m_LaunchedActivity)
-            {
-                m_LaunchedActivity = true;
-                startActivity(new Intent(SplashScreenActivity.this, m_LaunchActivityClass));
-                finish();
-                return true;
-            }
-            return false;
-        });
+        splashScreen.setKeepOnScreenCondition(() -> true);
 
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         if (user != null)
@@ -63,15 +51,23 @@ public class SplashScreenActivity extends Activity
             long currTime = SystemClock.elapsedRealtime();
             FirebaseFirestore.getInstance().collection(UserConstants.COLLECTION_NAME).document(user.getUid()).get().addOnSuccessListener(documentSnapshot -> {
                 long delayTime = Math.max(SPLASH_SCREEN_ANIMATION_TIME - (SystemClock.elapsedRealtime() - currTime), 0);
-                new Handler().postDelayed(() -> m_LaunchActivityClass = HomeActivity.class, delayTime);
+                startActivity(HomeActivity.class, delayTime);
             }).addOnFailureListener(e -> {
                 long delayTime = Math.max(SPLASH_SCREEN_ANIMATION_TIME - (SystemClock.elapsedRealtime() - currTime), 0);
-                new Handler().postDelayed(() -> m_LaunchActivityClass = LoginActivity.class, delayTime);
+                startActivity(LoginActivity.class, delayTime);
             });
         } else
         {
-            new Handler().postDelayed(() -> m_LaunchActivityClass = LoginActivity.class, SPLASH_SCREEN_ANIMATION_TIME);
+            startActivity(LoginActivity.class, SPLASH_SCREEN_ANIMATION_TIME);
         }
+    }
+
+    private void startActivity(Class<?> activity, long delay)
+    {
+        new Handler().postDelayed(() -> {
+            startActivity(new Intent(SplashScreenActivity.this, activity));
+            finish();
+        }, delay);
     }
 
 }
