@@ -277,8 +277,13 @@ public class UserFeedAdapter extends RecyclerView.Adapter<UserFeedAdapter.UserFe
 
         public void setLike(long likes)
         {
-            String textViewString = m_Context.getString(R.string.user_post_likes, likes);
-            m_PostLikeCount.setText(textViewString);
+            if (likes != 0) {
+                String textViewString = m_Context.getString(R.string.user_post_likes, likes);
+                m_PostLikeCount.setText(textViewString);
+            }
+            else {
+                m_PostLikeCount.setText("");
+            }
         }
 
         private int measureContentWidth(ArrayAdapter<String> items)
