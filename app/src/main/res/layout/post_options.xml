@@ -12,7 +12,7 @@
         android:paddingStart="15dp"
         android:paddingBottom="20dp"
         android:paddingEnd="40dp"
-        android:textSize="17sp"
+        android:textSize="18sp"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"/>
 </androidx.constraintlayout.widget.ConstraintLayout>
