@@ -34,7 +34,7 @@ public class Album
     public final List<String> m_PostIDs = new ArrayList<>();
     private final Set<Integer> m_PendingPostUpdate = new HashSet<>();
     private final Timer m_UpdatePostTimer;
-    private final int TASK_START_DELAY = 10000; // 5 secs
+    private final int TASK_START_DELAY = 5000; // 5 secs
     private final ReadWriteLock m_ReadWriteLock = new ReentrantReadWriteLock();
     private final Lock m_WriteLock = m_ReadWriteLock.writeLock();
     private final Lock m_ReadLock = m_ReadWriteLock.writeLock();
