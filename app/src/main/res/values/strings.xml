@@ -11,4 +11,6 @@
     <string name="no_account_sign_up_string">No account? Sign up</string>
     <string name="password_hint_string">Password</string>
     <string name="email_hint_string">Email</string>
+    <string name="register_button_string">Register</string>
+    <string name="username_hint_string">Username</string>
 </resources>
