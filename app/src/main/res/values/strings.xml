@@ -7,4 +7,8 @@
     <string name="button_loading_text">loading</string>
     <string name="button_send_email_text">Send reset email</string>
     <string name="button_sending_email_text">Sending</string>
+    <string name="forgot_login_details_string">Forgot login details? Get help signing in</string>
+    <string name="no_account_sign_up_string">No account? Sign up</string>
+    <string name="password_hint_string">Password</string>
+    <string name="email_hint_string">Email</string>
 </resources>
