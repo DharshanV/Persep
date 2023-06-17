@@ -20,6 +20,9 @@ import com.perception.persep.firebase_helpers.FirebaseUserAuthentication;
 
 import java.util.regex.Pattern;
 
+import nu.aaro.gustav.passwordstrengthmeter.PasswordStrengthCalculator;
+import nu.aaro.gustav.passwordstrengthmeter.PasswordStrengthLevel;
+import nu.aaro.gustav.passwordstrengthmeter.PasswordStrengthMeter;
 
 public class RegisterActivity extends AppCompatActivity
 {
@@ -27,9 +30,11 @@ public class RegisterActivity extends AppCompatActivity
     private static final int HOME_ACTIVITY_DELAY_MS = 1000;
 
     // Widgets
-    private TextInputLayout m_EmailLayout, m_UsernameLayout, m_PasswordLayout;
+    private TextInputLayout m_EmailLayout, m_UsernameLayout;
     private EditText m_Email, m_Username, m_Password;
     private Button m_RegisterButton;
+    private PasswordStrengthMeter m_PasswordStrengthMeter;
+    private boolean m_AcceptPassword = false;
 
     protected void onCreate(Bundle savedInstanceState)
     {
@@ -45,10 +50,10 @@ public class RegisterActivity extends AppCompatActivity
         m_Email = findViewById(R.id.register_input_email);
         m_Password = findViewById(R.id.register_input_password);
         m_RegisterButton = findViewById(R.id.register_button);
+        m_PasswordStrengthMeter = findViewById(R.id.password_input_meter);
 
         m_UsernameLayout = findViewById(R.id.register_usernameTextInputLayout);
         m_EmailLayout = findViewById(R.id.register_emailTextInputLayout);
-        m_PasswordLayout = findViewById(R.id.register_passwordTextInputLayout);
 
         m_RegisterButton.setOnClickListener(v -> {
             InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(Activity.INPUT_METHOD_SERVICE);
@@ -61,7 +66,7 @@ public class RegisterActivity extends AppCompatActivity
             String email = m_Email.getText().toString();
             String password = m_Password.getText().toString();
 
-            if (CheckInputs(username, email, password))
+            if (CheckInputs(username, email) && m_AcceptPassword)
             {
                 m_RegisterButton.setEnabled(false);
                 m_RegisterButton.setText(R.string.button_loading_text);
@@ -122,29 +127,74 @@ public class RegisterActivity extends AppCompatActivity
 
             }
         });
-        m_Password.addTextChangedListener(new TextWatcher()
+
+        m_PasswordStrengthMeter.setEditText(m_Password);
+        m_PasswordStrengthMeter.setPasswordStrengthCalculator(new PasswordStrengthCalculator()
         {
             @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after)
+            public int calculatePasswordSecurityLevel(String password)
             {
+                int level = 0;
+                int minLength = getMinimumLength();
 
+                // Checks if password meets minimum length
+                if (password.length() < minLength) {
+                    return 0;
+                } else {
+                    ++level;
+                }
+
+                // Give level for extra long password
+                if (password.length() >= (minLength * (3.0 / 2))) ++level;
+
+                boolean hasUppercase = !password.equals(password.toLowerCase());
+                boolean hasLowercase = !password.equals(password.toUpperCase());
+
+                // Give level for password containing both upper and lower case letters
+                if (hasLowercase && hasUppercase) ++level;
+
+                // Give level for password containing digits
+                boolean hasNumber = password.matches(".*\\d.*");
+                if (hasNumber) ++level;
+
+                // Give level for password containing special characters
+                boolean hasSpecial = password.matches(".*[!@#€£©§|≈$%^&*].*");
+                if (hasSpecial) ++level;
+
+                m_AcceptPassword = false;
+
+                return level;
             }
 
             @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count)
+            public int getMinimumLength()
             {
-                m_PasswordLayout.setError(null);
+                return 6;
             }
 
             @Override
-            public void afterTextChanged(Editable s)
+            public boolean passwordAccepted(int level)
             {
+                return level >= 3;
+            }
 
+            @Override
+            public void onPasswordAccepted(String password)
+            {
+                m_AcceptPassword = true;
             }
         });
+        m_PasswordStrengthMeter.setStrengthLevels(new PasswordStrengthLevel[]{
+                new PasswordStrengthLevel("Too short", android.R.color.darker_gray), // level 0
+                new PasswordStrengthLevel("Weak", android.R.color.holo_red_dark), // level 1
+                new PasswordStrengthLevel("Fair", android.R.color.holo_orange_dark), // level 2
+                new PasswordStrengthLevel("Good", android.R.color.holo_orange_light), // level 3
+                new PasswordStrengthLevel("Strong", android.R.color.holo_green_dark), // level 4
+                new PasswordStrengthLevel("Very strong", android.R.color.holo_green_light)} // level 5)
+        );
     }
 
-    private boolean CheckInputs(String username, String email, String password)
+    private boolean CheckInputs(String username, String email)
     {
         // Username
         boolean isUsernameValid = false;
@@ -171,14 +221,7 @@ public class RegisterActivity extends AppCompatActivity
             m_EmailLayout.setError("Invalid email");
         }
 
-        // Password
-        boolean isPasswordValid = !password.isEmpty() && password.length() >= 6;
-        if (!isPasswordValid)
-        {
-            m_PasswordLayout.setError("Invalid password. Must be more than 6.");
-        }
-
-        return isUsernameValid && isEmailValid && isPasswordValid;
+        return isUsernameValid && isEmailValid;
     }
 
     private void StartHomeActivity()

@@ -81,6 +81,19 @@
             android:id="@+id/register_input_password" />
     </com.google.android.material.textfield.TextInputLayout>
 
+    <nu.aaro.gustav.passwordstrengthmeter.PasswordStrengthMeter
+        app:layout_constraintTop_toBottomOf="@+id/register_passwordTextInputLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="25dp"
+        android:layout_marginRight="25dp"
+        android:id="@+id/password_input_meter"
+        app:strengthBarHeight="5dp"
+        app:animateChanges="true"
+        app:showStrengthLabel="true"
+        app:showStrengthBar="true"
+        app:animationDuration="300"
+        app:labelTextSize="15sp"/>
 
     <androidx.appcompat.widget.AppCompatButton
         android:layout_width="match_parent"
@@ -88,7 +101,7 @@
         android:layout_marginLeft="25dp"
         android:layout_marginRight="25dp"
         android:layout_marginTop="25dp"
-        app:layout_constraintTop_toBottomOf="@id/register_passwordTextInputLayout"
+        app:layout_constraintTop_toBottomOf="@id/password_input_meter"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         android:text="Register"
