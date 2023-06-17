@@ -2,13 +2,14 @@ package com.perception.persep.render;
 
 import android.content.Context;
 import android.graphics.SurfaceTexture;
-import android.util.Log;
+import android.location.Location;
 import android.view.TextureView;
 
 import androidx.annotation.NonNull;
 
 import com.perception.persep.data_gatherer.GPSSensor;
 import com.perception.persep.data_gatherer.RotationSensor;
+import com.perception.persep.math_helpers.GeoLocationHelper;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -17,6 +18,9 @@ public class RenderView extends TextureView implements TextureView.SurfaceTextur
     private static final String TAG = "RenderView";
     private final OpenGLRenderer m_Renderer;
     private GLProducerThread m_GLThread = null;
+
+    public static final int GPS_MIN_DISTANCE = 3;                   //0 meters
+    private Location m_PrevLocation = null;
 
     public RenderView(Context context)
     {
@@ -102,17 +106,20 @@ public class RenderView extends TextureView implements TextureView.SurfaceTextur
     }
 
     @Override
-    public void onLocationChanged(double lat, double lon)
+    public void onLocationChanged(Location location)
     {
-        m_Renderer.UpdateDeviceLocation(lat, lon);
+        if (m_PrevLocation == null) {
+            m_Renderer.UpdateDeviceLocation(location.getLatitude(), location.getLongitude());
+            m_PrevLocation = location;
+            return;
+        }
+
+        double currDistance = GeoLocationHelper.Distance(location.getLatitude(), location.getLongitude(), m_PrevLocation.getLatitude(), m_PrevLocation.getLongitude());
+        if (currDistance > GPS_MIN_DISTANCE) {
+            m_Renderer.UpdateDeviceLocation(location.getLatitude(), location.getLongitude());
+            m_PrevLocation = location;
+        }
     }
-
-//    @Override
-//    public void onAlbumUpdate(List<Album> albums)
-//    {
-//        m_Renderer.onAlbumUpdate(albums);
-//    }
-
 
     public String rayCast(float x, float y)
     {

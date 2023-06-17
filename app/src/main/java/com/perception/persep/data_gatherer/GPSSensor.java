@@ -16,7 +16,7 @@ public class GPSSensor implements LocationServiceInterface, ILogger
 {
     public static final int SENSOR_POSITION_MIN_TIME = 500;         //500
     public static final int GPS_MIN_TIME = 2_000;                    //2000
-    public static final int GPS_MIN_DISTANCE = 10;                   //0 meters
+    public static final int GPS_MIN_DISTANCE = 0;                   //0 meters
     public static final double SENSOR_DEFAULT_FREQ_HZ = 10.0;       //10.0
     public static final int GEOHASH_DEFAULT_PREC = 6;               //6
     public static final int GEOHASH_DEFAULT_MIN_POINT_COUNT = 2;    //2
@@ -43,7 +43,7 @@ public class GPSSensor implements LocationServiceInterface, ILogger
     {
         for (Listener listener : m_Listeners)
         {
-            listener.onLocationChanged(location.getLatitude(), location.getLongitude());
+            listener.onLocationChanged(location);
         }
     }
 
@@ -90,6 +90,6 @@ public class GPSSensor implements LocationServiceInterface, ILogger
 
     public interface Listener
     {
-        void onLocationChanged(double lat, double lon);
+        void onLocationChanged(Location location);
     }
 }

@@ -1,5 +1,6 @@
 package com.perception.persep.data_gatherer;
 
+import android.location.Location;
 import android.net.Uri;
 import android.os.Handler;
 import android.widget.Toast;
@@ -285,10 +286,10 @@ public class AlbumManager implements Runnable, GPSSensor.Listener
     }
 
     @Override
-    public void onLocationChanged(double lat, double lon)
+    public void onLocationChanged(Location location)
     {
-        m_QueryLat = lat;
-        m_QueryLon = lon;
+        m_QueryLat = location.getLatitude();
+        m_QueryLon = location.getLongitude();
         if (!m_IsLocationInit)
         {
             m_IsLocationInit = true;
