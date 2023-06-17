@@ -34,7 +34,7 @@ public class Album
     public final List<String> m_PostIDs = new ArrayList<>();
     private final Set<Integer> m_PendingPostUpdate = new HashSet<>();
     private final Timer m_UpdatePostTimer;
-    private final int TASK_START_DELAY = 5000; // 5 secs
+    private final int TASK_START_DELAY = 10000; // 5 secs
     private final ReadWriteLock m_ReadWriteLock = new ReentrantReadWriteLock();
     private final Lock m_WriteLock = m_ReadWriteLock.writeLock();
     private final Lock m_ReadLock = m_ReadWriteLock.writeLock();
@@ -166,7 +166,16 @@ public class Album
             if (postID.equals(m_PostIDs.get(i)))
             {
                 m_PostIDs.remove(postID);
-                if (m_CurrPostIndex == i) m_ShouldUpdateTexture = true;
+                if (m_CurrPostIndex == i) {
+                    if (m_PostIDs.isEmpty())
+                    {
+                        m_CurrPostIndex = 0;
+                    }
+                    else {
+                        m_CurrPostIndex = mod(m_CurrPostIndex + 1, m_PostIDs.size());
+                    }
+                }
+                m_ShouldUpdateTexture = true;
                 break;
             }
         }
