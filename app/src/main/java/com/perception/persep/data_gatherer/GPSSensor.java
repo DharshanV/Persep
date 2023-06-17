@@ -14,9 +14,9 @@ import mad.location.manager.lib.Services.Settings;
 
 public class GPSSensor implements LocationServiceInterface, ILogger
 {
-    public static final int SENSOR_POSITION_MIN_TIME = 0;         //500
-    public static final int GPS_MIN_TIME = 1_000;                    //2000
-    public static final int GPS_MIN_DISTANCE = 0;                   //0
+    public static final int SENSOR_POSITION_MIN_TIME = 500;         //500
+    public static final int GPS_MIN_TIME = 2_000;                    //2000
+    public static final int GPS_MIN_DISTANCE = 10;                   //0 meters
     public static final double SENSOR_DEFAULT_FREQ_HZ = 10.0;       //10.0
     public static final int GEOHASH_DEFAULT_PREC = 6;               //6
     public static final int GEOHASH_DEFAULT_MIN_POINT_COUNT = 2;    //2
@@ -26,9 +26,7 @@ public class GPSSensor implements LocationServiceInterface, ILogger
     public static double ACCELEROMETER_DEFAULT_DEVIATION = 0.1;     //0.1
     private final ArrayList<Listener> m_Listeners = new ArrayList<>();
     private final Context m_Context;
-    private final double accumLat = 0;
-    private final double accumLon = 0;
-    private final int count = 0;
+
     public GPSSensor(Context context)
     {
         m_Context = context;
@@ -43,11 +41,6 @@ public class GPSSensor implements LocationServiceInterface, ILogger
     @Override
     public void locationChanged(Location location)
     {
-//        accumLat += location.getLatitude();
-//        accumLon += location.getLongitude();
-//        count++;
-//        double avgLat = accumLat / count;
-//        double avgLon = accumLon / count;
         for (Listener listener : m_Listeners)
         {
             listener.onLocationChanged(location.getLatitude(), location.getLongitude());
