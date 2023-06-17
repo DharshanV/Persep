@@ -187,7 +187,7 @@ public class UserFeedAdapter extends RecyclerView.Adapter<UserFeedAdapter.UserFe
             Post post = PostManager.getInstance().getPost(m_UserPostIDs.get(postPosition));
             if (post != null)
             {
-                m_UserFeedFragment.openGoogleMaps(post.m_GeoPoint.getLatitude(), post.m_GeoPoint.getLongitude());
+                m_UserFeedFragment.sharePost(post.m_GeoPoint.getLatitude(), post.m_GeoPoint.getLongitude());
             }
         }
     }

@@ -96,11 +96,15 @@ public class UserFeed_Fragment extends Fragment
         });
     }
 
-    public void openGoogleMaps(double lat, double lon)
+    public void sharePost(double lat, double lon)
     {
-        Uri mapUri = Uri.parse(String.format(Locale.US, "geo:%f,%f?q=%f,%f", lat, lon, lat, lon));
-        Intent mapIntent = new Intent(Intent.ACTION_VIEW, mapUri);
-        mapIntent.setPackage("com.google.android.apps.maps");
-        startActivity(mapIntent);
+        Uri sharePostURI = Uri.parse("https://www.google.com/maps/search/?api=1&" + String.format("query=%s,%s", lat, lon));
+        Intent sendIntent = new Intent();
+        sendIntent.setAction(Intent.ACTION_SEND);
+        sendIntent.putExtra(Intent.EXTRA_TEXT, "Check out my AR post here! " + sharePostURI.toString());
+        sendIntent.setType("text/plain");
+
+        Intent shareIntent = Intent.createChooser(sendIntent, null);
+        startActivity(shareIntent);
     }
 }
