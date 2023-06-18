@@ -390,10 +390,12 @@ public class VR_Fragment extends Fragment implements BearingSensor.BearingSensor
                     Post post = PostManager.getInstance().getPost(album.getCurrentPostID());
                     if (post != null)
                     {
-                        post.like(successful -> {
-                            album.updateUIOnPostChanged();
-                            Toast.makeText(getContext(), "Liked post!", Toast.LENGTH_SHORT).show();
-                        });
+                        if (post.isLikedByCurrentUser()) {
+                            post.unlike(successful -> album.updateUIOnPostChanged());
+                        }
+                        else {
+                            post.like(successful -> album.updateUIOnPostChanged());
+                        }
                     }
                 }
             }

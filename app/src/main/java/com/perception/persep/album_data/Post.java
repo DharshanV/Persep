@@ -148,6 +148,28 @@ public class Post implements Target
         batch.commit().addOnSuccessListener(unused -> listener.onLikeUpdate(true));
     }
 
+    public void unlike(PostManager.PostLikeListener listener)
+    {
+        DocumentReference userRef = UserManager.getInstance().m_DocRef;
+        if (userRef == null || !m_UsersLiked.contains(userRef))
+        {
+            return;
+        }
+
+        m_Likes--;
+        if (m_Likes < 0) {
+            m_Likes = 0;
+        }
+        m_TimeModified = Timestamp.now();
+        m_UsersLiked.remove(userRef);
+
+        WriteBatch batch = FirebaseFirestore.getInstance().batch();
+        m_DocRef.update(PostConstants.LIKES, m_Likes);
+        m_DocRef.update(PostConstants.TIME_MODIFIED, m_TimeModified);
+        m_DocRef.update(PostConstants.USERS_LIKED, FieldValue.arrayRemove(userRef));
+        batch.commit().addOnSuccessListener(unused -> listener.onLikeUpdate(true));
+    }
+
     public boolean isLikedByCurrentUser()
     {
         for (DocumentReference userRef : m_UsersLiked) {
