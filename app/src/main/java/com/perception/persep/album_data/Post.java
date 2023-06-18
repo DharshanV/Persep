@@ -143,9 +143,19 @@ public class Post implements Target
 
         WriteBatch batch = FirebaseFirestore.getInstance().batch();
         m_DocRef.update(PostConstants.LIKES, m_Likes);
-        m_DocRef.update(PostConstants.TIME_CREATED, m_TimeModified);
+        m_DocRef.update(PostConstants.TIME_MODIFIED, m_TimeModified);
         m_DocRef.update(PostConstants.USERS_LIKED, FieldValue.arrayUnion(userRef));
         batch.commit().addOnSuccessListener(unused -> listener.onLikeUpdate(true));
+    }
+
+    public boolean isLikedByCurrentUser()
+    {
+        for (DocumentReference userRef : m_UsersLiked) {
+            if (userRef.equals(UserManager.getInstance().m_DocRef)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override

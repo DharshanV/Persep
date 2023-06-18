@@ -107,13 +107,6 @@ public class VR_Fragment extends Fragment implements BearingSensor.BearingSensor
 
     private void InitializeFragment(boolean forceStart)
     {
-        for (int i=1;i<=5;i++) {
-            Timber.d("===== %s =====", i);
-            for (int j=0;j<i;j++) {
-                printDots(j, i);
-            }
-        }
-
         if (m_VRLayout == null)
         {
             return;
@@ -398,6 +391,7 @@ public class VR_Fragment extends Fragment implements BearingSensor.BearingSensor
                     if (post != null)
                     {
                         post.like(successful -> {
+                            album.updateUIOnPostChanged();
                             Toast.makeText(getContext(), "Liked post!", Toast.LENGTH_SHORT).show();
                         });
                     }
@@ -429,6 +423,7 @@ public class VR_Fragment extends Fragment implements BearingSensor.BearingSensor
                     if (album != null)
                     {
                         album.userInteractUpdatePostIndex(velocity > 0);
+                        album.updateUIOnPostChanged();
                     }
                     m_SwipeDistanceCovered = 0;
                     m_SwipeTimeSpent = 0;
@@ -436,28 +431,6 @@ public class VR_Fragment extends Fragment implements BearingSensor.BearingSensor
                 m_ViewPager.setUserInputEnabled(true);
                 m_IsInteractingWithPost = false;
             }
-        }
-    }
-
-    private void printDots(int activeIndex, int size)
-    {
-        StringBuilder builder = new StringBuilder();
-        if (size - activeIndex == size) {
-            builder.append("O");
-            for (int i=0;i<Math.min(3,size)-1;i++) {
-                builder.append(" .");
-            }
-            Timber.d(builder.toString());
-        }
-        else if (size - activeIndex == 1) {
-            for (int i=0;i<Math.min(3,size)-1;i++) {
-                builder.append(". ");
-            }
-            builder.append("O");
-            Timber.d(builder.toString());
-        }
-        else {
-            Timber.d(". O .");
         }
     }
 
