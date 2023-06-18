@@ -20,16 +20,30 @@
         android:src="@drawable/ic_baseline_arrow_back"
         app:tint="@color/navigation_button_color"/>
 
-    <ImageView
-        android:id="@+id/register_imageView"
-        android:layout_width="192dp"
-        android:layout_height="192dp"
-        android:layout_gravity="center_horizontal"
-        android:scaleType="fitXY"
-        android:src="@drawable/persp_logo"
+    <TextView
+        android:id="@+id/register_activity_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center|left"
+        android:fontFamily="@font/playfair_display_bold"
+        android:gravity="center"
+        android:text="@string/register_activity_title_string"
+        android:textSize="35sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/button_back_register"/>
+        app:layout_constraintTop_toBottomOf="@+id/button_back_register"
+        tools:ignore="RtlHardcoded" />
+
+<!--    <ImageView-->
+<!--        android:id="@+id/register_imageView"-->
+<!--        android:layout_width="192dp"-->
+<!--        android:layout_height="192dp"-->
+<!--        android:layout_gravity="center_horizontal"-->
+<!--        android:scaleType="fitXY"-->
+<!--        android:src="@drawable/persp_logo"-->
+<!--        app:layout_constraintEnd_toEndOf="parent"-->
+<!--        app:layout_constraintStart_toStartOf="parent"-->
+<!--        app:layout_constraintTop_toBottomOf="@+id/button_back_register"/>-->
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/register_usernameTextInputLayout"
@@ -37,9 +51,10 @@
         android:layout_height="wrap_content"
         android:layout_marginLeft="25dp"
         android:layout_marginRight="25dp"
+        android:layout_marginTop="20dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/register_imageView">
+        app:layout_constraintTop_toBottomOf="@id/register_activity_title">
         <EditText
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
