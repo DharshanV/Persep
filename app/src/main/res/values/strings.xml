@@ -15,4 +15,5 @@
     <string name="username_hint_string">Username</string>
     <string name="sign_out_string">Sign out</string>
     <string name="delete_account_string">Delete account</string>
+    <string name="profile_activity_title_string">Profile</string>
 </resources>

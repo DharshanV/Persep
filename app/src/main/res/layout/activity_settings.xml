@@ -20,6 +20,20 @@
         android:src="@drawable/ic_baseline_arrow_back"
         app:tint="@color/navigation_button_color"/>
 
+    <TextView
+        android:id="@+id/setting_activity_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center|left"
+        android:fontFamily="@font/playfair_display_bold"
+        android:gravity="center"
+        android:text="@string/profile_activity_title_string"
+        android:textSize="35sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/button_back_settings"
+        tools:ignore="RtlHardcoded" />
+
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/button_sign_out"
         android:layout_width="match_parent"
@@ -32,7 +46,7 @@
         android:padding="15dp"
         android:text="@string/sign_out_string"
         android:textSize="17sp"
-        app:layout_constraintTop_toBottomOf="@id/button_back_settings" />
+        app:layout_constraintTop_toBottomOf="@id/setting_activity_title" />
 
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/button_delete_account"
