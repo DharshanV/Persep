@@ -7,7 +7,6 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.GestureDetector;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -44,6 +43,8 @@ import com.yalantis.ucrop.UCrop;
 
 import java.io.File;
 import java.io.IOException;
+
+import timber.log.Timber;
 
 public class VR_Fragment extends Fragment implements BearingSensor.BearingSensorListener
 {
@@ -106,6 +107,13 @@ public class VR_Fragment extends Fragment implements BearingSensor.BearingSensor
 
     private void InitializeFragment(boolean forceStart)
     {
+        for (int i=1;i<=5;i++) {
+            Timber.d("===== %s =====", i);
+            for (int j=0;j<i;j++) {
+                printDots(j, i);
+            }
+        }
+
         if (m_VRLayout == null)
         {
             return;
@@ -420,7 +428,7 @@ public class VR_Fragment extends Fragment implements BearingSensor.BearingSensor
                     Album album = AlbumManager.getInstance().getAlbum(m_InteractingWithAlbum);
                     if (album != null)
                     {
-                        album.updatePostIndex(velocity > 0);
+                        album.userInteractUpdatePostIndex(velocity > 0);
                     }
                     m_SwipeDistanceCovered = 0;
                     m_SwipeTimeSpent = 0;
@@ -430,4 +438,27 @@ public class VR_Fragment extends Fragment implements BearingSensor.BearingSensor
             }
         }
     }
+
+    private void printDots(int activeIndex, int size)
+    {
+        StringBuilder builder = new StringBuilder();
+        if (size - activeIndex == size) {
+            builder.append("O");
+            for (int i=0;i<Math.min(3,size)-1;i++) {
+                builder.append(" .");
+            }
+            Timber.d(builder.toString());
+        }
+        else if (size - activeIndex == 1) {
+            for (int i=0;i<Math.min(3,size)-1;i++) {
+                builder.append(". ");
+            }
+            builder.append("O");
+            Timber.d(builder.toString());
+        }
+        else {
+            Timber.d(". O .");
+        }
+    }
+
 }

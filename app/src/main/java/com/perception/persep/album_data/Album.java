@@ -5,7 +5,6 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.PorterDuff;
-import android.graphics.Rect;
 
 import androidx.annotation.NonNull;
 
@@ -36,8 +35,6 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-import timber.log.Timber;
-
 public class Album
 {
     public final List<String> m_PostIDs = new ArrayList<>();
@@ -57,6 +54,10 @@ public class Album
     private boolean m_ShouldUpdateTexture = false;
     private PostUpdateIndexTask m_PostUpdateTimerTask;
     private Bitmap m_AlbumUI = null;
+    private Paint m_Paint;
+    private Canvas m_UICanvas;
+    private int m_CanvasWidth;
+    private int m_CanvasHeight;
 
     public Album(double lat, double lon)
     {
@@ -93,6 +94,7 @@ public class Album
                         m_WriteLock.lock();
                         m_PostIDs.add(postID);
                         m_PendingPostUpdate.add(m_PostIDs.size() - 1);
+                        updateUIOnPostChanged(m_CurrPostIndex, m_PostIDs.size());
                         m_WriteLock.unlock();
                     } else
                     {
@@ -111,29 +113,28 @@ public class Album
         init();
     }
 
-    private void init()
-    {
-        int width = 1280;
-        int height = 720;
-        m_AlbumUI = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_4444);
-//        m_AlbumUI.eraseColor(Color.parseColor("#00000000"));
-
-        Paint paint = new Paint();
-        paint.setAntiAlias(true);
-        paint.setARGB(255, 255, 255, 255);
-
-        Canvas canvas = new Canvas(m_AlbumUI);
-        canvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR);
-        float ratio = ((float)width / (float)height) - 1.0f;
-        canvas.scale(1.0f, ratio);
-        canvas.drawCircle(width/2.0f, (height * 0.90f) / ratio, 25.0f, paint);
-    }
-
     static int mod(int a, int b)
     {
         int ret = a % b;
         if (ret < 0) ret += b;
         return ret;
+    }
+
+    private void init()
+    {
+        m_CanvasWidth = 1280;
+        m_CanvasHeight = 720;
+        m_AlbumUI = Bitmap.createBitmap(m_CanvasWidth, m_CanvasHeight, Bitmap.Config.ARGB_4444);
+
+        m_Paint = new Paint();
+        m_Paint.setAntiAlias(true);
+        m_Paint.setARGB(255, 255, 255, 255);
+
+        m_UICanvas = new Canvas(m_AlbumUI);
+        m_UICanvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR);
+
+        float ratio = ((float) m_CanvasWidth / (float) m_CanvasHeight) - 1.0f;
+        m_UICanvas.scale(1.0f, ratio);
     }
 
     private void createAlbumServer()
@@ -176,6 +177,7 @@ public class Album
         m_WriteLock.unlock();
 
         addPostServer(postID);
+        updateUIOnPostChanged(m_CurrPostIndex, m_PostIDs.size());
     }
 
     private void addPostServer(String postID)
@@ -196,15 +198,17 @@ public class Album
             if (postID.equals(m_PostIDs.get(i)))
             {
                 m_PostIDs.remove(postID);
-                if (m_CurrPostIndex == i) {
+                if (m_CurrPostIndex == i)
+                {
                     if (m_PostIDs.isEmpty())
                     {
                         m_CurrPostIndex = 0;
-                    }
-                    else {
-                        m_CurrPostIndex = mod(m_CurrPostIndex + 1, m_PostIDs.size());
+                    } else
+                    {
+                        updatePostIndex(true);
                     }
                 }
+                updateUIOnPostChanged(m_CurrPostIndex, m_PostIDs.size());
                 m_ShouldUpdateTexture = true;
                 break;
             }
@@ -277,17 +281,76 @@ public class Album
         return null;
     }
 
-    public void updatePostIndex(boolean next)
+    public void userInteractUpdatePostIndex(boolean next)
     {
         m_ReadLock.lock();
-        if (next) m_CurrPostIndex = mod(m_CurrPostIndex + 1, m_PostIDs.size());
-        else m_CurrPostIndex = mod(m_CurrPostIndex - 1, m_PostIDs.size());
+        updatePostIndex(next);
+        updateUIOnPostChanged(m_CurrPostIndex, m_PostIDs.size());
         m_ShouldUpdateTexture = true;
 
         m_PostUpdateTimerTask.cancel();
         m_PostUpdateTimerTask = new PostUpdateIndexTask();
         m_UpdatePostTimer.scheduleAtFixedRate(m_PostUpdateTimerTask, TASK_START_DELAY, TASK_START_DELAY);
         m_ReadLock.unlock();
+    }
+
+    private void updatePostIndex(boolean next)
+    {
+        if (next) m_CurrPostIndex = mod(m_CurrPostIndex + 1, m_PostIDs.size());
+        else m_CurrPostIndex = mod(m_CurrPostIndex - 1, m_PostIDs.size());
+    }
+
+    private void updateUIOnPostChanged(int activeIndex, int size)
+    {
+        float xOffset = 75.0f;
+        m_UICanvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR);
+
+        float ratio = ((float) m_CanvasWidth / (float) m_CanvasHeight) - 1.0f;
+        float xRootPos = m_CanvasWidth / 2.0f;
+        float yRootPos = (m_CanvasHeight * 0.90f) / ratio;
+
+        if (size - activeIndex == size)
+        {
+            drawSolidDot(xRootPos, yRootPos);
+
+            int remaining = Math.min(3, size) - 1;
+            for (int i = 0; i <= remaining; i++)
+            {
+                drawClearDot(xRootPos + xOffset * i + 1, yRootPos);
+            }
+        } else if (size - activeIndex == 1)
+        {
+            int remaining = Math.min(3, size) - 1;
+            for (int i = remaining; i >= 0; i--)
+            {
+                drawClearDot(xRootPos - xOffset * i + 1, yRootPos);
+            }
+
+            drawSolidDot(xRootPos, yRootPos);
+        } else
+        {
+            drawClearDot(xRootPos - xOffset, yRootPos);
+            drawSolidDot(xRootPos, yRootPos);
+            drawClearDot(xRootPos + xOffset, yRootPos);
+        }
+    }
+
+    private void drawSolidDot(float x, float y)
+    {
+        m_Paint.setStyle(Paint.Style.FILL);
+        m_UICanvas.drawCircle(x, y, 25.0f, m_Paint);
+    }
+
+    private void drawClearDot(float x, float y)
+    {
+        m_Paint.setStrokeWidth(5);
+        m_Paint.setStyle(Paint.Style.STROKE);
+        m_UICanvas.drawCircle(x, y, 25.0f, m_Paint);
+    }
+
+    public Bitmap getUIBitmap()
+    {
+        return m_AlbumUI;
     }
 
     class PostUpdateIndexTask extends TimerTask
@@ -303,14 +366,9 @@ public class Album
                 m_ReadLock.unlock();
                 return;
             }
-            m_CurrPostIndex = mod(m_CurrPostIndex + 1, m_PostIDs.size());
+            updatePostIndex(true);
             m_ShouldUpdateTexture = true;
             m_ReadLock.unlock();
         }
-    }
-
-    public Bitmap getUIBitmap()
-    {
-        return m_AlbumUI;
     }
 }
