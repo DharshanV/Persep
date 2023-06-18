@@ -1,5 +1,12 @@
 package com.perception.persep.album_data;
 
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.PorterDuff;
+import android.graphics.Rect;
+
 import androidx.annotation.NonNull;
 
 import com.firebase.geofire.GeoFireUtils;
@@ -29,6 +36,8 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
+import timber.log.Timber;
+
 public class Album
 {
     public final List<String> m_PostIDs = new ArrayList<>();
@@ -47,6 +56,7 @@ public class Album
     private int m_CurrPostIndex = 0;
     private boolean m_ShouldUpdateTexture = false;
     private PostUpdateIndexTask m_PostUpdateTimerTask;
+    private Bitmap m_AlbumUI = null;
 
     public Album(double lat, double lon)
     {
@@ -59,6 +69,7 @@ public class Album
         m_UpdatePostTimer = new Timer();
         m_PostUpdateTimerTask = new PostUpdateIndexTask();
         m_UpdatePostTimer.scheduleAtFixedRate(m_PostUpdateTimerTask, TASK_START_DELAY, TASK_START_DELAY);
+        init();
     }
 
     public Album(DocumentSnapshot albumDoc)
@@ -97,6 +108,25 @@ public class Album
         m_UpdatePostTimer = new Timer();
         m_PostUpdateTimerTask = new PostUpdateIndexTask();
         m_UpdatePostTimer.scheduleAtFixedRate(m_PostUpdateTimerTask, TASK_START_DELAY, TASK_START_DELAY);
+        init();
+    }
+
+    private void init()
+    {
+        int width = 1280;
+        int height = 720;
+        m_AlbumUI = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_4444);
+//        m_AlbumUI.eraseColor(Color.parseColor("#00000000"));
+
+        Paint paint = new Paint();
+        paint.setAntiAlias(true);
+        paint.setARGB(255, 255, 255, 255);
+
+        Canvas canvas = new Canvas(m_AlbumUI);
+        canvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR);
+        float ratio = ((float)width / (float)height) - 1.0f;
+        canvas.scale(1.0f, ratio);
+        canvas.drawCircle(width/2.0f, (height * 0.90f) / ratio, 25.0f, paint);
     }
 
     static int mod(int a, int b)
@@ -277,5 +307,10 @@ public class Album
             m_ShouldUpdateTexture = true;
             m_ReadLock.unlock();
         }
+    }
+
+    public Bitmap getUIBitmap()
+    {
+        return m_AlbumUI;
     }
 }

@@ -3,7 +3,6 @@ package com.perception.persep.render;
 import android.content.Context;
 import android.opengl.GLES30;
 import android.opengl.Matrix;
-import android.util.Log;
 
 import com.perception.persep.album_data.Album;
 import com.perception.persep.album_data.Post;
@@ -35,7 +34,8 @@ public class OpenGLRenderer
     private final float[] m_Far = {0, 0, 0, 0};
     private final float[] m_AlbumRotMatrix = new float[16];
     private final float[][] m_AlbumTransforms = new float[QueryConstants.MAX_QUERY_COUNT][16];
-    private final int[] m_AlbumTextureIDs = new int[QueryConstants.MAX_QUERY_COUNT];
+    private final int[] m_AlbumPostTextureIDs = new int[QueryConstants.MAX_QUERY_COUNT];
+    private final int[] m_AlbumUITextureIDs = new int[QueryConstants.MAX_QUERY_COUNT];
     private final ReadWriteLock m_DataUpdateReadWriteLock = new ReentrantReadWriteLock();
     private final Lock m_DataUpdateWriteLock = m_DataUpdateReadWriteLock.writeLock();
     private final Lock m_DataUpdateReadLock = m_DataUpdateReadWriteLock.writeLock();
@@ -75,7 +75,8 @@ public class OpenGLRenderer
     {
         InitGLSettings();
 
-        GLES30.glGenTextures(m_AlbumTextureIDs.length, m_AlbumTextureIDs, 0);
+        GLES30.glGenTextures(m_AlbumPostTextureIDs.length, m_AlbumPostTextureIDs, 0);
+        GLES30.glGenTextures(m_AlbumUITextureIDs.length, m_AlbumUITextureIDs, 0);
 
         m_AlbumModel = AlbumModel.LoadModel(m_Context);
         m_AlbumModel.BuildShaders(m_Context);
@@ -107,12 +108,13 @@ public class OpenGLRenderer
             Post post = PostManager.getInstance().getPost(album.getCurrentPostID());
             if (album != null && post != null && index != -1 && index < QueryConstants.MAX_QUERY_COUNT)
             {
-                int albumTextureID = m_AlbumTextureIDs[index];
+                int albumPostTextureID = m_AlbumPostTextureIDs[index];
+                int albumUITextureID = m_AlbumUITextureIDs[index];
                 float[] albumTransform = m_AlbumTransforms[index];
 
                 if (album.shouldUpdateTexture())
                 {
-                    m_AlbumModel.UpdateSurfaceTexture(albumTextureID, post.m_Image);
+                    m_AlbumModel.UpdateSurfaceTexture(albumPostTextureID, post.m_Image);
                 }
 
                 double albumLat = album.m_GeoPoint.getLatitude();
@@ -142,10 +144,18 @@ public class OpenGLRenderer
                 Matrix.scaleM(m_ModelMatrix, 0, scale, scale, scale);
                 System.arraycopy(m_ModelMatrix, 0, albumTransform, 0, m_ModelMatrix.length);
 
+                GLES30.glEnable(GLES30.GL_BLEND);
+                GLES30.glBlendFunc(GLES30.GL_SRC_ALPHA, GLES30.GL_ONE_MINUS_SRC_ALPHA);
                 m_AlbumModel.SetMVP(m_ModelMatrix, m_ViewMatrix, m_ProjectionMatrix);
                 m_AlbumModel.DrawFrame();
-                m_AlbumModel.DrawSurface(albumTextureID);
+                m_AlbumModel.DrawSurface(albumPostTextureID);
 
+                GLES30.glEnable(GLES30.GL_BLEND);
+                GLES30.glBlendFunc(GLES30.GL_ONE, GLES30.GL_ONE_MINUS_SRC_ALPHA);
+                Matrix.translateM(m_ModelMatrix, 0, 0.1f, 0, 0);
+                m_AlbumModel.SetMVP(m_ModelMatrix, m_ViewMatrix, m_ProjectionMatrix);
+                m_AlbumModel.UpdateSurfaceTexture(albumUITextureID, album.getUIBitmap());
+                m_AlbumModel.DrawSurface(albumUITextureID);
             }
         }
     }
