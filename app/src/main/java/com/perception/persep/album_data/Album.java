@@ -94,7 +94,7 @@ public class Album
                         m_WriteLock.lock();
                         m_PostIDs.add(postID);
                         m_PendingPostUpdate.add(m_PostIDs.size() - 1);
-                        updateUIOnPostChanged(m_CurrPostIndex, m_PostIDs.size());
+                        updateUIOnPostChanged();
                         m_WriteLock.unlock();
                     } else
                     {
@@ -174,10 +174,10 @@ public class Album
         m_WriteLock.lock();
         m_PostIDs.add(postID);
         m_PendingPostUpdate.add(m_PostIDs.size() - 1);
+        updateUIOnPostChanged();
         m_WriteLock.unlock();
 
         addPostServer(postID);
-        updateUIOnPostChanged(m_CurrPostIndex, m_PostIDs.size());
     }
 
     private void addPostServer(String postID)
@@ -208,7 +208,7 @@ public class Album
                         updatePostIndex(true);
                     }
                 }
-                updateUIOnPostChanged(m_CurrPostIndex, m_PostIDs.size());
+                updateUIOnPostChanged();
                 m_ShouldUpdateTexture = true;
                 break;
             }
@@ -285,7 +285,7 @@ public class Album
     {
         m_ReadLock.lock();
         updatePostIndex(next);
-        updateUIOnPostChanged(m_CurrPostIndex, m_PostIDs.size());
+        updateUIOnPostChanged();
         m_ShouldUpdateTexture = true;
 
         m_PostUpdateTimerTask.cancel();
@@ -300,8 +300,11 @@ public class Album
         else m_CurrPostIndex = mod(m_CurrPostIndex - 1, m_PostIDs.size());
     }
 
-    private void updateUIOnPostChanged(int activeIndex, int size)
+    private void updateUIOnPostChanged()
     {
+        int activeIndex = m_CurrPostIndex;
+        int size = m_PostIDs.size();
+
         float xOffset = 75.0f;
         m_UICanvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR);
 
@@ -367,6 +370,7 @@ public class Album
                 return;
             }
             updatePostIndex(true);
+            updateUIOnPostChanged();
             m_ShouldUpdateTexture = true;
             m_ReadLock.unlock();
         }
