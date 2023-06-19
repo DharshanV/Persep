@@ -47,8 +47,8 @@ public class AlbumManager implements Runnable, GPSSensor.Listener
     private final ReadWriteLock m_ReadWriteLock = new ReentrantReadWriteLock();
     private final Lock m_WriteLock = m_ReadWriteLock.writeLock();
     private final Lock m_ReadLock = m_ReadWriteLock.readLock();
-    private double m_QueryLat = 0.0;
-    private double m_QueryLon = 0.0;
+    private double m_DeviceLat = 0.0;
+    private double m_DeviceLon = 0.0;
     private boolean m_IsLocationInit = false;
     private boolean m_IsQueryInProgress = false;
 
@@ -108,13 +108,13 @@ public class AlbumManager implements Runnable, GPSSensor.Listener
     private void addPost(Uri postImageURI)
     {
         int postBearing = m_PostBearing.containsKey(postImageURI) ? m_PostBearing.remove(postImageURI) : 0;
-        GeoLocation offsetLocation = offsetAlbumLocation(new GeoLocation(m_QueryLat, m_QueryLon), 10, postBearing);
+        GeoLocation offsetLocation = offsetAlbumLocation(new GeoLocation(m_DeviceLat, m_DeviceLon), 10, postBearing);
         Album closestLocalAlbum = getClosestLocalAlbum();
         if (closestLocalAlbum == null)
         {
             m_QueryNearbyAlbumHandler.removeCallbacks(this);
             m_IsQueryInProgress = true;
-            GeoLocation queryLocation = new GeoLocation(m_QueryLat, m_QueryLon);
+            GeoLocation queryLocation = new GeoLocation(m_DeviceLat, m_DeviceLon);
             List<Task<QuerySnapshot>> queryTasks = FirebaseQueries.GetAlbumQueryTasks(queryLocation, QueryConstants.MAX_QUERY_RADIUS);
             Tasks.whenAllSuccess(queryTasks).addOnSuccessListener(albumsResult -> {
                 DocumentSnapshot closestServerAlbum = FirebaseQueries.OnAlbumQueryTasksClosestAlbum(albumsResult, queryLocation, QueryConstants.MAX_QUERY_RADIUS);
@@ -137,7 +137,7 @@ public class AlbumManager implements Runnable, GPSSensor.Listener
                 {
                     Uri pendingPostUri = m_AddPostQueue.pop();
                     int pendingPostBearing = m_PostBearing.containsKey(pendingPostUri) ? m_PostBearing.remove(pendingPostUri) : 0;
-                    GeoLocation pendingPostLocation = offsetAlbumLocation(new GeoLocation(m_QueryLat, m_QueryLon), 10, pendingPostBearing);
+                    GeoLocation pendingPostLocation = offsetAlbumLocation(new GeoLocation(m_DeviceLat, m_DeviceLon), 10, pendingPostBearing);
                     addPostLocalAlbum(newClosestLocalAlbum, pendingPostUri, pendingPostLocation);
                 }
                 m_WriteLock.unlock();
@@ -255,7 +255,7 @@ public class AlbumManager implements Runnable, GPSSensor.Listener
         {
             Album album = albumEntry.getValue();
             GeoLocation albumLocation = new GeoLocation(album.m_GeoPoint.getLatitude(), album.m_GeoPoint.getLongitude());
-            GeoLocation currLocation = new GeoLocation(m_QueryLat, m_QueryLon);
+            GeoLocation currLocation = new GeoLocation(m_DeviceLat, m_DeviceLon);
             double distanceInM = GeoFireUtils.getDistanceBetween(albumLocation, currLocation);
             if (distanceInM > QueryConstants.MAX_QUERY_RADIUS) {
                 m_WriteLock.lock();
@@ -268,7 +268,7 @@ public class AlbumManager implements Runnable, GPSSensor.Listener
         if (m_IsLocationInit && !m_IsQueryInProgress)
         {
             m_IsQueryInProgress = true;
-            GeoLocation queryLocation = new GeoLocation(m_QueryLat, m_QueryLon);
+            GeoLocation queryLocation = new GeoLocation(m_DeviceLat, m_DeviceLon);
             List<Task<QuerySnapshot>> queryTasks = FirebaseQueries.GetAlbumQueryTasks(queryLocation, QueryConstants.MAX_QUERY_RADIUS);
             Tasks.whenAllSuccess(queryTasks).addOnSuccessListener(albumsResult -> {
                 List<DocumentSnapshot> albumDocs = FirebaseQueries.OnAlbumQueryTasks(albumsResult, queryLocation, QueryConstants.MAX_QUERY_RADIUS);
@@ -343,8 +343,8 @@ public class AlbumManager implements Runnable, GPSSensor.Listener
     public void onLocationChanged(Location location)
     {
         if (!m_IsQueryInProgress) {
-            m_QueryLat = location.getLatitude();
-            m_QueryLon = location.getLongitude();
+            m_DeviceLat = location.getLatitude();
+            m_DeviceLon = location.getLongitude();
         }
         if (!m_IsLocationInit)
         {
@@ -361,7 +361,7 @@ public class AlbumManager implements Runnable, GPSSensor.Listener
         m_ReadLock.lock();
         double closestDist = Double.MAX_VALUE;
         Album closestAlbum = null;
-        GeoLocation m_QueryLocation = new GeoLocation(m_QueryLat, m_QueryLon);
+        GeoLocation m_QueryLocation = new GeoLocation(m_DeviceLat, m_DeviceLon);
         for (Map.Entry<String, Album> entry : m_Albums.entrySet())
         {
             Album album = entry.getValue();
