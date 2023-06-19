@@ -109,19 +109,59 @@ public class AlbumManager implements Runnable, GPSSensor.Listener
     {
         int postBearing = m_PostBearing.containsKey(postImageURI) ? m_PostBearing.remove(postImageURI) : 0;
         GeoLocation offsetLocation = offsetAlbumLocation(new GeoLocation(m_QueryLat, m_QueryLon), 10, postBearing);
-        m_WriteLock.lock();
-        Album closestAlbum = getClosestLocalAlbum();
-        if (closestAlbum == null)
+        Album closestLocalAlbum = getClosestLocalAlbum();
+        if (closestLocalAlbum == null)
         {
-            closestAlbum = new Album(offsetLocation.latitude, offsetLocation.longitude);
-            m_Albums.put(closestAlbum.m_AlbumID, closestAlbum);
-        }
+            m_QueryNearbyAlbumHandler.removeCallbacks(this);
+            m_IsQueryInProgress = true;
+            GeoLocation queryLocation = new GeoLocation(m_QueryLat, m_QueryLon);
+            List<Task<QuerySnapshot>> queryTasks = FirebaseQueries.GetAlbumQueryTasks(queryLocation, QueryConstants.MAX_QUERY_RADIUS);
+            Tasks.whenAllSuccess(queryTasks).addOnSuccessListener(albumsResult -> {
+                DocumentSnapshot closestServerAlbum = FirebaseQueries.OnAlbumQueryTasksClosestAlbum(albumsResult, queryLocation, QueryConstants.MAX_QUERY_RADIUS);
 
-        String postID = PostManager.getInstance().addPost(postImageURI, closestAlbum.m_AlbumID, offsetLocation.latitude, offsetLocation.longitude);
-        closestAlbum.addPost(postID);
+                Album newClosestLocalAlbum;
+                if (closestServerAlbum == null)
+                {
+                    newClosestLocalAlbum = new Album(offsetLocation.latitude, offsetLocation.longitude);
+                }
+                else
+                {
+                    newClosestLocalAlbum = new Album(closestServerAlbum);
+                }
+
+                m_WriteLock.lock();
+                m_Albums.put(newClosestLocalAlbum.m_AlbumID, newClosestLocalAlbum);
+                addPostLocalAlbum(newClosestLocalAlbum, postImageURI, offsetLocation);
+
+                while (!m_AddPostQueue.isEmpty())
+                {
+                    Uri pendingPostUri = m_AddPostQueue.pop();
+                    int pendingPostBearing = m_PostBearing.containsKey(pendingPostUri) ? m_PostBearing.remove(pendingPostUri) : 0;
+                    GeoLocation pendingPostLocation = offsetAlbumLocation(new GeoLocation(m_QueryLat, m_QueryLon), 10, pendingPostBearing);
+                    addPostLocalAlbum(newClosestLocalAlbum, pendingPostUri, pendingPostLocation);
+                }
+                m_WriteLock.unlock();
+
+                m_IsQueryInProgress = false;
+                m_QueryNearbyAlbumHandler.post(this);
+            }).addOnFailureListener(e -> {
+                m_IsQueryInProgress = false;
+                m_QueryNearbyAlbumHandler.post(this);
+            });
+        }
+        else
+        {
+            addPostLocalAlbum(closestLocalAlbum, postImageURI, offsetLocation);
+        }
+    }
+
+    private void addPostLocalAlbum(Album album, Uri postImageURI, GeoLocation offsetLocation)
+    {
+        m_WriteLock.lock();
+        String postID = PostManager.getInstance().addPost(postImageURI, album.m_AlbumID, offsetLocation.latitude, offsetLocation.longitude);
+        album.addPost(postID);
         UserManager.getInstance().addPost(postID);
         m_WriteLock.unlock();
-        showToast("Successfully created your post!");
     }
 
     public void removePost(String postID)
@@ -288,8 +328,10 @@ public class AlbumManager implements Runnable, GPSSensor.Listener
     @Override
     public void onLocationChanged(Location location)
     {
-        m_QueryLat = location.getLatitude();
-        m_QueryLon = location.getLongitude();
+        if (!m_IsQueryInProgress) {
+            m_QueryLat = location.getLatitude();
+            m_QueryLon = location.getLongitude();
+        }
         if (!m_IsLocationInit)
         {
             m_IsLocationInit = true;

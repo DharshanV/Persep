@@ -63,4 +63,29 @@ public class FirebaseQueries
 
         return albumDocSnapshots;
     }
+
+    static public DocumentSnapshot OnAlbumQueryTasksClosestAlbum(List<Object> albumSnapshots, GeoLocation queryCenter, double maxQueryRadius)
+    {
+        DocumentSnapshot closestAlbum = null;
+        double currDistance = Double.MAX_VALUE;
+        for (Object albumSnapshot : albumSnapshots)
+        {
+            if (!(albumSnapshot instanceof QuerySnapshot)) continue;
+
+            QuerySnapshot snapshot = (QuerySnapshot) albumSnapshot;
+            for (DocumentSnapshot albumDoc : snapshot.getDocuments())
+            {
+                GeoPoint geoPoint = (GeoPoint) albumDoc.get(PostConstants.GEO_POINT);
+                GeoLocation docLocation = new GeoLocation(geoPoint.getLatitude(), geoPoint.getLongitude());
+                double distanceInM = GeoFireUtils.getDistanceBetween(docLocation, queryCenter);
+                if (distanceInM < maxQueryRadius && distanceInM < currDistance)
+                {
+                    closestAlbum = albumDoc;
+                    currDistance = distanceInM;
+                }
+            }
+        }
+
+        return closestAlbum;
+    }
 }
