@@ -44,6 +44,7 @@ public class Post implements Target
     public Uri m_ImageURI;
     public Bitmap m_Image;
     public long m_Likes;
+    public DocumentReference m_UserRef;
     public List<DocumentReference> m_UsersLiked;
     public GeoPoint m_GeoPoint;
     public String m_GeoLocation;
@@ -57,6 +58,7 @@ public class Post implements Target
         m_AlbumID = albumID;
         m_ImageURI = postImageURI;
         m_Likes = 0;
+        m_UserRef = UserManager.getInstance().m_DocRef;
         m_UsersLiked = new ArrayList<>();
         m_GeoPoint = new GeoPoint(lat, lon);
         m_GeoLocation = GetPostGeoLocation(m_GeoPoint);
@@ -76,6 +78,7 @@ public class Post implements Target
         m_AlbumID = (String) postDoc.get(PostConstants.ALBUM_ID);
         m_ImageURI = Uri.parse((String) postDoc.get(PostConstants.IMAGE_URI));
         m_Likes = (long) postDoc.get(PostConstants.LIKES);
+        m_UserRef = (DocumentReference) postDoc.get(PostConstants.USER);
         m_UsersLiked = new ArrayList<>((List<DocumentReference>) postDoc.get(PostConstants.USERS_LIKED));
         m_GeoPoint = (GeoPoint) postDoc.get(PostConstants.GEO_POINT);
         m_GeoLocation = (String) postDoc.get(PostConstants.GEO_LOCATION);
@@ -92,7 +95,7 @@ public class Post implements Target
 
         Map<String, Object> postData = new HashMap<>();
         postData.put(PostConstants.ALBUM_ID, m_AlbumID);
-        postData.put(PostConstants.USER, UserManager.getInstance().m_DocRef);
+        postData.put(PostConstants.USER, m_UserRef);
         postData.put(PostConstants.LIKES, m_Likes);
         postData.put(PostConstants.USERS_LIKED, m_UsersLiked);
         postData.put(PostConstants.GEO_POINT, m_GeoPoint);
@@ -118,6 +121,12 @@ public class Post implements Target
         postImageRef.delete();
         m_Image = null;
         m_DocRef.delete();
+    }
+
+    public void unload()
+    {
+        m_Image.recycle();
+        m_Image = null;
     }
 
     public void loadInto(ImageView imageView)
@@ -178,6 +187,11 @@ public class Post implements Target
             }
         }
         return false;
+    }
+
+    public boolean isCurrentUserPost()
+    {
+        return m_UserRef == UserManager.getInstance().m_DocRef;
     }
 
     @Override

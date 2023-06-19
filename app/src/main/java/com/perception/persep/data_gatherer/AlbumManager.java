@@ -251,6 +251,20 @@ public class AlbumManager implements Runnable, GPSSensor.Listener
     @Override
     public void run()
     {
+        for (Map.Entry<String, Album> albumEntry : m_Albums.entrySet())
+        {
+            Album album = albumEntry.getValue();
+            GeoLocation albumLocation = new GeoLocation(album.m_GeoPoint.getLatitude(), album.m_GeoPoint.getLongitude());
+            GeoLocation currLocation = new GeoLocation(m_QueryLat, m_QueryLon);
+            double distanceInM = GeoFireUtils.getDistanceBetween(albumLocation, currLocation);
+            if (distanceInM > QueryConstants.MAX_QUERY_RADIUS) {
+                m_WriteLock.lock();
+                album.unload();
+                m_Albums.remove(albumEntry.getKey());
+                m_WriteLock.unlock();
+            }
+        }
+
         if (m_IsLocationInit && !m_IsQueryInProgress)
         {
             m_IsQueryInProgress = true;

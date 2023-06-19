@@ -172,6 +172,20 @@ public class Album
         m_DocRef.delete();
     }
 
+    public void unload()
+    {
+        m_ReadLock.lock();
+        for (String postID : m_PostIDs)
+        {
+            PostManager.getInstance().unloadPost(postID);
+        }
+        m_ReadLock.unlock();
+
+        m_WriteLock.lock();
+        m_PostIDs.clear();
+        m_WriteLock.unlock();
+    }
+
     public void addPost(String postID)
     {
         m_WriteLock.lock();

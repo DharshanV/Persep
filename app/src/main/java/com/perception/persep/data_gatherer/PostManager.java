@@ -107,6 +107,18 @@ public class PostManager
         return post;
     }
 
+    public void unloadPost(String postID)
+    {
+        Post post = m_Posts.get(postID);
+        if (post != null && !post.isCurrentUserPost())
+        {
+            m_WriteLock.lock();
+            post.unload();
+            m_Posts.remove(postID);
+            m_WriteLock.unlock();
+        }
+    }
+
     public void removePost(DocumentSnapshot postDoc)
     {
         m_WriteLock.lock();
