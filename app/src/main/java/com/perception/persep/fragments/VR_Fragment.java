@@ -202,7 +202,10 @@ public class VR_Fragment extends Fragment implements BearingSensor.BearingSensor
             @Override
             public void onPanelStateChanged(View panel, SlidingUpPanelLayout.PanelState previousState, SlidingUpPanelLayout.PanelState newState)
             {
-                if (newState == SlidingUpPanelLayout.PanelState.COLLAPSED) {
+                if (previousState == SlidingUpPanelLayout.PanelState.EXPANDED && newState == SlidingUpPanelLayout.PanelState.DRAGGING) {
+                    m_ViewPager.setUserInputEnabled(false);
+                }
+                else {
                     m_ViewPager.setUserInputEnabled(true);
                 }
             }
@@ -263,7 +266,6 @@ public class VR_Fragment extends Fragment implements BearingSensor.BearingSensor
 //            {
 //                TakePhoto();
 //            }
-            m_ViewPager.setUserInputEnabled(false);
             m_SlidingUpPanel.setPanelState(SlidingUpPanelLayout.PanelState.EXPANDED);
         });
 
