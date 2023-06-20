@@ -365,6 +365,7 @@ public class VR_Fragment extends Fragment implements BearingSensor.BearingSensor
     {
         private double m_SwipeDistanceCovered = 0;
         private long m_SwipeTimeSpent = 0;
+        private long m_TouchDownSpent = 0;
 
         @Override
         public boolean onDown(MotionEvent event)
@@ -374,6 +375,7 @@ public class VR_Fragment extends Fragment implements BearingSensor.BearingSensor
             {
                 m_ViewPager.setUserInputEnabled(false);
                 m_IsInteractingWithPost = true;
+                m_TouchDownSpent = event.getEventTime();
             }
             return true;
         }
@@ -418,14 +420,21 @@ public class VR_Fragment extends Fragment implements BearingSensor.BearingSensor
         {
             if (m_IsInteractingWithPost)
             {
-                if (m_InteractingWithAlbum != null && m_SwipeTimeSpent != 0)
+                if (m_InteractingWithAlbum != null)
                 {
-                    double velocity = m_SwipeDistanceCovered / m_SwipeTimeSpent;
-                    Album album = AlbumManager.getInstance().getAlbum(m_InteractingWithAlbum);
-                    if (album != null)
-                    {
-                        album.userInteractUpdatePostIndex(velocity > 0);
-                        album.updateUIOnPostChanged();
+                    if (m_SwipeTimeSpent != 0 && Math.abs(m_SwipeDistanceCovered) > 100) {
+                        double velocity = m_SwipeDistanceCovered / m_SwipeTimeSpent;
+                        Album album = AlbumManager.getInstance().getAlbum(m_InteractingWithAlbum);
+                        if (album != null)
+                        {
+                            album.userInteractUpdatePostIndex(velocity > 0);
+                            album.updateUIOnPostChanged();
+                        }
+                    }
+                    else {
+                        long timeSpentDown = ev.getEventTime() - m_TouchDownSpent;
+                        if (timeSpentDown > 500) {
+                        }
                     }
                     m_SwipeDistanceCovered = 0;
                     m_SwipeTimeSpent = 0;
