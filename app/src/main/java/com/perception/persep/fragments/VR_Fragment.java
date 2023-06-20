@@ -39,6 +39,7 @@ import com.perception.persep.data_gatherer.BearingSensor;
 import com.perception.persep.data_gatherer.DataGathererManager;
 import com.perception.persep.data_gatherer.PostManager;
 import com.perception.persep.render.RenderView;
+import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 import com.yalantis.ucrop.UCrop;
 
 import java.io.File;
@@ -54,6 +55,7 @@ public class VR_Fragment extends Fragment implements BearingSensor.BearingSensor
     GestureDetector m_GestureDetector;
     ViewPager2 m_ViewPager;
     private RelativeLayout m_VRLayout;
+    private SlidingUpPanelLayout m_SlidingUpPanel;
     private RenderView m_VRRenderView;
     private boolean m_IsVRInitialized = false;
     private boolean m_PrevIsVREnabled = false;
@@ -112,29 +114,29 @@ public class VR_Fragment extends Fragment implements BearingSensor.BearingSensor
             return;
         }
 
-        m_IsVRInitialized = true;
-        m_IsVREnabled = true;
-        m_PrevIsVREnabled = false;
-        m_ToggleVRButton.setEnabled(true);
-        m_ToggleVRButton.setImageResource(R.drawable.ic_ar_enabled_button);
-
-        m_DataGathererManager = new DataGathererManager(getActivity());
-        m_VRRenderView = new RenderView(getActivity());
-
-        m_VRLayout.addView(m_VRRenderView, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
-        m_VRRenderView.setOpaque(false);
-
-        m_DataGathererManager.SetGyroscopeListener(m_VRRenderView);
-        m_DataGathererManager.AddGPSListener(m_VRRenderView);
-        m_DataGathererManager.AddGPSListener(AlbumManager.getInstance());
-        m_DataGathererManager.AddBearingListener(this);
-//        m_DataGathererManager.SetAlbumListener(m_VRRenderView);
-
-        if (forceStart)
-        {
-            if (m_VRRenderView != null) m_VRRenderView.onStart();
-            if (m_DataGathererManager != null) m_DataGathererManager.onStart();
-        }
+//        m_IsVRInitialized = true;
+//        m_IsVREnabled = true;
+//        m_PrevIsVREnabled = false;
+//        m_ToggleVRButton.setEnabled(true);
+//        m_ToggleVRButton.setImageResource(R.drawable.ic_ar_enabled_button);
+//
+//        m_DataGathererManager = new DataGathererManager(getActivity());
+//        m_VRRenderView = new RenderView(getActivity());
+//
+//        m_VRLayout.addView(m_VRRenderView, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+//        m_VRRenderView.setOpaque(false);
+//
+//        m_DataGathererManager.SetGyroscopeListener(m_VRRenderView);
+//        m_DataGathererManager.AddGPSListener(m_VRRenderView);
+//        m_DataGathererManager.AddGPSListener(AlbumManager.getInstance());
+//        m_DataGathererManager.AddBearingListener(this);
+////        m_DataGathererManager.SetAlbumListener(m_VRRenderView);
+//
+//        if (forceStart)
+//        {
+//            if (m_VRRenderView != null) m_VRRenderView.onStart();
+//            if (m_DataGathererManager != null) m_DataGathererManager.onStart();
+//        }
     }
 
     @Override
@@ -186,6 +188,25 @@ public class VR_Fragment extends Fragment implements BearingSensor.BearingSensor
         super.onViewCreated(view, savedInstanceState);
 
         m_VRLayout = view.findViewById(R.id.vr_root_layout);
+        m_SlidingUpPanel = view.findViewById(R.id.vr_fragment_slide_up_panel_layout);
+        m_SlidingUpPanel.setFadeOnClickListener(v -> m_SlidingUpPanel.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED));
+        m_SlidingUpPanel.setDragView(R.id.popup_drag_view);
+        m_SlidingUpPanel.addPanelSlideListener(new SlidingUpPanelLayout.PanelSlideListener()
+        {
+            @Override
+            public void onPanelSlide(View panel, float slideOffset)
+            {
+
+            }
+
+            @Override
+            public void onPanelStateChanged(View panel, SlidingUpPanelLayout.PanelState previousState, SlidingUpPanelLayout.PanelState newState)
+            {
+                if (newState == SlidingUpPanelLayout.PanelState.COLLAPSED) {
+                    m_ViewPager.setUserInputEnabled(true);
+                }
+            }
+        });
 
         m_GestureDetector = new VR_Fragment_GestureDetector(getActivity(), new VR_Fragment_GestureListener());
 
@@ -238,10 +259,12 @@ public class VR_Fragment extends Fragment implements BearingSensor.BearingSensor
 
         m_TakePhotoButton = view.findViewById(R.id.vr_button_take_photo);
         m_TakePhotoButton.setOnClickListener(v -> {
-            if (m_CameraView != null && m_CameraView.isOpened() && !m_CameraView.isTakingPicture())
-            {
-                TakePhoto();
-            }
+//            if (m_CameraView != null && m_CameraView.isOpened() && !m_CameraView.isTakingPicture())
+//            {
+//                TakePhoto();
+//            }
+            m_ViewPager.setUserInputEnabled(false);
+            m_SlidingUpPanel.setPanelState(SlidingUpPanelLayout.PanelState.EXPANDED);
         });
 
         m_ToggleVRButton = view.findViewById(R.id.toggle_vr_button);

@@ -1,80 +1,97 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+<com.sothree.slidinguppanel.SlidingUpPanelLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="com.perception.persep.fragments.VR_Fragment"
+    android:id="@+id/vr_fragment_slide_up_panel_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:theme="@style/Theme.Persep"
-    android:background="@color/black"
-    tools:context="com.perception.persep.fragments.VR_Fragment">
-
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:id="@+id/vr_root_layout">
-
-        <com.otaliastudios.cameraview.CameraView
-            android:id="@+id/otalia_camera_view"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:keepScreenOn="true"
-            app:cameraAudio="off"
-            app:cameraEngine="camera1"
-            app:cameraMode="picture"
-            app:cameraPictureFormat="jpeg"
-            app:cameraPlaySounds="false"
-            app:cameraPreview="glSurface"
-            app:cameraRequestPermissions="false"
-            app:cameraUseDeviceOrientation="false" />
-
-    </RelativeLayout>
+    android:gravity="bottom"
+    app:umanoPanelHeight="0dp"
+    app:umanoInitialState="hidden"
+    app:umanoShadowHeight="5dp">
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:layout_width="50dp"
-        android:layout_height="wrap_content"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        android:layout_marginTop="50dp"
-        android:layout_marginEnd="15dp"
-        android:paddingVertical="25dp"
-        android:paddingHorizontal="5dp"
-        android:background="@drawable/ar_icon_background"
-        android:translationZ="30dp">
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:theme="@style/Theme.Persep"
+        android:background="@color/black">
 
-        <ImageButton
-            android:id="@+id/toggle_camera_button"
-            android:layout_width="@dimen/vr_enable_disable_vector_size"
-            android:layout_height="@dimen/vr_enable_disable_vector_size"
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/vr_root_layout">
+
+            <com.otaliastudios.cameraview.CameraView
+                android:id="@+id/otalia_camera_view"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:keepScreenOn="true"
+                app:cameraAudio="off"
+                app:cameraEngine="camera1"
+                app:cameraMode="picture"
+                app:cameraPictureFormat="jpeg"
+                app:cameraPlaySounds="false"
+                app:cameraPreview="glSurface"
+                app:cameraRequestPermissions="false"
+                app:cameraUseDeviceOrientation="false" />
+
+        </RelativeLayout>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="50dp"
+            android:layout_height="wrap_content"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
-            android:background="@android:color/transparent"
-            android:src="@drawable/ic_baseline_camera_rear_24"
-            android:translationZ="30dp" />
+            android:layout_marginTop="50dp"
+            android:layout_marginEnd="15dp"
+            android:paddingVertical="25dp"
+            android:paddingHorizontal="5dp"
+            android:background="@drawable/ar_icon_background"
+            android:translationZ="30dp">
+
+            <ImageButton
+                android:id="@+id/toggle_camera_button"
+                android:layout_width="@dimen/vr_enable_disable_vector_size"
+                android:layout_height="@dimen/vr_enable_disable_vector_size"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                android:background="@android:color/transparent"
+                android:src="@drawable/ic_baseline_camera_rear_24"
+                android:translationZ="30dp" />
+
+            <ImageButton
+                android:layout_marginTop="20dp"
+                android:id="@+id/toggle_vr_button"
+                android:layout_width="@dimen/vr_enable_disable_vector_size"
+                android:layout_height="@dimen/vr_enable_disable_vector_size"
+                app:layout_constraintTop_toBottomOf="@id/toggle_camera_button"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                android:paddingTop="5dp"
+                android:background="@android:color/transparent"
+                android:src="@drawable/ic_ar_disabled_button"
+                android:translationZ="30dp"/>
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
         <ImageButton
-            android:layout_marginTop="20dp"
-            android:id="@+id/toggle_vr_button"
-            android:layout_width="@dimen/vr_enable_disable_vector_size"
-            android:layout_height="@dimen/vr_enable_disable_vector_size"
-            app:layout_constraintTop_toBottomOf="@id/toggle_camera_button"
+            android:id="@+id/vr_button_take_photo"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:layout_marginBottom="20dp"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
-            android:paddingTop="5dp"
-            android:background="@android:color/transparent"
-            android:src="@drawable/ic_ar_disabled_button"
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:background="@drawable/vr_rounded_button"
+            android:src="@null"
             android:translationZ="30dp"/>
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <ImageButton
-        android:id="@+id/vr_button_take_photo"
-        android:layout_width="100dp"
-        android:layout_height="100dp"
-        android:layout_marginBottom="20dp"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        android:background="@drawable/vr_rounded_button"
-        android:src="@null"
-        android:translationZ="30dp"/>
-</androidx.constraintlayout.widget.ConstraintLayout>
+    <include
+        android:layout_width="match_parent"
+        android:layout_height="500dp"
+        layout="@layout/post_popup">
+    </include>
+</com.sothree.slidinguppanel.SlidingUpPanelLayout>
