@@ -392,6 +392,11 @@ public class VR_Fragment extends Fragment implements BearingSensor.BearingSensor
                 m_ViewPager.setUserInputEnabled(false);
                 m_IsInteractingWithPost = true;
                 m_TouchDownSpent = event.getEventTime();
+
+                Album album = AlbumManager.getInstance().getAlbum(m_InteractingWithAlbum);
+                if (album != null) {
+                    album.stopPostUpdateIndex();
+                }
             }
             return true;
         }
@@ -454,6 +459,7 @@ public class VR_Fragment extends Fragment implements BearingSensor.BearingSensor
                                 }
                             }
                         }
+                        album.startPostUpdateIndex();
                     }
                     m_SwipeDistanceCovered = 0;
                     m_SwipeTimeSpent = 0;
