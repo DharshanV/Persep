@@ -56,6 +56,7 @@ public class Post implements Target
     public Timestamp m_TimeModified;
     public DocumentReference m_DocRef;
     public boolean m_IsImageLoaded = false;
+    public List<DocumentReference> m_PostComments = new ArrayList<>();
 
     public Post(Uri postImageURI, String albumID, double lat, double lon)
     {
@@ -91,6 +92,11 @@ public class Post implements Target
         m_TimeCreated = (Timestamp) postDoc.get(PostConstants.TIME_CREATED);
         m_TimeModified = (Timestamp) postDoc.get(PostConstants.TIME_MODIFIED);
 
+        Object commentObj = postDoc.get(PostConstants.COMMENTS);
+        if (commentObj != null) {
+            m_PostComments = new ArrayList<>((List<DocumentReference>) commentObj);
+        }
+
         Picasso.get().load(m_ImageURI).resize(PostConstants.IMAGE_WIDTH, PostConstants.IMAGE_HEIGHT).noFade().into(this);
     }
 
@@ -109,6 +115,7 @@ public class Post implements Target
         Timestamp now = Timestamp.now();
         postData.put(PostConstants.TIME_CREATED, now);
         postData.put(PostConstants.TIME_MODIFIED, now);
+        postData.put(PostConstants.COMMENTS, m_PostComments);
         m_DocRef.set(postData).addOnFailureListener(e -> PostManager.getInstance().onPostError(m_PostID, PostError.SET_DOCUMENT_REF));
 
         StorageReference postImageRef = FirebaseStorage.getInstance().getReference().child("images/" + UUID.randomUUID().toString() + ".jpg");
@@ -185,9 +192,18 @@ public class Post implements Target
         batch.commit().addOnSuccessListener(unused -> listener.onLikeUpdate(true));
     }
 
+    // posts/sJxX4iXSC03IZAiLJgY2
+    // posts/fudMuv7sMhgvS5t43LNy
     public void addComment(String comment)
     {
-        Timber.d("Post comment: %s", comment);
+//        DocumentReference commentRef = CommentManager.getInstancer().createComment(comment);
+//        m_TimeModified = Timestamp.now();
+//        m_PostComments.add(commentRef);
+//
+//        WriteBatch batch = FirebaseFirestore.getInstance().batch();
+//        m_DocRef.update(PostConstants.TIME_MODIFIED, m_TimeModified);
+//        m_DocRef.update(PostConstants.COMMENTS, FieldValue.arrayRemove(commentRef));
+//        batch.commit().addOnSuccessListener(unused -> {});
     }
 
     public boolean isLikedByCurrentUser()

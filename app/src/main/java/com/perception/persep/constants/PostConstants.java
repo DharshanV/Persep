@@ -12,6 +12,7 @@ public class PostConstants
     public static final String GEO_LOCATION = "geo_location";
     public static final String TIME_CREATED = "time_created";
     public static final String TIME_MODIFIED = "time_modified";
+    public static final String COMMENTS = "comments";
 
     public static final String[] REQUIRED_TAGS = {ALBUM_ID, IMAGE_URI, LIKES, GEO_POINT, GEO_LOCATION, TIME_CREATED, TIME_MODIFIED};
 
