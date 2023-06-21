@@ -10,8 +10,11 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.perception.persep.album_data.Post;
 import com.perception.persep.constants.PostConstants;
 import com.perception.persep.constants.UserConstants;
+import com.perception.persep.user_data.User;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class UserManager
 {
@@ -19,9 +22,16 @@ public class UserManager
 
     public DocumentReference m_DocRef = null;
 
+    private Map<DocumentReference, User> m_UserData = new HashMap<>();
+
     public interface DeleteUserListener
     {
         void onDeleteListener(boolean successful);
+    }
+
+    public interface QueryUserDataListener
+    {
+        void onQueryUserData(User user);
     }
 
     private UserManager()
@@ -43,6 +53,23 @@ public class UserManager
         if (firebaseUser != null)
         {
             m_Instance.m_DocRef = FirebaseFirestore.getInstance().collection(UserConstants.COLLECTION_NAME).document(firebaseUser.getUid());
+            m_Instance.m_DocRef.get().addOnSuccessListener(userDoc -> m_UserData.put(m_DocRef, new User(userDoc)));
+        }
+    }
+
+    public void getUserData(DocumentReference userRef, QueryUserDataListener queryUserDataListener)
+    {
+        User user = m_UserData.get(userRef);
+        if (user != null)
+        {
+            queryUserDataListener.onQueryUserData(user);
+        }
+        else {
+            userRef.get().addOnSuccessListener(userDoc -> {
+                User userData = new User(userDoc);
+                m_UserData.put(m_DocRef, userData);
+                queryUserDataListener.onQueryUserData(userData);
+            });
         }
     }
 
@@ -81,6 +108,7 @@ public class UserManager
                 m_DocRef = null;
                 firebaseUser.delete().addOnFailureListener(e -> listener.onDeleteListener(false));
             }).addOnFailureListener(e -> listener.onDeleteListener(false));
+            m_UserData.remove(m_DocRef);
         }
     }
 }

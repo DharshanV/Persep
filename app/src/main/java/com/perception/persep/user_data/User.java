@@ -3,6 +3,9 @@ package com.perception.persep.user_data;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.perception.persep.constants.UserConstants;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -28,6 +31,13 @@ public class User implements Parcelable
 
     public User()
     {
+    }
+
+    public User(DocumentSnapshot userDoc)
+    {
+        m_UserID = (String) userDoc.get(UserConstants.USER_ID);
+        m_Username = (String) userDoc.get(UserConstants.USERNAME);
+        m_Email = (String) userDoc.get(UserConstants.EMAIL);
     }
 
     public User(Parcel in)

@@ -24,6 +24,7 @@ import com.perception.persep.constants.PostConstants;
 import com.perception.persep.data_gatherer.PostManager;
 import com.perception.persep.data_gatherer.UserManager;
 import com.perception.persep.enums.PostError;
+import com.perception.persep.user_data.User;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 
@@ -45,6 +46,7 @@ public class Post implements Target
     public Bitmap m_Image;
     public long m_Likes;
     public DocumentReference m_UserRef;
+    public User m_UserData;
     public List<DocumentReference> m_UsersLiked;
     public GeoPoint m_GeoPoint;
     public String m_GeoLocation;
@@ -59,6 +61,7 @@ public class Post implements Target
         m_ImageURI = postImageURI;
         m_Likes = 0;
         m_UserRef = UserManager.getInstance().m_DocRef;
+        UserManager.getInstance().getUserData(m_UserRef, user -> m_UserData = user);
         m_UsersLiked = new ArrayList<>();
         m_GeoPoint = new GeoPoint(lat, lon);
         m_GeoLocation = GetPostGeoLocation(m_GeoPoint);
@@ -79,6 +82,7 @@ public class Post implements Target
         m_ImageURI = Uri.parse((String) postDoc.get(PostConstants.IMAGE_URI));
         m_Likes = (long) postDoc.get(PostConstants.LIKES);
         m_UserRef = (DocumentReference) postDoc.get(PostConstants.USER);
+        UserManager.getInstance().getUserData(m_UserRef, user -> m_UserData = user);
         m_UsersLiked = new ArrayList<>((List<DocumentReference>) postDoc.get(PostConstants.USERS_LIKED));
         m_GeoPoint = (GeoPoint) postDoc.get(PostConstants.GEO_POINT);
         m_GeoLocation = (String) postDoc.get(PostConstants.GEO_LOCATION);
