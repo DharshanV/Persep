@@ -1,10 +1,12 @@
 package com.perception.persep.fragments;
 
+import android.app.Activity;
 import android.icu.text.SimpleDateFormat;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.ablanco.zoomy.Zoomy;
 import com.example.persep.R;
 import com.perception.persep.album_data.Post;
 import com.perception.persep.user_data.User;
@@ -19,7 +21,7 @@ public class PopupPost
     private TextView m_PostCreated;
     private ImageView m_PostImage;
 
-    public PopupPost(View popupParentView, SlidingUpPanelLayout.PanelSlideListener panelSlideListener)
+    public PopupPost(Activity activity, View popupParentView, SlidingUpPanelLayout.PanelSlideListener panelSlideListener)
     {
         m_SlidingUpPanel = popupParentView.findViewById(R.id.vr_fragment_slide_up_panel_layout);
         m_SlidingUpPanel.setFadeOnClickListener(v -> m_SlidingUpPanel.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED));
@@ -29,6 +31,10 @@ public class PopupPost
         m_PostUsername = popupParentView.findViewById(R.id.popup_username_text_view);
         m_PostCreated = popupParentView.findViewById(R.id.popup_post_data_text_view);
         m_PostImage = popupParentView.findViewById(R.id.popup_user_post_image);
+
+        Zoomy.Builder builder = new Zoomy.Builder(activity).target(m_PostImage);
+        builder.enableImmersiveMode(false);
+        builder.register();
     }
 
     public void launch(Post post)

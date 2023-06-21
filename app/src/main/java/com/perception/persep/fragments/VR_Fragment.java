@@ -189,7 +189,7 @@ public class VR_Fragment extends Fragment implements BearingSensor.BearingSensor
         super.onViewCreated(view, savedInstanceState);
 
         m_VRLayout = view.findViewById(R.id.vr_root_layout);
-        m_PopupPost = new PopupPost(view, this);
+        m_PopupPost = new PopupPost(getActivity(), view, this);
 
         m_GestureDetector = new VR_Fragment_GestureDetector(getActivity(), new VR_Fragment_GestureListener());
 
