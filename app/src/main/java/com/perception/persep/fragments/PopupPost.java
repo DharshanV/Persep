@@ -1,5 +1,6 @@
 package com.perception.persep.fragments;
 
+import android.icu.text.SimpleDateFormat;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -9,10 +10,13 @@ import com.perception.persep.album_data.Post;
 import com.perception.persep.user_data.User;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 
+import java.util.Locale;
+
 public class PopupPost
 {
     private final SlidingUpPanelLayout m_SlidingUpPanel;
     private TextView m_PostUsername;
+    private TextView m_PostCreated;
     private ImageView m_PostImage;
 
     public PopupPost(View popupParentView, SlidingUpPanelLayout.PanelSlideListener panelSlideListener)
@@ -23,6 +27,7 @@ public class PopupPost
         m_SlidingUpPanel.addPanelSlideListener(panelSlideListener);
 
         m_PostUsername = popupParentView.findViewById(R.id.popup_username_text_view);
+        m_PostCreated = popupParentView.findViewById(R.id.popup_post_data_text_view);
         m_PostImage = popupParentView.findViewById(R.id.popup_user_post_image);
     }
 
@@ -31,6 +36,8 @@ public class PopupPost
         User userData = post.m_UserData;
         if (userData != null) {
             m_PostUsername.setText(userData.m_Username);
+            SimpleDateFormat timeStampFormat = new SimpleDateFormat("dd-MM-yyyy", Locale.ENGLISH);
+            m_PostCreated.setText(timeStampFormat.format(post.m_TimeCreated.toDate()).replace('-', '/'));
             m_PostImage.setImageBitmap(post.m_Image);
             m_SlidingUpPanel.setPanelState(SlidingUpPanelLayout.PanelState.EXPANDED);
         }
