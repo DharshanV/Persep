@@ -47,7 +47,7 @@ import java.io.IOException;
 
 import timber.log.Timber;
 
-public class VR_Fragment extends Fragment implements BearingSensor.BearingSensorListener
+public class VR_Fragment extends Fragment implements BearingSensor.BearingSensorListener, SlidingUpPanelLayout.PanelSlideListener
 {
     private static final String TAG = "VR_Fragment";
 
@@ -55,7 +55,6 @@ public class VR_Fragment extends Fragment implements BearingSensor.BearingSensor
     GestureDetector m_GestureDetector;
     ViewPager2 m_ViewPager;
     private RelativeLayout m_VRLayout;
-    private SlidingUpPanelLayout m_SlidingUpPanel;
     private RenderView m_VRRenderView;
     private boolean m_IsVRInitialized = false;
     private boolean m_PrevIsVREnabled = false;
@@ -73,6 +72,8 @@ public class VR_Fragment extends Fragment implements BearingSensor.BearingSensor
 
     private int m_DeviceBearing = 0;
     private int m_PostBearing = 0;
+
+    private PopupPost m_PopupPost;
 
     public VR_Fragment(ViewPager2 viewPager)
     {
@@ -188,28 +189,7 @@ public class VR_Fragment extends Fragment implements BearingSensor.BearingSensor
         super.onViewCreated(view, savedInstanceState);
 
         m_VRLayout = view.findViewById(R.id.vr_root_layout);
-        m_SlidingUpPanel = view.findViewById(R.id.vr_fragment_slide_up_panel_layout);
-        m_SlidingUpPanel.setFadeOnClickListener(v -> m_SlidingUpPanel.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED));
-        m_SlidingUpPanel.setDragView(R.id.popup_drag_view);
-        m_SlidingUpPanel.addPanelSlideListener(new SlidingUpPanelLayout.PanelSlideListener()
-        {
-            @Override
-            public void onPanelSlide(View panel, float slideOffset)
-            {
-
-            }
-
-            @Override
-            public void onPanelStateChanged(View panel, SlidingUpPanelLayout.PanelState previousState, SlidingUpPanelLayout.PanelState newState)
-            {
-                if (previousState == SlidingUpPanelLayout.PanelState.EXPANDED && newState == SlidingUpPanelLayout.PanelState.DRAGGING) {
-                    m_ViewPager.setUserInputEnabled(false);
-                }
-                else {
-                    m_ViewPager.setUserInputEnabled(true);
-                }
-            }
-        });
+        m_PopupPost = new PopupPost(view, this);
 
         m_GestureDetector = new VR_Fragment_GestureDetector(getActivity(), new VR_Fragment_GestureListener());
 
@@ -385,6 +365,18 @@ public class VR_Fragment extends Fragment implements BearingSensor.BearingSensor
         m_DeviceBearing = azimuth;
     }
 
+    @Override
+    public void onPanelSlide(View panel, float slideOffset)
+    {
+
+    }
+
+    @Override
+    public void onPanelStateChanged(View panel, SlidingUpPanelLayout.PanelState previousState, SlidingUpPanelLayout.PanelState newState)
+    {
+        m_ViewPager.setUserInputEnabled(previousState != SlidingUpPanelLayout.PanelState.EXPANDED || newState != SlidingUpPanelLayout.PanelState.DRAGGING);
+    }
+
     class VR_Fragment_GestureListener extends GestureDetector.SimpleOnGestureListener implements VR_Fragment_GestureDetector.Listener
     {
         private double m_SwipeDistanceCovered = 0;
@@ -446,18 +438,21 @@ public class VR_Fragment extends Fragment implements BearingSensor.BearingSensor
             {
                 if (m_InteractingWithAlbum != null)
                 {
-                    if (m_SwipeTimeSpent != 0 && Math.abs(m_SwipeDistanceCovered) > 100) {
-                        double velocity = m_SwipeDistanceCovered / m_SwipeTimeSpent;
-                        Album album = AlbumManager.getInstance().getAlbum(m_InteractingWithAlbum);
-                        if (album != null)
-                        {
+                    Album album = AlbumManager.getInstance().getAlbum(m_InteractingWithAlbum);
+                    if (album != null) {
+                        if (m_SwipeTimeSpent != 0 && Math.abs(m_SwipeDistanceCovered) > 100) {
+                            double velocity = m_SwipeDistanceCovered / m_SwipeTimeSpent;
                             album.userInteractUpdatePostIndex(velocity > 0);
                             album.updateUIOnPostChanged();
                         }
-                    }
-                    else {
-                        long timeSpentDown = ev.getEventTime() - m_TouchDownSpent;
-                        if (timeSpentDown > 500) {
+                        else {
+                            long timeSpentDown = ev.getEventTime() - m_TouchDownSpent;
+                            if (timeSpentDown > 500) {
+                                Post post = PostManager.getInstance().getPost(album.getCurrentPostID());
+                                if (post != null) {
+                                    m_PopupPost.launch(post);
+                                }
+                            }
                         }
                     }
                     m_SwipeDistanceCovered = 0;
