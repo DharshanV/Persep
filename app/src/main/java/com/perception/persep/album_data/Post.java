@@ -36,6 +36,8 @@ import java.util.Map;
 import java.util.Stack;
 import java.util.UUID;
 
+import timber.log.Timber;
+
 public class Post implements Target
 {
     private static final String PostLoadImage = "PostLoadImage";
@@ -181,6 +183,11 @@ public class Post implements Target
         m_DocRef.update(PostConstants.TIME_MODIFIED, m_TimeModified);
         m_DocRef.update(PostConstants.USERS_LIKED, FieldValue.arrayRemove(userRef));
         batch.commit().addOnSuccessListener(unused -> listener.onLikeUpdate(true));
+    }
+
+    public void addComment(String comment)
+    {
+        Timber.d("Post comment: %s", comment);
     }
 
     public boolean isLikedByCurrentUser()

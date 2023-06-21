@@ -79,7 +79,7 @@
         android:id="@+id/popup_message_send_layout">
 
         <EditText
-            android:id="@+id/popup_send_message_edit_text"
+            android:id="@+id/popup_send_comment_edit_text"
             android:layout_width="0dp"
             android:layout_weight="0.85"
             android:layout_height="wrap_content"
@@ -87,7 +87,7 @@
             android:inputType="textShortMessage"/>
 
         <ImageButton
-            android:id="@+id/popup_send_message_button"
+            android:id="@+id/popup_send_comment_button"
             android:layout_width="0dp"
             android:layout_weight="0.15"
             android:layout_height="match_parent"
