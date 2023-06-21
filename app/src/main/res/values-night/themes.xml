@@ -27,7 +27,7 @@
     </style>
 
     <style name="Theme.Persep.Home" parent="Theme.Persep">
-        <item name="android:windowTranslucentStatus">true</item>
+<!--        <item name="android:windowTranslucentStatus">true</item>-->
         <item name="android:windowLightStatusBar">false</item>
     </style>
 

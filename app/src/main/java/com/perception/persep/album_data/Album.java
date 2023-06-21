@@ -470,4 +470,15 @@ public class Album
             m_ReadLock.unlock();
         }
     }
+
+    public void stopPostUpdateIndex()
+    {
+        m_PostUpdateTimerTask.cancel();
+    }
+
+    public void startPostUpdateIndex()
+    {
+        m_PostUpdateTimerTask = new PostUpdateIndexTask();
+        m_UpdatePostTimer.scheduleAtFixedRate(m_PostUpdateTimerTask, TASK_START_DELAY, TASK_START_DELAY);
+    }
 }

@@ -61,4 +61,5 @@ dependencies {
     implementation 'com.jakewharton.timber:timber:5.0.1'
     implementation 'nu.aaro.gustav:passwordstrengthmeter:0.4'
     implementation 'com.sothree.slidinguppanel:library:3.4.0'
+    implementation 'io.github.imablanco:zoomy:1.0.0'
 }

@@ -91,7 +91,7 @@
 
     <include
         android:layout_width="match_parent"
-        android:layout_height="500dp"
+        android:layout_height="650dp"
         layout="@layout/post_popup">
     </include>
 </com.sothree.slidinguppanel.SlidingUpPanelLayout>
