@@ -157,45 +157,49 @@ public class PostManager
                 return;
             }
 
-            List<Task<DocumentSnapshot>> postQueryTasks = new ArrayList<>(userDocPostRefs.size());
+            List<String> postIDs = new ArrayList<>();
+            List<Task<DocumentSnapshot>> postQueryTasks = new ArrayList<>();
             for (DocumentReference postRef : userDocPostRefs)
             {
-                postQueryTasks.add(postRef.get());
+                Post post = getPost(postRef.getId());
+                if (post != null) {
+                    postIDs.add(post.m_PostID);
+                }
+                else {
+                    postQueryTasks.add(postRef.get());
+                }
+            }
+
+            if (postQueryTasks.isEmpty()) {
+                listener.onQuery(postIDs);
+                return;
             }
 
             Tasks.whenAllSuccess(postQueryTasks).addOnSuccessListener(postsResult -> {
-                List<String> postIDs = new ArrayList<>();
                 for (Object postObj : postsResult)
                 {
                     DocumentSnapshot postDoc = (DocumentSnapshot) postObj;
-                    String postID = postDoc.getId();
                     m_WriteLock.lock();
-                    if (!m_Posts.containsKey(postID))
+                    try
                     {
-                        try
+                        Post post = new Post(postDoc);
+                        postIDs.add(post.m_PostID);
+                        m_Posts.put(post.m_PostID, post);
+                    } catch (NullPointerException ignored)
+                    {
+                        String albumID = (String) postDoc.get(PostConstants.ALBUM_ID);
+                        if (albumID != null)
                         {
-                            m_Posts.put(postID, new Post(postDoc));
-                        } catch (NullPointerException ignored)
-                        {
-                            String albumID = (String) postDoc.get(PostConstants.ALBUM_ID);
-                            if (albumID != null)
-                            {
-                                AlbumManager.getInstance().removeInvalidAlbumPost(albumID, postDoc.getReference());
-                            }
-                            UserManager.getInstance().removePost(postDoc.getReference());
-                            postDoc.getReference().delete();
+                            AlbumManager.getInstance().removeInvalidAlbumPost(albumID, postDoc.getReference());
                         }
-                    }
-                    Post post = m_Posts.get(postID);
-                    if (post != null)
-                    {
-                        postIDs.add(postID);
+                        UserManager.getInstance().removePost(postDoc.getReference());
+                        postDoc.getReference().delete();
                     }
                     m_WriteLock.unlock();
                 }
                 listener.onQuery(postIDs);
-            }).addOnFailureListener(e -> listener.onQuery(null));
-        }).addOnFailureListener(e -> listener.onQuery(null));
+            }).addOnFailureListener(e -> listener.onQuery(postIDs));
+        }).addOnFailureListener(e -> listener.onQuery(new ArrayList<>()));
     }
 
     public void onPostError(String postID, PostError error)

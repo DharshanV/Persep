@@ -71,6 +71,7 @@ public class CommentManager
 
             if (commentsQueryTasks.isEmpty()) {
                 listener.onCommentAdded(true, "", postCommentsIDs);
+                return;
             }
 
             Tasks.whenAllSuccess(commentsQueryTasks).addOnSuccessListener(commentsResult -> {
@@ -78,9 +79,11 @@ public class CommentManager
                 for (Object commentObj : commentsResult)
                 {
                     DocumentSnapshot commentDoc = (DocumentSnapshot) commentObj;
-                    Comment comment = new Comment(commentDoc);
-                    postCommentsIDs.add(comment.m_CommentID);
-                    m_Comments.put(comment.m_CommentID, comment);
+                    try {
+                        Comment comment = new Comment(commentDoc);
+                        postCommentsIDs.add(comment.m_CommentID);
+                        m_Comments.put(comment.m_CommentID, comment);
+                    } catch (NullPointerException ignored) {}
                 }
                 m_WriteLock.unlock();
                 listener.onCommentAdded(true, "", postCommentsIDs);
