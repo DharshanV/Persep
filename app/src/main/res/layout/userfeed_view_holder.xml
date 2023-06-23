@@ -77,6 +77,31 @@
             app:layout_constraintBottom_toTopOf="@id/user_feed_post_image"
             app:layout_constraintLeft_toLeftOf="parent" />
 
+        <ImageView
+            android:id="@+id/user_post_comment_image"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="15dp"
+            android:layout_marginTop="8dp"
+            android:src="@drawable/ic_baseline_mode_comment_24"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/user_feed_post_image"
+            app:layout_constraintBottom_toBottomOf="parent"/>
+
+        <TextView
+            android:id="@+id/user_post_comment_count"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="5dp"
+            android:layout_marginTop="5dp"
+            android:fontFamily="sans-serif-light"
+            android:textSize="20sp"
+            android:textColor="@color/white"
+            android:background="@color/black"
+            app:layout_constraintRight_toLeftOf="@id/user_post_comment_image"
+            app:layout_constraintTop_toBottomOf="@id/user_feed_post_image"
+            app:layout_constraintBottom_toBottomOf="parent"/>
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 </androidx.cardview.widget.CardView>

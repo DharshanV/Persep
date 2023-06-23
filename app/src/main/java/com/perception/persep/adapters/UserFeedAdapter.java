@@ -147,6 +147,7 @@ public class UserFeedAdapter extends RecyclerView.Adapter<UserFeedAdapter.UserFe
         {
             post.loadInto(holder.m_PostImage);
             holder.setLike(post.m_Likes);
+            holder.setCommentCount(post.m_PostComments.size());
             holder.m_PostGeoLocation.setText(post.m_GeoLocation);
         }
     }
@@ -204,6 +205,7 @@ public class UserFeedAdapter extends RecyclerView.Adapter<UserFeedAdapter.UserFe
         private final UserFeedAdapter m_UserFeed;
         public ImageView m_PostImage;
         public TextView m_PostLikeCount;
+        public TextView m_PostCommentCount;
         public TextView m_PostGeoLocation;
         public ImageButton m_PostOptionButton;
         int m_PopupWidth;
@@ -219,6 +221,7 @@ public class UserFeedAdapter extends RecyclerView.Adapter<UserFeedAdapter.UserFe
             m_UserFeed = userFeedAdapter;
             m_PostImage = itemView.findViewById(R.id.user_feed_post_image);
             m_PostLikeCount = itemView.findViewById(R.id.user_post_like_count);
+            m_PostCommentCount = itemView.findViewById(R.id.user_post_comment_count);
             m_PostGeoLocation = itemView.findViewById(R.id.user_post_geo_location);
             m_PostOptionButton = itemView.findViewById(R.id.post_options_button);
             m_Context = itemView.getContext();
@@ -279,6 +282,12 @@ public class UserFeedAdapter extends RecyclerView.Adapter<UserFeedAdapter.UserFe
         {
             String textViewString = m_Context.getString(R.string.user_post_likes, likes);
             m_PostLikeCount.setText(textViewString);
+        }
+
+        public void setCommentCount(long commentCount)
+        {
+            String textViewString = m_Context.getString(R.string.user_post_comments_count, commentCount);
+            m_PostCommentCount.setText(textViewString);
         }
 
         private int measureContentWidth(ArrayAdapter<String> items)
