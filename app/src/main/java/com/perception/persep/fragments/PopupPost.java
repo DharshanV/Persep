@@ -3,21 +3,28 @@ package com.perception.persep.fragments;
 import android.app.Activity;
 import android.icu.text.SimpleDateFormat;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import com.ablanco.zoomy.Zoomy;
 import com.example.persep.R;
+import com.perception.persep.album_data.Comment;
 import com.perception.persep.album_data.Post;
+import com.perception.persep.data_gatherer.CommentManager;
 import com.perception.persep.user_data.User;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 
 public class PopupPost
 {
+    private Activity m_Activity;
     private final SlidingUpPanelLayout m_SlidingUpPanel;
     private TextView m_PostUsername;
     private TextView m_PostCreated;
@@ -27,8 +34,12 @@ public class PopupPost
     private EditText m_PostCommentEditText;
     private ImageButton m_SendCommentButton;
 
+    private ListView m_CommentsListView;
+
     public PopupPost(Activity activity, View popupParentView, SlidingUpPanelLayout.PanelSlideListener panelSlideListener)
     {
+        m_Activity = activity;
+
         m_SlidingUpPanel = popupParentView.findViewById(R.id.vr_fragment_slide_up_panel_layout);
         m_SlidingUpPanel.setFadeOnClickListener(v -> m_SlidingUpPanel.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED));
         m_SlidingUpPanel.setDragView(R.id.popup_drag_view);
@@ -37,6 +48,8 @@ public class PopupPost
         m_PostUsername = popupParentView.findViewById(R.id.popup_username_text_view);
         m_PostCreated = popupParentView.findViewById(R.id.popup_post_data_text_view);
         m_PostImage = popupParentView.findViewById(R.id.popup_user_post_image);
+
+        m_CommentsListView = popupParentView.findViewById(R.id.popup_post_comments_list);
 
         m_PostCommentEditText = popupParentView.findViewById(R.id.popup_send_comment_edit_text);
         m_SendCommentButton = popupParentView.findViewById(R.id.popup_send_comment_button);
@@ -64,6 +77,22 @@ public class PopupPost
             m_PostCreated.setText(timeStampFormat.format(post.m_TimeCreated.toDate()).replace('-', '/'));
             m_PostImage.setImageBitmap(post.m_Image);
             m_PostCommentEditText.setText("");
+
+            CommentManager.getInstance().queryPostComments(m_Post.m_PostID, (success, message, commentIDs) -> {
+                List<String> postComments = new ArrayList<>();
+                for (String commendID : commentIDs)
+                {
+                    Comment comment = CommentManager.getInstance().getComment(commendID);
+                    if (comment != null) {
+                        postComments.add(comment.m_CommentStr);
+                    }
+                }
+                ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(
+                        m_Activity,
+                        android.R.layout.simple_list_item_1,
+                        postComments);
+                m_CommentsListView.setAdapter(arrayAdapter);
+            });
 
             m_SlidingUpPanel.setPanelState(SlidingUpPanelLayout.PanelState.EXPANDED);
         }
