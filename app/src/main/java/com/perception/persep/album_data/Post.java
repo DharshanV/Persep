@@ -134,6 +134,11 @@ public class Post implements Target
         postImageRef.delete();
         m_Image = null;
         m_DocRef.delete();
+
+        for (DocumentReference commentRef : m_PostComments)
+        {
+            CommentManager.getInstance().removeComment(commentRef);
+        }
     }
 
     public void unload()

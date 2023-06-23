@@ -136,6 +136,13 @@ public class PostManager
                 postImageRef.delete();
                 postDoc.getReference().delete();
             }
+            Object commentObj = postDoc.get(PostConstants.COMMENTS);
+            if (commentObj != null) {
+                List<DocumentReference> commentsRef = (List<DocumentReference>) commentObj;
+                for (DocumentReference commentRef : commentsRef) {
+                    CommentManager.getInstance().removeComment(commentRef);
+                }
+            }
         }
     }
 

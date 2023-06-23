@@ -56,6 +56,17 @@ public class CommentManager
         return comment;
     }
 
+    public void removeComment(DocumentReference commentRef)
+    {
+        Comment comment = getComment(commentRef.getId());
+        if (comment != null) {
+            m_WriteLock.lock();
+            m_Comments.remove(commentRef.getId());
+            m_WriteLock.unlock();
+        }
+        commentRef.delete();
+    }
+
     public void queryPostComments(String postID, QueryCommentListener listener)
     {
         Post post = PostManager.getInstance().getPost(postID);
