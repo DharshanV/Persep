@@ -67,7 +67,7 @@ public class UserManager
         else {
             userRef.get().addOnSuccessListener(userDoc -> {
                 User userData = new User(userDoc);
-                m_UserData.put(m_DocRef, userData);
+                m_UserData.put(userRef, userData);
                 queryUserDataListener.onQueryUserData(userData);
             });
         }

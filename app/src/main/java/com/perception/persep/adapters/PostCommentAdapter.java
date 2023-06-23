@@ -10,6 +10,7 @@ import android.widget.TextView;
 import com.example.persep.R;
 import com.perception.persep.album_data.Comment;
 import com.perception.persep.album_data.Post;
+import com.perception.persep.data_gatherer.UserManager;
 
 import java.util.List;
 
@@ -56,7 +57,7 @@ public class PostCommentAdapter extends BaseAdapter
         Comment comment = m_PostComments.get(position);
 
         TextView commentUsernameTextView = view.findViewById(R.id.post_comment_username_text_view);
-        commentUsernameTextView.setText("...");
+        UserManager.getInstance().getUserData(comment.m_UserRef, user -> commentUsernameTextView.setText(user.m_Username));
 
         TextView commentTextView = view.findViewById(R.id.post_comment_text_view);
         commentTextView.setText(comment.m_CommentStr);
