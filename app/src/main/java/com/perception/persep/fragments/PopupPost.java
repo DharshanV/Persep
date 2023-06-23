@@ -55,6 +55,7 @@ public class PopupPost
         m_PostCommentEditText = popupParentView.findViewById(R.id.popup_send_comment_edit_text);
         m_SendCommentButton = popupParentView.findViewById(R.id.popup_send_comment_button);
         m_SendCommentButton.setOnClickListener(v -> {
+            m_PostCommentEditText.setText("");
             if (m_Post != null) {
                 String comment = m_PostCommentEditText.getText().toString();
                 if (!comment.isEmpty()) {
