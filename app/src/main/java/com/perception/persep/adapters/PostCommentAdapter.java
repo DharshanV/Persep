@@ -17,13 +17,11 @@ public class PostCommentAdapter extends BaseAdapter
 {
     private List<Comment> m_PostComments;
     private Context m_Context;
-    private Post m_Post;
 
-    public PostCommentAdapter(Context context, Post post, List<Comment> postComments)
+    public PostCommentAdapter(Context context, List<Comment> postComments)
     {
         m_Context = context;
         m_PostComments = postComments;
-        m_Post = post;
     }
 
     @Override
@@ -58,7 +56,7 @@ public class PostCommentAdapter extends BaseAdapter
         Comment comment = m_PostComments.get(position);
 
         TextView commentUsernameTextView = view.findViewById(R.id.post_comment_username_text_view);
-        commentUsernameTextView.setText(m_Post.m_UserData.m_Username);
+        commentUsernameTextView.setText("...");
 
         TextView commentTextView = view.findViewById(R.id.post_comment_text_view);
         commentTextView.setText(comment.m_CommentStr);

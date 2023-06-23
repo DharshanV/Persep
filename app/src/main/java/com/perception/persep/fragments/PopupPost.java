@@ -104,7 +104,7 @@ public class PopupPost
                 postComments.add(comment);
             }
         }
-        PostCommentAdapter adapter = new PostCommentAdapter(m_Activity, m_Post, postComments);
+        PostCommentAdapter adapter = new PostCommentAdapter(m_Activity, postComments);
         m_CommentsListView.setAdapter(adapter);
     }
 }
