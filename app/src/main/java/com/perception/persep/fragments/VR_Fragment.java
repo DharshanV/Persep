@@ -45,8 +45,6 @@ import com.yalantis.ucrop.UCrop;
 import java.io.File;
 import java.io.IOException;
 
-import timber.log.Timber;
-
 public class VR_Fragment extends Fragment implements BearingSensor.BearingSensorListener, SlidingUpPanelLayout.PanelSlideListener
 {
     private static final String TAG = "VR_Fragment";
@@ -395,7 +393,7 @@ public class VR_Fragment extends Fragment implements BearingSensor.BearingSensor
 
                 Album album = AlbumManager.getInstance().getAlbum(m_InteractingWithAlbum);
                 if (album != null) {
-                    album.stopPostUpdateIndex();
+                    album.stopAutoPostUpdateIndex();
                 }
             }
             return true;
@@ -459,7 +457,7 @@ public class VR_Fragment extends Fragment implements BearingSensor.BearingSensor
                                 }
                             }
                         }
-                        album.startPostUpdateIndex();
+                        album.startAutoPostUpdateIndex();
                     }
                     m_SwipeDistanceCovered = 0;
                     m_SwipeTimeSpent = 0;

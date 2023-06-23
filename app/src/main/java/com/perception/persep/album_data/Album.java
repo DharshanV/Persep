@@ -303,10 +303,6 @@ public class Album
         m_ReadLock.lock();
         updatePostIndex(next);
         m_ShouldUpdateTexture = true;
-
-        m_PostUpdateTimerTask.cancel();
-        m_PostUpdateTimerTask = new PostUpdateIndexTask();
-        m_UpdatePostTimer.scheduleAtFixedRate(m_PostUpdateTimerTask, TASK_START_DELAY, TASK_START_DELAY);
         m_ReadLock.unlock();
     }
 
@@ -471,12 +467,12 @@ public class Album
         }
     }
 
-    public void stopPostUpdateIndex()
+    public void stopAutoPostUpdateIndex()
     {
         m_PostUpdateTimerTask.cancel();
     }
 
-    public void startPostUpdateIndex()
+    public void startAutoPostUpdateIndex()
     {
         m_PostUpdateTimerTask = new PostUpdateIndexTask();
         m_UpdatePostTimer.scheduleAtFixedRate(m_PostUpdateTimerTask, TASK_START_DELAY, TASK_START_DELAY);
