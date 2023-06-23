@@ -1,6 +1,8 @@
 package com.perception.persep.adapters;
 
+import android.app.Activity;
 import android.content.Context;
+import android.content.ContextWrapper;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -18,6 +20,7 @@ import androidx.appcompat.widget.ListPopupWindow;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.ablanco.zoomy.Zoomy;
 import com.example.persep.R;
 import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
@@ -226,6 +229,10 @@ public class UserFeedAdapter extends RecyclerView.Adapter<UserFeedAdapter.UserFe
             m_PostOptionButton = itemView.findViewById(R.id.post_options_button);
             m_Context = itemView.getContext();
 
+            Zoomy.Builder builder = new Zoomy.Builder(getActivity(m_Context)).target(m_PostImage);
+            builder.enableImmersiveMode(false);
+            builder.register();
+
             m_ItemsAdapter = new ArrayAdapter<>(m_Context, R.layout.post_options, R.id.post_option_text, POST_OPTION_ITEMS);
             m_PopupWidth = measureContentWidth(m_ItemsAdapter);
             m_PopupHeight = ListPopupWindow.WRAP_CONTENT;
@@ -317,6 +324,27 @@ public class UserFeedAdapter extends RecyclerView.Adapter<UserFeedAdapter.UserFe
                 }
             }
             return maxWidth;
+        }
+
+        public Activity getActivity(Context context)
+        {
+            if (context == null)
+            {
+                return null;
+            }
+            else if (context instanceof ContextWrapper)
+            {
+                if (context instanceof Activity)
+                {
+                    return (Activity) context;
+                }
+                else
+                {
+                    return getActivity(((ContextWrapper) context).getBaseContext());
+                }
+            }
+
+            return null;
         }
     }
 }
