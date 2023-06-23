@@ -12,6 +12,7 @@ import android.widget.TextView;
 
 import com.ablanco.zoomy.Zoomy;
 import com.example.persep.R;
+import com.perception.persep.adapters.PostCommentAdapter;
 import com.perception.persep.album_data.Comment;
 import com.perception.persep.album_data.Post;
 import com.perception.persep.data_gatherer.CommentManager;
@@ -95,18 +96,15 @@ public class PopupPost
 
     private void refreshPostComments()
     {
-        List<String> postComments = new ArrayList<>();
+        List<Comment> postComments = new ArrayList<>();
         for (String commendID : m_CommentIDs)
         {
             Comment comment = CommentManager.getInstance().getComment(commendID);
             if (comment != null) {
-                postComments.add(comment.m_CommentStr);
+                postComments.add(comment);
             }
         }
-        ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(
-                m_Activity,
-                android.R.layout.simple_list_item_1,
-                postComments);
-        m_CommentsListView.setAdapter(arrayAdapter);
+        PostCommentAdapter adapter = new PostCommentAdapter(m_Activity, m_Post, postComments);
+        m_CommentsListView.setAdapter(adapter);
     }
 }

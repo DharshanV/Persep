@@ -58,14 +58,23 @@
         android:src="@mipmap/icon_launcher_persep"
         android:id="@+id/popup_user_post_image"/>
 
+    <View
+        android:id="@+id/divier2"
+        android:layout_width="match_parent"
+        android:layout_height="4dp"
+        android:layout_marginTop="5dp"
+        android:background="@color/divider_background_color"
+        app:layout_constraintTop_toBottomOf="@id/popup_user_post_image"/>
+
     <ListView
         android:id="@+id/popup_post_comments_list"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_marginStart="15dp"
         android:layout_marginEnd="15dp"
-        app:layout_constraintTop_toBottomOf="@id/popup_user_post_image"
-        app:layout_constraintBottom_toTopOf="@id/popup_message_send_layout">
+        app:layout_constraintTop_toBottomOf="@id/divier2"
+        app:layout_constraintBottom_toTopOf="@id/popup_message_send_layout"
+        android:listSelector="@android:color/transparent">
     </ListView>
 
     <LinearLayout
