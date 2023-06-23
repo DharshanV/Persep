@@ -39,9 +39,13 @@ public class CommentManager
         return m_Instance;
     }
 
-    public void addComment(String postID, String comment, AddCommentListener listener)
+    public String addComment(String postID, String commentStr)
     {
-
+        Comment comment = new Comment(postID, commentStr);
+        m_WriteLock.lock();
+        m_Comments.put(comment.m_CommentID, comment);
+        m_WriteLock.unlock();
+        return comment.m_CommentID;
     }
 
     public Comment getComment(String commentID)

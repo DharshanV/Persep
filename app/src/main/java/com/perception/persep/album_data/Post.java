@@ -21,6 +21,7 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.perception.persep.activities.HomeActivity;
 import com.perception.persep.constants.PostConstants;
+import com.perception.persep.data_gatherer.CommentManager;
 import com.perception.persep.data_gatherer.PostManager;
 import com.perception.persep.data_gatherer.UserManager;
 import com.perception.persep.enums.PostError;
@@ -112,9 +113,8 @@ public class Post implements Target
         postData.put(PostConstants.USERS_LIKED, m_UsersLiked);
         postData.put(PostConstants.GEO_POINT, m_GeoPoint);
         postData.put(PostConstants.GEO_LOCATION, m_GeoLocation);
-        Timestamp now = Timestamp.now();
-        postData.put(PostConstants.TIME_CREATED, now);
-        postData.put(PostConstants.TIME_MODIFIED, now);
+        postData.put(PostConstants.TIME_CREATED, m_TimeCreated);
+        postData.put(PostConstants.TIME_MODIFIED, m_TimeModified);
         postData.put(PostConstants.COMMENTS, m_PostComments);
         m_DocRef.set(postData).addOnFailureListener(e -> PostManager.getInstance().onPostError(m_PostID, PostError.SET_DOCUMENT_REF));
 
@@ -192,18 +192,18 @@ public class Post implements Target
         batch.commit().addOnSuccessListener(unused -> listener.onLikeUpdate(true));
     }
 
-    // posts/sJxX4iXSC03IZAiLJgY2
-    // posts/fudMuv7sMhgvS5t43LNy
-    public void addComment(String comment)
+    public String addComment(String commentStr)
     {
-//        DocumentReference commentRef = CommentManager.getInstancer().createComment(comment);
-//        m_TimeModified = Timestamp.now();
-//        m_PostComments.add(commentRef);
-//
-//        WriteBatch batch = FirebaseFirestore.getInstance().batch();
-//        m_DocRef.update(PostConstants.TIME_MODIFIED, m_TimeModified);
-//        m_DocRef.update(PostConstants.COMMENTS, FieldValue.arrayRemove(commentRef));
-//        batch.commit().addOnSuccessListener(unused -> {});
+        String commentID = CommentManager.getInstance().addComment(m_PostID, commentStr);
+        Comment comment = CommentManager.getInstance().getComment(commentID);
+        m_TimeModified = Timestamp.now();
+        m_PostComments.add(comment.m_DocRef);
+
+        WriteBatch batch = FirebaseFirestore.getInstance().batch();
+        m_DocRef.update(PostConstants.TIME_MODIFIED, m_TimeModified);
+        m_DocRef.update(PostConstants.COMMENTS, FieldValue.arrayUnion(comment.m_DocRef));
+        batch.commit();
+        return commentID;
     }
 
     public boolean isLikedByCurrentUser()

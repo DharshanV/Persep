@@ -35,6 +35,7 @@ public class PopupPost
     private ImageButton m_SendCommentButton;
 
     private ListView m_CommentsListView;
+    private List<String> m_CommentIDs = new ArrayList<>();
 
     public PopupPost(Activity activity, View popupParentView, SlidingUpPanelLayout.PanelSlideListener panelSlideListener)
     {
@@ -57,7 +58,8 @@ public class PopupPost
             if (m_Post != null) {
                 String comment = m_PostCommentEditText.getText().toString();
                 if (!comment.isEmpty()) {
-                    m_Post.addComment(comment);
+                    m_CommentIDs.add(m_Post.addComment(comment));
+                    refreshPostComments();
                 }
             }
         });
@@ -78,23 +80,32 @@ public class PopupPost
             m_PostImage.setImageBitmap(post.m_Image);
             m_PostCommentEditText.setText("");
 
+            m_CommentIDs.clear();
+            refreshPostComments();
+
             CommentManager.getInstance().queryPostComments(m_Post.m_PostID, (success, message, commentIDs) -> {
-                List<String> postComments = new ArrayList<>();
-                for (String commendID : commentIDs)
-                {
-                    Comment comment = CommentManager.getInstance().getComment(commendID);
-                    if (comment != null) {
-                        postComments.add(comment.m_CommentStr);
-                    }
-                }
-                ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(
-                        m_Activity,
-                        android.R.layout.simple_list_item_1,
-                        postComments);
-                m_CommentsListView.setAdapter(arrayAdapter);
+                m_CommentIDs = commentIDs;
+                refreshPostComments();
             });
 
             m_SlidingUpPanel.setPanelState(SlidingUpPanelLayout.PanelState.EXPANDED);
         }
+    }
+
+    private void refreshPostComments()
+    {
+        List<String> postComments = new ArrayList<>();
+        for (String commendID : m_CommentIDs)
+        {
+            Comment comment = CommentManager.getInstance().getComment(commendID);
+            if (comment != null) {
+                postComments.add(comment.m_CommentStr);
+            }
+        }
+        ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(
+                m_Activity,
+                android.R.layout.simple_list_item_1,
+                postComments);
+        m_CommentsListView.setAdapter(arrayAdapter);
     }
 }
