@@ -107,7 +107,12 @@ public class PopupPost
                 postComments.add(comment);
             }
         }
-        PostCommentAdapter adapter = new PostCommentAdapter(m_Activity, postComments);
-        m_CommentsListView.setAdapter(adapter);
+        if (!postComments.isEmpty()) {
+            PostCommentAdapter adapter = new PostCommentAdapter(m_Activity, postComments);
+            m_CommentsListView.setAdapter(adapter);
+        }
+        else {
+            m_CommentsListView.setAdapter(null);
+        }
     }
 }
