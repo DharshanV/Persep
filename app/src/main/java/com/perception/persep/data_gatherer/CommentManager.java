@@ -71,7 +71,7 @@ public class CommentManager
     {
         Post post = PostManager.getInstance().getPost(postID);
         if (post != null) {
-            post.serverRefresh(() -> {
+            post.serverRefresh(refreshedFromServer -> {
                 List<String> postCommentsIDs = new ArrayList<>();
 
                 List<Task<DocumentSnapshot>> commentsQueryTasks = new ArrayList<>();

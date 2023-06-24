@@ -40,7 +40,6 @@ public class UserFeedAdapter extends RecyclerView.Adapter<UserFeedAdapter.UserFe
     private static final String TAG = "UserFeedAdapter";
     private final UserFeed_Fragment m_UserFeedFragment;
     private final List<String> m_UserPostIDs = new ArrayList<>();
-    private final Map<String, Timestamp> m_PostModified = new HashMap<>();
     public UserFeedAdapter(UserFeed_Fragment userFeedFragment)
     {
         m_UserFeedFragment = userFeedFragment;
@@ -51,15 +50,6 @@ public class UserFeedAdapter extends RecyclerView.Adapter<UserFeedAdapter.UserFe
                 if (postIDs == null || postIDs.isEmpty()) return;
 
                 m_UserPostIDs.addAll(postIDs);
-                for (String postID : m_UserPostIDs)
-                {
-                    Post post = PostManager.getInstance().getPost(postID);
-                    if (post != null)
-                    {
-                        m_PostModified.put(postID, post.m_TimeModified);
-                    }
-                }
-
                 sortUserPosts(m_UserPostIDs);
                 this.notifyDataSetChanged();
             });
@@ -95,10 +85,7 @@ public class UserFeedAdapter extends RecyclerView.Adapter<UserFeedAdapter.UserFe
                     if (postIndex != -1)
                     {
                         Post post = PostManager.getInstance().getPost(postID);
-                        if (post != null && post.m_TimeModified != m_PostModified.get(postID))
-                        {
-                            this.notifyItemChanged(postIndex, post.m_Likes);
-                        }
+                        post.serverRefresh(refreshedFromServer -> this.notifyItemChanged(postIndex));
                     } else
                     {
                         newPostsAdded.add(postID);
@@ -178,7 +165,6 @@ public class UserFeedAdapter extends RecyclerView.Adapter<UserFeedAdapter.UserFe
         if (postPosition < m_UserPostIDs.size())
         {
             String postID = m_UserPostIDs.remove(postPosition);
-            m_PostModified.remove(postID);
             AlbumManager.getInstance().removePost(postID);
             this.notifyItemRemoved(postPosition);
         }

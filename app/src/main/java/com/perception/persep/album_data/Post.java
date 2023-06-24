@@ -134,7 +134,8 @@ public class Post implements Target
     {
         m_DocRef.get().addOnSuccessListener(postDoc -> {
             Timestamp postTimeModified = (Timestamp) postDoc.get(PostConstants.TIME_MODIFIED);
-            if (postTimeModified != m_TimeModified)
+            boolean timeDiffFromServer = postTimeModified != m_TimeModified;
+            if (timeDiffFromServer)
             {
                 m_TimeModified = postTimeModified;
                 m_Likes = (long) postDoc.get(PostConstants.LIKES);
@@ -143,8 +144,8 @@ public class Post implements Target
                     m_PostComments = new ArrayList<>((List<DocumentReference>) commentObj);
                 }
             }
-            listener.onPostRefresh();
-        }).addOnFailureListener(e -> listener.onPostRefresh());
+            listener.onPostRefresh(timeDiffFromServer);
+        }).addOnFailureListener(e -> listener.onPostRefresh(false));
     }
 
     public void remove()
@@ -304,6 +305,6 @@ public class Post implements Target
 
     public interface PostRefreshListener
     {
-        void onPostRefresh();
+        void onPostRefresh(boolean refreshedFromServer);
     }
 }
