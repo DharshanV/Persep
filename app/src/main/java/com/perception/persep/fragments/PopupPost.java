@@ -2,6 +2,7 @@ package com.perception.persep.fragments;
 
 import android.app.Activity;
 import android.icu.text.SimpleDateFormat;
+import android.os.Handler;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
@@ -92,6 +93,8 @@ public class PopupPost
 
             m_SlidingUpPanel.setPanelState(SlidingUpPanelLayout.PanelState.EXPANDED);
         }
+
+//        new Handler().postDelayed(() -> m_CommentIDs.add(m_Post.addComment("Delay comment add")), 1000);
     }
 
     private void refreshPostComments()

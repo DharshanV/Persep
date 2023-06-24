@@ -71,39 +71,41 @@ public class CommentManager
     {
         Post post = PostManager.getInstance().getPost(postID);
         if (post != null) {
-            List<String> postCommentsIDs = new ArrayList<>();
+            post.serverRefresh(() -> {
+                List<String> postCommentsIDs = new ArrayList<>();
 
-            List<Task<DocumentSnapshot>> commentsQueryTasks = new ArrayList<>();
-            for (DocumentReference commentRef : post.m_PostComments) {
-                Comment comment = getComment(commentRef.getId());
-                if (comment != null) {
-                    postCommentsIDs.add(comment.m_CommentID);
-                }
-                else {
-                    commentsQueryTasks.add(commentRef.get());
-                }
-            }
-
-            if (commentsQueryTasks.isEmpty()) {
-                listener.onCommentAdded(true, "", postCommentsIDs);
-                return;
-            }
-
-            Tasks.whenAllSuccess(commentsQueryTasks).addOnSuccessListener(commentsResult -> {
-                m_WriteLock.lock();
-                for (Object commentObj : commentsResult)
-                {
-                    DocumentSnapshot commentDoc = (DocumentSnapshot) commentObj;
-                    try {
-                        Comment comment = new Comment(commentDoc);
+                List<Task<DocumentSnapshot>> commentsQueryTasks = new ArrayList<>();
+                for (DocumentReference commentRef : post.m_PostComments) {
+                    Comment comment = getComment(commentRef.getId());
+                    if (comment != null) {
                         postCommentsIDs.add(comment.m_CommentID);
-                        m_Comments.put(comment.m_CommentID, comment);
-                    } catch (NullPointerException ignored) {}
+                    }
+                    else {
+                        commentsQueryTasks.add(commentRef.get());
+                    }
                 }
-                m_WriteLock.unlock();
-                listener.onCommentAdded(true, "", postCommentsIDs);
-            }).addOnFailureListener(e -> {
-                listener.onCommentAdded(false, "", postCommentsIDs);
+
+                if (commentsQueryTasks.isEmpty()) {
+                    listener.onCommentAdded(true, "", postCommentsIDs);
+                    return;
+                }
+
+                Tasks.whenAllSuccess(commentsQueryTasks).addOnSuccessListener(commentsResult -> {
+                    m_WriteLock.lock();
+                    for (Object commentObj : commentsResult)
+                    {
+                        DocumentSnapshot commentDoc = (DocumentSnapshot) commentObj;
+                        try {
+                            Comment comment = new Comment(commentDoc);
+                            postCommentsIDs.add(comment.m_CommentID);
+                            m_Comments.put(comment.m_CommentID, comment);
+                        } catch (NullPointerException ignored) {}
+                    }
+                    m_WriteLock.unlock();
+                    listener.onCommentAdded(true, "", postCommentsIDs);
+                }).addOnFailureListener(e -> {
+                    listener.onCommentAdded(false, "", postCommentsIDs);
+                });
             });
         }
     }

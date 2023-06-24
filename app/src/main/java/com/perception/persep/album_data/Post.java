@@ -10,6 +10,8 @@ import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
 
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -126,6 +128,23 @@ public class Post implements Target
                 m_DocRef.update(PostConstants.IMAGE_URI, m_ImageURI).addOnFailureListener(e -> PostManager.getInstance().onPostError(m_PostID, PostError.UPDATE_IMAGE_URI));
             }).addOnFailureListener(e -> PostManager.getInstance().onPostError(m_PostID, PostError.PUT_FILE_STORAGE_REF));
         }).addOnFailureListener(e -> PostManager.getInstance().onPostError(m_PostID, PostError.PUT_FILE_STORAGE_REF));
+    }
+
+    public void serverRefresh(PostRefreshListener listener)
+    {
+        m_DocRef.get().addOnSuccessListener(postDoc -> {
+            Timestamp postTimeModified = (Timestamp) postDoc.get(PostConstants.TIME_MODIFIED);
+            if (postTimeModified != m_TimeModified)
+            {
+                m_TimeModified = postTimeModified;
+                m_Likes = (long) postDoc.get(PostConstants.LIKES);
+                Object commentObj = postDoc.get(PostConstants.COMMENTS);
+                if (commentObj != null) {
+                    m_PostComments = new ArrayList<>((List<DocumentReference>) commentObj);
+                }
+            }
+            listener.onPostRefresh();
+        }).addOnFailureListener(e -> listener.onPostRefresh());
     }
 
     public void remove()
@@ -281,5 +300,10 @@ public class Post implements Target
             return "Unknown";
         }
         return "Unknown";
+    }
+
+    public interface PostRefreshListener
+    {
+        void onPostRefresh();
     }
 }
