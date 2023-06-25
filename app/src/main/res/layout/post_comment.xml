@@ -4,13 +4,30 @@
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <TextView
-        android:id="@+id/post_comment_username_text_view"
+    <LinearLayout
+        android:id="@+id/post_comment_user_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:fontFamily="sans-serif-light"
-        android:textStyle="bold"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        android:orientation="horizontal">
+
+        <ImageView
+            android:layout_gravity="center"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_baseline_account_circle_24"/>
+
+        <TextView
+            android:layout_gravity="center"
+            android:id="@+id/post_comment_username_text_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="5dp"
+            android:fontFamily="sans-serif-light"
+            android:textStyle="bold"
+            app:layout_constraintTop_toTopOf="parent" />
+
+    </LinearLayout>
 
     <TextView
         android:id="@+id/post_comment_text_view"
@@ -20,6 +37,6 @@
         android:textSize="20sp"
         android:fontFamily="sans-serif-light"
         android:textStyle="normal"
-        app:layout_constraintTop_toBottomOf="@id/post_comment_username_text_view"/>
+        app:layout_constraintTop_toBottomOf="@id/post_comment_user_layout"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
