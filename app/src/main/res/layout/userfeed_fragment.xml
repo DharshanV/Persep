@@ -74,6 +74,6 @@
     <include
         android:layout_width="match_parent"
         android:layout_height="400dp"
-        layout="@layout/feed_comments_popup">
+        layout="@layout/user_feed_popup">
     </include>
 </com.sothree.slidinguppanel.SlidingUpPanelLayout>
