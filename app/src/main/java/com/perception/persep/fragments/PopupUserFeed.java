@@ -27,6 +27,7 @@ public class PopupUserFeed
     private final SlidingUpPanelLayout m_SlidingUpPanel;
 
     private ListView m_PopupListView;
+    private TextView m_EmptyListTextView;
     private TextView m_PopupTitle;
     private Post m_Post;
     private List<String> m_CommentIDs = new ArrayList<>();
@@ -47,6 +48,7 @@ public class PopupUserFeed
         m_SlidingUpPanel.addPanelSlideListener(panelSlideListener);
 
         m_PopupListView = popupParentView.findViewById(R.id.feed_popup_list_view);
+        m_EmptyListTextView = popupParentView.findViewById(R.id.user_feed_popup_empty_view);
         m_SlidingUpPanel.setScrollableView(m_PopupListView);
         m_PopupTitle = popupParentView.findViewById(R.id.feed_popup_title);
     }
@@ -55,8 +57,10 @@ public class PopupUserFeed
     {
         m_Post = post;
         m_PopupListView.setAdapter(null);
+        m_EmptyListTextView.setVisibility(View.GONE);
 
         m_PopupTitle.setText(popupType == PopupType.COMMENTS ? "Comments" : "Likes");
+        m_EmptyListTextView.setText(popupType == PopupType.COMMENTS ? "COMMENTS UNAVAILABLE" : "LIKES UNAVAILABLE");
 
         if (popupType == PopupType.COMMENTS) {
             m_CommentIDs.clear();
@@ -94,6 +98,7 @@ public class PopupUserFeed
         else {
             m_PopupListView.setAdapter(null);
         }
+        m_PopupListView.setEmptyView(m_EmptyListTextView);
     }
 
     private void refreshPostLikes()
@@ -105,6 +110,7 @@ public class PopupUserFeed
         else {
             m_PopupListView.setAdapter(null);
         }
+        m_PopupListView.setEmptyView(m_EmptyListTextView);
     }
 
 
