@@ -1,59 +1,79 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<com.sothree.slidinguppanel.SlidingUpPanelLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    tools:context="com.perception.persep.fragments.VR_Fragment"
+    android:id="@+id/vr_fragment_slide_up_panel_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fitsSystemWindows="true"
-    android:theme="@style/Theme.Persep"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    tools:context="com.perception.persep.fragments.UserFeed_Fragment">
+    android:gravity="bottom"
+    app:umanoPanelHeight="0dp"
+    app:umanoInitialState="hidden"
+    app:umanoShadowHeight="5dp">
 
-    <FrameLayout
-        android:id="@+id/user_layout"
+    <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        android:layout_marginTop="5dp">
-        <TextView
-            android:id="@+id/username_text_view"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textSize="35sp"
-            android:layout_marginStart="10dp"
-            android:layout_gravity="center|left"
-            android:fontFamily="@font/playfair_display_bold"
-            tools:ignore="RtlHardcoded" />
-        <ImageButton
-            android:id="@+id/button_user_settings"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:src="@drawable/ic_baseline_settings"
-            android:layout_marginEnd="10dp"
-            android:padding="5dp"
-            app:tint="@color/navigation_button_color"
-            android:layout_gravity="center|right"
-            tools:ignore="RtlHardcoded" />
-    </FrameLayout>
+        android:layout_height="match_parent"
+        android:fitsSystemWindows="true"
+        android:theme="@style/Theme.Persep"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        tools:context="com.perception.persep.fragments.UserFeed_Fragment">
 
-    <View
-        android:id="@+id/divier1"
-        android:layout_width="match_parent"
-        android:layout_height="4dp"
-        android:background="@color/divider_background_color"
-        app:layout_constraintTop_toBottomOf="@id/user_layout"/>
-
-    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-        android:id="@+id/user_feed_swipe_refresh_layout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@+id/divier1"
-        android:paddingBottom="50dp">
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/user_feed_recycle_view"
+        <FrameLayout
+            android:id="@+id/user_layout"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"/>
-    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+            android:layout_height="wrap_content"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            android:layout_marginTop="5dp">
+            <TextView
+                android:id="@+id/username_text_view"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="35sp"
+                android:layout_marginStart="10dp"
+                android:layout_gravity="center|left"
+                android:fontFamily="@font/playfair_display_bold"
+                tools:ignore="RtlHardcoded" />
+            <ImageButton
+                android:id="@+id/button_user_settings"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@drawable/ic_baseline_settings"
+                android:layout_marginEnd="10dp"
+                android:padding="5dp"
+                app:tint="@color/navigation_button_color"
+                android:layout_gravity="center|right"
+                tools:ignore="RtlHardcoded" />
+        </FrameLayout>
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+        <View
+            android:id="@+id/divier1"
+            android:layout_width="match_parent"
+            android:layout_height="4dp"
+            android:background="@color/divider_background_color"
+            app:layout_constraintTop_toBottomOf="@id/user_layout"/>
+
+        <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+            android:id="@+id/user_feed_swipe_refresh_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@+id/divier1"
+            android:paddingBottom="50dp">
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/user_feed_recycle_view"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"/>
+        </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <include
+        android:layout_width="match_parent"
+        android:layout_height="650dp"
+        layout="@layout/feed_comments_popup">
+    </include>
+</com.sothree.slidinguppanel.SlidingUpPanelLayout>
