@@ -115,4 +115,14 @@ public class PopupPost
             m_CommentsListView.setAdapter(null);
         }
     }
+
+    public SlidingUpPanelLayout.PanelState getPanelState()
+    {
+        return m_SlidingUpPanel.getPanelState();
+    }
+
+    public void setPanelState(SlidingUpPanelLayout.PanelState state)
+    {
+        m_SlidingUpPanel.setPanelState(state);
+    }
 }

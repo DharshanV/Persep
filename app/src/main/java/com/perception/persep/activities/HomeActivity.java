@@ -6,6 +6,7 @@ import android.view.Display;
 import android.view.WindowManager;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.widget.ViewPager2;
@@ -14,6 +15,8 @@ import com.example.persep.R;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.perception.persep.adapters.SlidePagerAdapter;
 import com.perception.persep.data_gatherer.UserManager;
+import com.perception.persep.fragments.UserFeed_Fragment;
+import com.perception.persep.fragments.VR_Fragment;
 
 import java.lang.reflect.Field;
 
@@ -60,7 +63,7 @@ public class HomeActivity extends AppCompatActivity
                 m_ViewPager.setCurrentItem(SlidePagerAdapter.VR_FRAGMENT_INDEX, true);
             } else if (item.getItemId() == R.id.user_feed_menu)
             {
-                m_ViewPager.setCurrentItem(SlidePagerAdapter.USERFEED_FRAGMENT_1, true);
+                m_ViewPager.setCurrentItem(SlidePagerAdapter.USERFEED_FRAGMENT, true);
             }
             return true;
         });
@@ -78,7 +81,7 @@ public class HomeActivity extends AppCompatActivity
                 if (position == SlidePagerAdapter.VR_FRAGMENT_INDEX)
                 {
                     m_BottomNavigationView.setSelectedItemId(R.id.vr_view_menu);
-                } else if (position == SlidePagerAdapter.USERFEED_FRAGMENT_1)
+                } else if (position == SlidePagerAdapter.USERFEED_FRAGMENT)
                 {
                     m_BottomNavigationView.setSelectedItemId(R.id.user_feed_menu);
                 }
@@ -114,11 +117,20 @@ public class HomeActivity extends AppCompatActivity
     public void onBackPressed()
     {
         int currentPageIndex = m_ViewPager.getCurrentItem();
-        if (currentPageIndex == SlidePagerAdapter.MIDDLE_PAGE_INDEX)
-        {
-            super.onBackPressed();
-            return;
+        Fragment fragment = m_SlidePagerAdapter.m_PosFragmentMap.get(currentPageIndex);
+
+        if (currentPageIndex == SlidePagerAdapter.VR_FRAGMENT_INDEX) {
+            VR_Fragment vrFragment = (VR_Fragment) fragment;
+            if (vrFragment != null && vrFragment.isPopupExpanded()) {
+                vrFragment.collapsePopup();
+            }
+            else {
+                super.onBackPressed();
+            }
         }
-        m_ViewPager.setCurrentItem(currentPageIndex + (currentPageIndex < SlidePagerAdapter.MIDDLE_PAGE_INDEX ? 1 : -1));
+        else if (currentPageIndex == SlidePagerAdapter.USERFEED_FRAGMENT){
+            UserFeed_Fragment userFeedFragment = (UserFeed_Fragment) fragment;
+            super.onBackPressed();
+        }
     }
 }

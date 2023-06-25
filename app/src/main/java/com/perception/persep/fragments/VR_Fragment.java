@@ -375,6 +375,16 @@ public class VR_Fragment extends Fragment implements BearingSensor.BearingSensor
         m_ViewPager.setUserInputEnabled(previousState != SlidingUpPanelLayout.PanelState.EXPANDED || newState != SlidingUpPanelLayout.PanelState.DRAGGING);
     }
 
+    public boolean isPopupExpanded()
+    {
+        return SlidingUpPanelLayout.PanelState.EXPANDED == m_PopupPost.getPanelState();
+    }
+
+    public void collapsePopup()
+    {
+        m_PopupPost.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
+    }
+
     class VR_Fragment_GestureListener extends GestureDetector.SimpleOnGestureListener implements VR_Fragment_GestureDetector.Listener
     {
         private double m_SwipeDistanceCovered = 0;

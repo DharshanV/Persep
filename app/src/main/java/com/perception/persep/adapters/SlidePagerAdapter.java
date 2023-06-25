@@ -14,7 +14,7 @@ import java.util.HashMap;
 
 public class SlidePagerAdapter extends FragmentStateAdapter
 {
-    public static final int USERFEED_FRAGMENT_1 = 0;
+    public static final int USERFEED_FRAGMENT = 0;
     public static final int VR_FRAGMENT_INDEX = 1;
     public static final int MIDDLE_PAGE_INDEX = 1;
     @ViewPager2.OffscreenPageLimit
