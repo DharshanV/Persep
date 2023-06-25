@@ -130,7 +130,12 @@ public class HomeActivity extends AppCompatActivity
         }
         else if (currentPageIndex == SlidePagerAdapter.USERFEED_FRAGMENT){
             UserFeed_Fragment userFeedFragment = (UserFeed_Fragment) fragment;
-            super.onBackPressed();
+            if (userFeedFragment != null && userFeedFragment.isPopupExpanded()) {
+                userFeedFragment.collapsePopup();
+            }
+            else {
+                super.onBackPressed();
+            }
         }
     }
 }

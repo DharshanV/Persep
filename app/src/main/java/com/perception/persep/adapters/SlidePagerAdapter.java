@@ -36,7 +36,7 @@ public class SlidePagerAdapter extends FragmentStateAdapter
         switch (position)
         {
             case 0:
-                fragment = new UserFeed_Fragment();
+                fragment = new UserFeed_Fragment(m_ViewPager);
                 break;
             case 1:
                 fragment = new VR_Fragment(m_ViewPager);

@@ -4,7 +4,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="com.perception.persep.fragments.VR_Fragment"
-    android:id="@+id/vr_fragment_slide_up_panel_layout"
+    android:id="@+id/user_feed_slide_up_panel_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:gravity="bottom"
@@ -73,7 +73,7 @@
 
     <include
         android:layout_width="match_parent"
-        android:layout_height="650dp"
+        android:layout_height="400dp"
         layout="@layout/feed_comments_popup">
     </include>
 </com.sothree.slidinguppanel.SlidingUpPanelLayout>

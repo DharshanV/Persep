@@ -182,6 +182,18 @@ public class UserFeedAdapter extends RecyclerView.Adapter<UserFeedAdapter.UserFe
         }
     }
 
+    public void popupPostComments(int postPosition)
+    {
+        if (postPosition < m_UserPostIDs.size())
+        {
+            Post post = PostManager.getInstance().getPost(m_UserPostIDs.get(postPosition));
+            if (post != null)
+            {
+                m_UserFeedFragment.popupPostComments(post);
+            }
+        }
+    }
+
     public interface RefreshQueryCompleteListener
     {
         void onComplete();
@@ -197,6 +209,7 @@ public class UserFeedAdapter extends RecyclerView.Adapter<UserFeedAdapter.UserFe
         public TextView m_PostCommentCount;
         public TextView m_PostGeoLocation;
         public ImageButton m_PostOptionButton;
+        public ImageButton m_PostCommentsButton;
         int m_PopupWidth;
         int m_PopupHeight;
         ArrayAdapter<String> m_ItemsAdapter;
@@ -213,6 +226,7 @@ public class UserFeedAdapter extends RecyclerView.Adapter<UserFeedAdapter.UserFe
             m_PostCommentCount = itemView.findViewById(R.id.user_post_comment_count);
             m_PostGeoLocation = itemView.findViewById(R.id.user_post_geo_location);
             m_PostOptionButton = itemView.findViewById(R.id.post_options_button);
+            m_PostCommentsButton = itemView.findViewById(R.id.user_post_comment_image);
             m_Context = itemView.getContext();
 
             Zoomy.Builder builder = new Zoomy.Builder(getActivity(m_Context)).target(m_PostImage);
@@ -268,6 +282,10 @@ public class UserFeedAdapter extends RecyclerView.Adapter<UserFeedAdapter.UserFe
                     m_PopupWindow.setAnchorView(v);
                     m_PopupWindow.show();
                 }
+            });
+
+            m_PostCommentsButton.setOnClickListener(v -> {
+                m_UserFeed.popupPostComments(getAdapterPosition());
             });
         }
 

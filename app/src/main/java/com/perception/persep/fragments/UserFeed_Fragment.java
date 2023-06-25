@@ -17,27 +17,33 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+import androidx.viewpager2.widget.ViewPager2;
 
 import com.example.persep.R;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.perception.persep.activities.SettingsActivity;
 import com.perception.persep.adapters.UserFeedAdapter;
+import com.perception.persep.album_data.Post;
+import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 
 import java.util.Locale;
 import java.util.Timer;
 import java.util.TimerTask;
 
-public class UserFeed_Fragment extends Fragment
+public class UserFeed_Fragment extends Fragment implements SlidingUpPanelLayout.PanelSlideListener
 {
     private static final String TAG = "UserFeed_Fragment";
-    private final Timer m_RefreshTimer;
+    private Timer m_RefreshTimer;
     private SwipeRefreshLayout m_SwipeRefreshLayout;
     private UserFeedAdapter m_UserFeedAdapter;
     private RecyclerView m_UserFeedRecycleView;
+    private ViewPager2 m_ViewPager;
+    private PopupUserFeedComments m_PopupUserFeedComments;
 
-    public UserFeed_Fragment()
+    public UserFeed_Fragment(ViewPager2 viewPager)
     {
+        m_ViewPager = viewPager;
         m_RefreshTimer = new Timer();
     }
 
@@ -76,6 +82,8 @@ public class UserFeed_Fragment extends Fragment
         });
         m_SwipeRefreshLayout.setDistanceToTriggerSync(750);
 
+        m_PopupUserFeedComments = new PopupUserFeedComments(getActivity(), view, this);
+
         TextView userFeedHeaderText = view.findViewById(R.id.username_text_view);
         String username = "Temp-Username";
         Context context = getContext();
@@ -106,5 +114,32 @@ public class UserFeed_Fragment extends Fragment
 
         Intent shareIntent = Intent.createChooser(sendIntent, null);
         startActivity(shareIntent);
+    }
+
+    public void popupPostComments(Post post)
+    {
+        m_PopupUserFeedComments.launch(post);
+    }
+
+    @Override
+    public void onPanelSlide(View panel, float slideOffset)
+    {
+
+    }
+
+    @Override
+    public void onPanelStateChanged(View panel, SlidingUpPanelLayout.PanelState previousState, SlidingUpPanelLayout.PanelState newState)
+    {
+        m_ViewPager.setUserInputEnabled(previousState != SlidingUpPanelLayout.PanelState.EXPANDED || newState != SlidingUpPanelLayout.PanelState.DRAGGING);
+    }
+
+    public boolean isPopupExpanded()
+    {
+        return SlidingUpPanelLayout.PanelState.EXPANDED == m_PopupUserFeedComments.getPanelState();
+    }
+
+    public void collapsePopup()
+    {
+        m_PopupUserFeedComments.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
     }
 }
