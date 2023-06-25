@@ -136,22 +136,11 @@ public class UserFeedAdapter extends RecyclerView.Adapter<UserFeedAdapter.UserFe
         if (post != null)
         {
             post.loadInto(holder.m_PostImage);
+            holder.m_PostID = post.m_PostID;
             holder.setLike(post.m_Likes);
             holder.setCommentCount(post.m_PostComments.size());
             holder.m_PostGeoLocation.setText(post.m_GeoLocation);
         }
-    }
-
-    @Override
-    public void onBindViewHolder(@NonNull UserFeedViewHolder holder, int position, @NonNull List<Object> payloads)
-    {
-        if (!payloads.isEmpty())
-        {
-            long postLike = (Long) payloads.get(0);
-            holder.setLike(postLike);
-            return;
-        }
-        super.onBindViewHolder(holder, position, payloads);
     }
 
     @Override
@@ -182,14 +171,14 @@ public class UserFeedAdapter extends RecyclerView.Adapter<UserFeedAdapter.UserFe
         }
     }
 
-    public void popupPostComments(int postPosition)
+    public void popupPostComments(int postPosition, Post.PostRefreshListener listener)
     {
         if (postPosition < m_UserPostIDs.size())
         {
             Post post = PostManager.getInstance().getPost(m_UserPostIDs.get(postPosition));
             if (post != null)
             {
-                m_UserFeedFragment.popupPostComments(post);
+                m_UserFeedFragment.popupPostComments(post, listener);
             }
         }
     }
@@ -204,6 +193,7 @@ public class UserFeedAdapter extends RecyclerView.Adapter<UserFeedAdapter.UserFe
         final static String[] POST_OPTION_ITEMS = new String[]{"Delete", "Share"};
         private final Context m_Context;
         private final UserFeedAdapter m_UserFeed;
+        public String m_PostID;
         public ImageView m_PostImage;
         public TextView m_PostLikeCount;
         public TextView m_PostCommentCount;
@@ -285,7 +275,12 @@ public class UserFeedAdapter extends RecyclerView.Adapter<UserFeedAdapter.UserFe
             });
 
             m_PostCommentsButton.setOnClickListener(v -> {
-                m_UserFeed.popupPostComments(getAdapterPosition());
+                m_UserFeed.popupPostComments(getAdapterPosition(), refreshedFromServer -> {
+                    Post post = PostManager.getInstance().getPost(m_PostID);
+                    if (post != null) {
+                        setCommentCount(post.m_PostComments.size());
+                    }
+                });
             });
         }
 

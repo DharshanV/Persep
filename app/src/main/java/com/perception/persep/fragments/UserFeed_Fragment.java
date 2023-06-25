@@ -116,9 +116,9 @@ public class UserFeed_Fragment extends Fragment implements SlidingUpPanelLayout.
         startActivity(shareIntent);
     }
 
-    public void popupPostComments(Post post)
+    public void popupPostComments(Post post, Post.PostRefreshListener listener)
     {
-        m_PopupUserFeedComments.launch(post);
+        m_PopupUserFeedComments.launch(post, listener);
     }
 
     @Override

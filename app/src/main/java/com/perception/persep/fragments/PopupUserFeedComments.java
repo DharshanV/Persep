@@ -38,7 +38,7 @@ public class PopupUserFeedComments
         m_CommentsListView = popupParentView.findViewById(R.id.feed_comments_list_view);
     }
 
-    public void launch(Post post)
+    public void launch(Post post, Post.PostRefreshListener listener)
     {
         m_CommentIDs.clear();
         refreshPostComments();
@@ -46,6 +46,7 @@ public class PopupUserFeedComments
         CommentManager.getInstance().queryPostComments(post.m_PostID, (success, message, commentIDs) -> {
             m_CommentIDs = commentIDs;
             refreshPostComments();
+            listener.onPostRefresh(false);
         });
 
         m_SlidingUpPanel.setPanelState(SlidingUpPanelLayout.PanelState.EXPANDED);
