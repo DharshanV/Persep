@@ -8,6 +8,7 @@ import android.widget.ListView;
 import com.ablanco.zoomy.Zoomy;
 import com.example.persep.R;
 import com.perception.persep.adapters.PostCommentAdapter;
+import com.perception.persep.adapters.PostLikesAdapter;
 import com.perception.persep.album_data.Comment;
 import com.perception.persep.album_data.Post;
 import com.perception.persep.data_gatherer.CommentManager;
@@ -25,8 +26,8 @@ public class PopupUserFeed
     private final SlidingUpPanelLayout m_SlidingUpPanel;
 
     private ListView m_PopupListView;
+    private Post m_Post;
     private List<String> m_CommentIDs = new ArrayList<>();
-    private List<String> m_UserIDs = new ArrayList<>();
 
     public enum PopupType
     {
@@ -48,6 +49,7 @@ public class PopupUserFeed
 
     public void launch(PopupType popupType, Post post, Post.PostRefreshListener listener)
     {
+        m_Post = post;
         m_PopupListView.setAdapter(null);
 
         if (popupType == PopupType.COMMENTS) {
@@ -60,6 +62,10 @@ public class PopupUserFeed
             });
         }
         else if (popupType == PopupType.LIKES) {
+            UserManager.getInstance().queryPostLikes(post, (UserManager.QueryUsersLikedListener) (success, message, userIDs) -> {
+                refreshPostLikes();
+                listener.onPostRefresh(false);
+            });
         }
 
         m_SlidingUpPanel.setPanelState(SlidingUpPanelLayout.PanelState.EXPANDED);
@@ -77,6 +83,17 @@ public class PopupUserFeed
         }
         if (!postComments.isEmpty()) {
             PostCommentAdapter adapter = new PostCommentAdapter(m_Activity, postComments);
+            m_PopupListView.setAdapter(adapter);
+        }
+        else {
+            m_PopupListView.setAdapter(null);
+        }
+    }
+
+    private void refreshPostLikes()
+    {
+        if (!m_Post.m_UsersLiked.isEmpty()) {
+            PostLikesAdapter adapter = new PostLikesAdapter(m_Activity, m_Post.m_UsersLiked);
             m_PopupListView.setAdapter(adapter);
         }
         else {

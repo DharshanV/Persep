@@ -1,6 +1,8 @@
 package com.perception.persep.data_gatherer;
 
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
+import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
@@ -12,6 +14,7 @@ import com.perception.persep.constants.PostConstants;
 import com.perception.persep.constants.UserConstants;
 import com.perception.persep.user_data.User;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -73,6 +76,44 @@ public class UserManager
         }
     }
 
+    public void queryPostLikes(Post post, QueryUsersLikedListener listener)
+    {
+        post.serverRefresh(refreshedFromServer -> {
+            List<DocumentReference> postLikedUsers = new ArrayList<>();
+
+            List<Task<DocumentSnapshot>> userQueryTasks = new ArrayList<>();
+            for (DocumentReference userRef : post.m_UsersLiked) {
+                User user = m_UserData.get(userRef);
+                if (user != null) {
+                    postLikedUsers.add(userRef);
+                }
+                else {
+                    userQueryTasks.add(userRef.get());
+                }
+            }
+
+            if (userQueryTasks.isEmpty()) {
+                listener.onUsesLiked(true, "", postLikedUsers);
+                return;
+            }
+
+            Tasks.whenAllSuccess(userQueryTasks).addOnSuccessListener(usersResult -> {
+                for (Object userObj : usersResult)
+                {
+                    DocumentSnapshot userDoc = (DocumentSnapshot) userObj;
+                    try {
+                        User user = new User(userDoc);
+                        postLikedUsers.add(userDoc.getReference());
+                        m_UserData.put(userDoc.getReference(), user);
+                    } catch (NullPointerException ignored) {}
+                }
+                listener.onUsesLiked(true, "", postLikedUsers);
+            }).addOnFailureListener(e -> {
+                listener.onUsesLiked(false, "", postLikedUsers);
+            });
+        });
+    }
+
     public void addPost(String postID)
     {
         FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
@@ -110,5 +151,10 @@ public class UserManager
             }).addOnFailureListener(e -> listener.onDeleteListener(false));
             m_UserData.remove(m_DocRef);
         }
+    }
+
+    public interface QueryUsersLikedListener
+    {
+        void onUsesLiked(boolean success, String message, List<DocumentReference> userRefs);
     }
 }
