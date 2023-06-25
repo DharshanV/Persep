@@ -17,7 +17,10 @@
         android:id="@+id/feed_comments_list_view"
         android:layout_width="match_parent"
         android:layout_height="0dp"
+        android:layout_marginStart="15dp"
+        android:layout_marginEnd="15dp"
         app:layout_constraintTop_toBottomOf="@id/feed_comments_popup_drag_view"
-        app:layout_constraintBottom_toBottomOf="parent"/>
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:listSelector="@android:color/transparent"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
