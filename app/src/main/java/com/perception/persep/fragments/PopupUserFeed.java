@@ -11,6 +11,7 @@ import com.perception.persep.adapters.PostCommentAdapter;
 import com.perception.persep.album_data.Comment;
 import com.perception.persep.album_data.Post;
 import com.perception.persep.data_gatherer.CommentManager;
+import com.perception.persep.data_gatherer.UserManager;
 import com.perception.persep.user_data.User;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 
@@ -25,6 +26,13 @@ public class PopupUserFeed
 
     private ListView m_PopupListView;
     private List<String> m_CommentIDs = new ArrayList<>();
+    private List<String> m_UserIDs = new ArrayList<>();
+
+    public enum PopupType
+    {
+        COMMENTS,
+        LIKES;
+    }
 
     public PopupUserFeed(Activity activity, View popupParentView, SlidingUpPanelLayout.PanelSlideListener panelSlideListener)
     {
@@ -38,16 +46,21 @@ public class PopupUserFeed
         m_PopupListView = popupParentView.findViewById(R.id.feed_popup_list_view);
     }
 
-    public void launch(Post post, Post.PostRefreshListener listener)
+    public void launch(PopupType popupType, Post post, Post.PostRefreshListener listener)
     {
-        m_CommentIDs.clear();
-        refreshPostComments();
+        m_PopupListView.setAdapter(null);
 
-        CommentManager.getInstance().queryPostComments(post.m_PostID, (success, message, commentIDs) -> {
-            m_CommentIDs = commentIDs;
-            refreshPostComments();
-            listener.onPostRefresh(false);
-        });
+        if (popupType == PopupType.COMMENTS) {
+            m_CommentIDs.clear();
+
+            CommentManager.getInstance().queryPostComments(post.m_PostID, (success, message, commentIDs) -> {
+                m_CommentIDs = commentIDs;
+                refreshPostComments();
+                listener.onPostRefresh(false);
+            });
+        }
+        else if (popupType == PopupType.LIKES) {
+        }
 
         m_SlidingUpPanel.setPanelState(SlidingUpPanelLayout.PanelState.EXPANDED);
     }

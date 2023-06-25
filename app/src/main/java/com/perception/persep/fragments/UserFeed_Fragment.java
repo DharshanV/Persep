@@ -116,7 +116,12 @@ public class UserFeed_Fragment extends Fragment implements SlidingUpPanelLayout.
 
     public void popupPostComments(Post post, Post.PostRefreshListener listener)
     {
-        m_PopupUserFeed.launch(post, listener);
+        m_PopupUserFeed.launch(PopupUserFeed.PopupType.COMMENTS, post, listener);
+    }
+
+    public void popupPostLike(Post post, Post.PostRefreshListener listener)
+    {
+        m_PopupUserFeed.launch(PopupUserFeed.PopupType.LIKES, post, listener);
     }
 
     @Override

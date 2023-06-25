@@ -183,6 +183,18 @@ public class UserFeedAdapter extends RecyclerView.Adapter<UserFeedAdapter.UserFe
         }
     }
 
+    public void popupPostLikes(int postPosition, Post.PostRefreshListener listener)
+    {
+        if (postPosition < m_UserPostIDs.size())
+        {
+            Post post = PostManager.getInstance().getPost(m_UserPostIDs.get(postPosition));
+            if (post != null)
+            {
+                m_UserFeedFragment.popupPostLike(post, listener);
+            }
+        }
+    }
+
     public interface RefreshQueryCompleteListener
     {
         void onComplete();
@@ -286,7 +298,12 @@ public class UserFeedAdapter extends RecyclerView.Adapter<UserFeedAdapter.UserFe
             });
 
             m_PostLikesButton.setOnClickListener(v -> {
-
+                m_UserFeed.popupPostLikes(getAdapterPosition(), refreshedFromServer -> {
+                    Post post = PostManager.getInstance().getPost(m_PostID);
+                    if (post != null) {
+                        setLike(post.m_Likes);
+                    }
+                });
             });
         }
 
