@@ -3,6 +3,7 @@ package com.perception.persep.fragments;
 import android.app.Activity;
 import android.icu.text.SimpleDateFormat;
 import android.os.Handler;
+import android.text.format.DateUtils;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
@@ -21,6 +22,7 @@ import com.perception.persep.user_data.User;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
@@ -79,8 +81,9 @@ public class PopupPost
         if (userData != null) {
             m_Post = post;
             m_PostUsername.setText(userData.m_Username);
-            SimpleDateFormat timeStampFormat = new SimpleDateFormat("dd-MM-yyyy", Locale.ENGLISH);
-            m_PostCreated.setText(timeStampFormat.format(post.m_TimeCreated.toDate()).replace('-', '/'));
+            Date postDate = post.m_TimeCreated.toDate();
+            String relativeTime = DateUtils.getRelativeDateTimeString(m_Activity, postDate.getTime(), DateUtils.DAY_IN_MILLIS, DateUtils.WEEK_IN_MILLIS, 0).toString();
+            m_PostCreated.setText(relativeTime.substring(0, relativeTime.indexOf(',')));
             m_PostImage.setImageBitmap(post.m_Image);
             m_PostCommentEditText.setText("");
 
