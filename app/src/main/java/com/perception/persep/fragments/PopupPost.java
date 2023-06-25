@@ -39,6 +39,7 @@ public class PopupPost
     private ImageButton m_SendCommentButton;
 
     private ListView m_CommentsListView;
+    private TextView m_EmptyListTextView;
     private List<String> m_CommentIDs = new ArrayList<>();
 
     public PopupPost(Activity activity, View popupParentView, SlidingUpPanelLayout.PanelSlideListener panelSlideListener)
@@ -55,6 +56,8 @@ public class PopupPost
         m_PostImage = popupParentView.findViewById(R.id.popup_user_post_image);
 
         m_CommentsListView = popupParentView.findViewById(R.id.popup_post_comments_list);
+        m_EmptyListTextView = popupParentView.findViewById(R.id.popup_empty_view);
+        m_EmptyListTextView.setText("COMMENTS UNAVAILABLE");
         m_SlidingUpPanel.setScrollableView(m_CommentsListView);
 
         m_PostCommentEditText = popupParentView.findViewById(R.id.popup_send_comment_edit_text);
@@ -78,6 +81,10 @@ public class PopupPost
     public void launch(Post post)
     {
         User userData = post.m_UserData;
+        m_CommentIDs.clear();
+        m_CommentsListView.setAdapter(null);
+        m_EmptyListTextView.setVisibility(View.GONE);
+
         if (userData != null) {
             m_Post = post;
             m_PostUsername.setText(userData.m_Username);
@@ -86,9 +93,6 @@ public class PopupPost
             m_PostCreated.setText(relativeTime.substring(0, relativeTime.indexOf(',')));
             m_PostImage.setImageBitmap(post.m_Image);
             m_PostCommentEditText.setText("");
-
-            m_CommentIDs.clear();
-            refreshPostComments();
 
             CommentManager.getInstance().queryPostComments(m_Post.m_PostID, (success, message, commentIDs) -> {
                 m_CommentIDs = commentIDs;
@@ -118,6 +122,7 @@ public class PopupPost
         else {
             m_CommentsListView.setAdapter(null);
         }
+        m_CommentsListView.setEmptyView(m_EmptyListTextView);
     }
 
     public SlidingUpPanelLayout.PanelState getPanelState()
