@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.icu.text.SimpleDateFormat;
 import android.view.View;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import com.ablanco.zoomy.Zoomy;
 import com.example.persep.R;
@@ -26,6 +27,7 @@ public class PopupUserFeed
     private final SlidingUpPanelLayout m_SlidingUpPanel;
 
     private ListView m_PopupListView;
+    private TextView m_PopupTitle;
     private Post m_Post;
     private List<String> m_CommentIDs = new ArrayList<>();
 
@@ -45,12 +47,15 @@ public class PopupUserFeed
         m_SlidingUpPanel.addPanelSlideListener(panelSlideListener);
 
         m_PopupListView = popupParentView.findViewById(R.id.feed_popup_list_view);
+        m_PopupTitle = popupParentView.findViewById(R.id.feed_popup_title);
     }
 
     public void launch(PopupType popupType, Post post, Post.PostRefreshListener listener)
     {
         m_Post = post;
         m_PopupListView.setAdapter(null);
+
+        m_PopupTitle.setText(popupType == PopupType.COMMENTS ? "Comments" : "Likes");
 
         if (popupType == PopupType.COMMENTS) {
             m_CommentIDs.clear();
