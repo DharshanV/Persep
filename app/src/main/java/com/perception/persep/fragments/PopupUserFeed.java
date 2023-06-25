@@ -47,6 +47,7 @@ public class PopupUserFeed
         m_SlidingUpPanel.addPanelSlideListener(panelSlideListener);
 
         m_PopupListView = popupParentView.findViewById(R.id.feed_popup_list_view);
+        m_SlidingUpPanel.setScrollableView(m_PopupListView);
         m_PopupTitle = popupParentView.findViewById(R.id.feed_popup_title);
     }
 

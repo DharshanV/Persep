@@ -53,6 +53,7 @@ public class PopupPost
         m_PostImage = popupParentView.findViewById(R.id.popup_user_post_image);
 
         m_CommentsListView = popupParentView.findViewById(R.id.popup_post_comments_list);
+        m_SlidingUpPanel.setScrollableView(m_CommentsListView);
 
         m_PostCommentEditText = popupParentView.findViewById(R.id.popup_send_comment_edit_text);
         m_SendCommentButton = popupParentView.findViewById(R.id.popup_send_comment_button);
