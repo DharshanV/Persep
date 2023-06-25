@@ -18,24 +18,24 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-public class PopupUserFeedComments
+public class PopupUserFeed
 {
     private Activity m_Activity;
     private final SlidingUpPanelLayout m_SlidingUpPanel;
 
-    private ListView m_CommentsListView;
+    private ListView m_PopupListView;
     private List<String> m_CommentIDs = new ArrayList<>();
 
-    public PopupUserFeedComments(Activity activity, View popupParentView, SlidingUpPanelLayout.PanelSlideListener panelSlideListener)
+    public PopupUserFeed(Activity activity, View popupParentView, SlidingUpPanelLayout.PanelSlideListener panelSlideListener)
     {
         m_Activity = activity;
 
         m_SlidingUpPanel = popupParentView.findViewById(R.id.user_feed_slide_up_panel_layout);
         m_SlidingUpPanel.setFadeOnClickListener(v -> m_SlidingUpPanel.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED));
-        m_SlidingUpPanel.setDragView(R.id.feed_comments_popup_drag_view);
+        m_SlidingUpPanel.setDragView(R.id.feed_popup_popup_drag_view);
         m_SlidingUpPanel.addPanelSlideListener(panelSlideListener);
 
-        m_CommentsListView = popupParentView.findViewById(R.id.feed_comments_list_view);
+        m_PopupListView = popupParentView.findViewById(R.id.feed_popup_list_view);
     }
 
     public void launch(Post post, Post.PostRefreshListener listener)
@@ -64,10 +64,10 @@ public class PopupUserFeedComments
         }
         if (!postComments.isEmpty()) {
             PostCommentAdapter adapter = new PostCommentAdapter(m_Activity, postComments);
-            m_CommentsListView.setAdapter(adapter);
+            m_PopupListView.setAdapter(adapter);
         }
         else {
-            m_CommentsListView.setAdapter(null);
+            m_PopupListView.setAdapter(null);
         }
     }
 

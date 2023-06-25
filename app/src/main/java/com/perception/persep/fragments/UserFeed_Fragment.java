@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -27,7 +26,6 @@ import com.perception.persep.adapters.UserFeedAdapter;
 import com.perception.persep.album_data.Post;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 
-import java.util.Locale;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -39,7 +37,7 @@ public class UserFeed_Fragment extends Fragment implements SlidingUpPanelLayout.
     private UserFeedAdapter m_UserFeedAdapter;
     private RecyclerView m_UserFeedRecycleView;
     private ViewPager2 m_ViewPager;
-    private PopupUserFeedComments m_PopupUserFeedComments;
+    private PopupUserFeed m_PopupUserFeed;
 
     public UserFeed_Fragment(ViewPager2 viewPager)
     {
@@ -82,7 +80,7 @@ public class UserFeed_Fragment extends Fragment implements SlidingUpPanelLayout.
         });
         m_SwipeRefreshLayout.setDistanceToTriggerSync(750);
 
-        m_PopupUserFeedComments = new PopupUserFeedComments(getActivity(), view, this);
+        m_PopupUserFeed = new PopupUserFeed(getActivity(), view, this);
 
         TextView userFeedHeaderText = view.findViewById(R.id.username_text_view);
         String username = "Temp-Username";
@@ -118,7 +116,7 @@ public class UserFeed_Fragment extends Fragment implements SlidingUpPanelLayout.
 
     public void popupPostComments(Post post, Post.PostRefreshListener listener)
     {
-        m_PopupUserFeedComments.launch(post, listener);
+        m_PopupUserFeed.launch(post, listener);
     }
 
     @Override
@@ -135,11 +133,11 @@ public class UserFeed_Fragment extends Fragment implements SlidingUpPanelLayout.
 
     public boolean isPopupExpanded()
     {
-        return SlidingUpPanelLayout.PanelState.EXPANDED == m_PopupUserFeedComments.getPanelState();
+        return SlidingUpPanelLayout.PanelState.EXPANDED == m_PopupUserFeed.getPanelState();
     }
 
     public void collapsePopup()
     {
-        m_PopupUserFeedComments.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
+        m_PopupUserFeed.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
     }
 }

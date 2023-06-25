@@ -199,6 +199,7 @@ public class UserFeedAdapter extends RecyclerView.Adapter<UserFeedAdapter.UserFe
         public TextView m_PostCommentCount;
         public TextView m_PostGeoLocation;
         public ImageButton m_PostOptionButton;
+        public ImageButton m_PostLikesButton;
         public ImageButton m_PostCommentsButton;
         int m_PopupWidth;
         int m_PopupHeight;
@@ -216,6 +217,7 @@ public class UserFeedAdapter extends RecyclerView.Adapter<UserFeedAdapter.UserFe
             m_PostCommentCount = itemView.findViewById(R.id.user_post_comment_count);
             m_PostGeoLocation = itemView.findViewById(R.id.user_post_geo_location);
             m_PostOptionButton = itemView.findViewById(R.id.post_options_button);
+            m_PostLikesButton = itemView.findViewById(R.id.user_post_heart_image);
             m_PostCommentsButton = itemView.findViewById(R.id.user_post_comment_image);
             m_Context = itemView.getContext();
 
@@ -281,6 +283,10 @@ public class UserFeedAdapter extends RecyclerView.Adapter<UserFeedAdapter.UserFe
                         setCommentCount(post.m_PostComments.size());
                     }
                 });
+            });
+
+            m_PostLikesButton.setOnClickListener(v -> {
+
             });
         }
 
