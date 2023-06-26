@@ -1,6 +1,13 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <style name="Theme.Persep" parent="Theme.AppCompat.DayNight.NoActionBar">
+    <style name="Theme.Persep" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="android:windowBackground">@color/black</item>
+        <item name="android:colorControlActivated">@color/persep_color</item>
+    </style>
 
+    <style name="Theme.Persep.TextInput" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+        <item name="boxStrokeColor">@color/text_input_box_stroke_color</item>
+        <item name="hintTextColor">@color/persep_color</item>
+        <item name="android:textColorHint">@color/white</item>
     </style>
 
     <style name="Theme.Persep.Starting" parent="Theme.SplashScreen">
