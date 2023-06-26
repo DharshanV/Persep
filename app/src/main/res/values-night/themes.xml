@@ -15,6 +15,13 @@
         <item name="android:textColor">@color/black</item>
     </style>
 
+    <style name="Theme.Persep.BackButton" parent="Widget.MaterialComponents.Button.TextButton">
+        <item name="iconTint">@color/persep_color</item>
+        <item name="android:layout_width">50dp</item>
+        <item name="android:layout_height">50dp</item>
+        <item name="icon">@drawable/ic_baseline_arrow_back</item>
+    </style>
+
     <style name="Theme.Persep.Starting" parent="Theme.SplashScreen">
         <item name="windowSplashScreenBackground">@color/black</item>
         <item name="windowSplashScreenAnimatedIcon">@drawable/splash_screen_persep_logo_animated</item>
