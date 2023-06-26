@@ -35,10 +35,9 @@
         <item name="android:navigationBarColor">@color/black</item>
     </style>
 
-    <style name="Theme.App.Starting" parent="Theme.SplashScreen">
-        <item name="android:background">@color/black</item>
+    <style name="Theme.Persep.Starting" parent="Theme.SplashScreen">
         <item name="windowSplashScreenBackground">@color/black</item>
-        <item name="windowSplashScreenAnimatedIcon">@drawable/splash_screen_persp_logo_animated</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/splash_screen_persep_logo_animated</item>
         <item name="windowSplashScreenAnimationDuration">2000</item>
         <item name="postSplashScreenTheme">@style/Theme.Persep</item>
     </style>
