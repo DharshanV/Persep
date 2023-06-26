@@ -6,8 +6,13 @@
 
     <style name="Theme.Persep.TextInput" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox">
         <item name="boxStrokeColor">@color/text_input_box_stroke_color</item>
-        <item name="hintTextColor">@color/persep_color</item>
+        <item name="hintTextColor">@color/white</item>
         <item name="android:textColorHint">@color/white</item>
+    </style>
+
+    <style name="Theme.Persep.Button" parent="Widget.MaterialComponents.Button">
+        <item name="backgroundTint">@color/persep_color</item>
+        <item name="android:textColor">@color/black</item>
     </style>
 
     <style name="Theme.Persep.Starting" parent="Theme.SplashScreen">
