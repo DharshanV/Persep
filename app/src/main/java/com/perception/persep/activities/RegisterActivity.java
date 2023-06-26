@@ -84,7 +84,7 @@ public class RegisterActivity extends AppCompatActivity
             }
         });
 
-        ImageButton backButton = findViewById(R.id.button_back_register);
+        Button backButton = findViewById(R.id.button_back_register);
         backButton.setOnClickListener(v -> finish());
 
         m_Username.addTextChangedListener(new TextWatcher()

@@ -4,21 +4,15 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:tools="http://schemas.android.com/tools"
-    android:background="@color/register_background_color"
     tools:context="com.perception.persep.activities.RegisterActivity">
 
-    <ImageButton
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/button_back_register"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
+        style="@style/Theme.Persep.BackButton"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         android:layout_marginTop="15dp"
-        android:layout_marginStart="15dp"
-        android:padding="5dp"
-        android:background="?attr/selectableItemBackgroundBorderless"
-        android:src="@drawable/ic_baseline_arrow_back"
-        app:tint="@color/navigation_button_color"/>
+        android:layout_marginStart="15dp" />
 
     <TextView
         android:id="@+id/register_activity_title"
@@ -29,6 +23,7 @@
         android:gravity="center"
         android:text="@string/register_activity_title_string"
         android:textSize="35sp"
+        android:textColor="@color/white"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/button_back_register"
@@ -47,6 +42,7 @@
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/register_usernameTextInputLayout"
+        style="@style/Theme.Persep.TextInput"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginLeft="25dp"
@@ -55,7 +51,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/register_activity_title">
-        <EditText
+        <com.google.android.material.textfield.TextInputEditText
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="@string/username_hint_string"
@@ -64,14 +60,16 @@
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/register_emailTextInputLayout"
+        style="@style/Theme.Persep.TextInput"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginLeft="25dp"
         android:layout_marginRight="25dp"
+        android:layout_marginTop="10dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/register_usernameTextInputLayout">
-        <EditText
+        <com.google.android.material.textfield.TextInputEditText
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:inputType="textEmailAddress"
@@ -81,14 +79,17 @@
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/register_passwordTextInputLayout"
+        style="@style/Theme.Persep.TextInput"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginLeft="25dp"
         android:layout_marginRight="25dp"
+        android:layout_marginTop="10dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/register_emailTextInputLayout">
-        <EditText
+        app:layout_constraintTop_toBottomOf="@id/register_emailTextInputLayout"
+        app:endIconMode="password_toggle">
+        <com.google.android.material.textfield.TextInputEditText
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:inputType="textPassword"
@@ -110,19 +111,19 @@
         app:animationDuration="300"
         app:labelTextSize="15sp"/>
 
-    <androidx.appcompat.widget.AppCompatButton
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/register_button"
+        style="@style/Theme.Persep.Button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginLeft="25dp"
         android:layout_marginRight="25dp"
         android:layout_marginTop="25dp"
+        android:padding="15dp"
         app:layout_constraintTop_toBottomOf="@id/password_input_meter"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         android:text="@string/register_button_string"
-        android:textSize="17sp"
-        android:textColor="@color/button_text_color"
-        android:id="@+id/register_button"
-        android:background="@drawable/rounded_button"/>
+        android:textSize="17sp" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
