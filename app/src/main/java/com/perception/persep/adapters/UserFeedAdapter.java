@@ -22,6 +22,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.ablanco.zoomy.Zoomy;
 import com.example.persep.R;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -248,7 +249,7 @@ public class UserFeedAdapter extends RecyclerView.Adapter<UserFeedAdapter.UserFe
             m_PopupWindow.setModal(true);
             m_PopupWindow.setDropDownGravity(Gravity.END);
 
-            m_ConfirmDeleteDialog = new AlertDialog.Builder(m_Context)
+            m_ConfirmDeleteDialog = new MaterialAlertDialogBuilder(m_Context)
                     .setTitle("Delete Post")
                     .setMessage("Do you really want to delete this post?")
                     .setPositiveButton("Yes", (dialog, which) -> {
