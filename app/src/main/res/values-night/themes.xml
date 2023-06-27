@@ -19,6 +19,11 @@
         <item name="android:textColor">@color/black</item>
     </style>
 
+    <style name="Theme.Persep.DeleteAccountButton" parent="Theme.Persep.Button">
+        <item name="backgroundTint">#FF0000</item>
+        <item name="android:textColor">@color/black</item>
+    </style>
+
     <style name="Theme.Persep.IconButton" parent="Widget.MaterialComponents.Button.TextButton">
         <item name="iconTint">@color/persep_color</item>
         <item name="android:layout_width">50dp</item>

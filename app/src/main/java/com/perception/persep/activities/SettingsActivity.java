@@ -34,7 +34,7 @@ public class SettingsActivity extends AppCompatActivity
     private Button m_DeleteAccountButton;
     private AlertDialog m_ConfirmDeleteAccountDialog;
 
-    private ImageButton m_BackButton;
+    private Button m_BackButton;
 
     private ProgressDialog m_ProgressDialog;
 
