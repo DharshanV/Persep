@@ -29,7 +29,6 @@
         <item name="android:insetBottom">0dp</item>
         <item name="iconGravity">textStart</item>
         <item name="iconPadding">0dp</item>
-        <item name="icon">@drawable/ic_baseline_arrow_back</item>
         <item name="rippleColor">#60FFFFFF</item>
     </style>
 

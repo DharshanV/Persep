@@ -9,6 +9,7 @@
     <com.google.android.material.button.MaterialButton
         android:id="@+id/button_back_settings"
         style="@style/Theme.Persep.IconButton"
+        app:icon="@drawable/ic_baseline_arrow_back"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         android:layout_marginTop="15dp"
