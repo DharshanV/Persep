@@ -2,6 +2,7 @@ package com.perception.persep.activities;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.TypedValue;
 import android.widget.Button;
@@ -28,75 +29,90 @@ import timber.log.Timber;
 
 public class SettingsActivity extends AppCompatActivity
 {
-    private Button m_SignOutButton;
     private AlertDialog m_ConfirmSignOutDialog;
-
-    private Button m_DeleteAccountButton;
     private AlertDialog m_ConfirmDeleteAccountDialog;
-
-    private Button m_BackButton;
-
     private ProgressDialog m_ProgressDialog;
 
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings);
-//
-//        m_ConfirmSignOutDialog = new AlertDialog.Builder(this)
-//                .setTitle("Sign Out")
-//                .setMessage("Do you really want to sign out?")
-//                .setPositiveButton("Yes", (dialog, which) -> {
-//                    createProgressDialog("Signing out...");
-//                    FirebaseUser loggedInUser = FirebaseAuth.getInstance().getCurrentUser();
-//                    if (loggedInUser != null)
-//                    {
-//                        FirebaseAuth.getInstance().signOut();
-//                    }
-//                })
-//                .setNegativeButton("Cancel", null)
-//                .create();
-//        setupDialog(m_ConfirmSignOutDialog);
-//
-//
-//        m_SignOutButton = findViewById(R.id.button_sign_out);
-//        m_SignOutButton.setOnClickListener(v -> {
-//            m_ConfirmSignOutDialog.show();
-//        });
-//
-//        m_ConfirmDeleteAccountDialog = new AlertDialog.Builder(this)
-//                .setTitle("Delete Account")
-//                .setMessage("Do you really want to delete your account?")
-//                .setPositiveButton("Yes", (dialog, which) -> {
-//                    createProgressDialog("Deleting account...");
-//                    UserManager.getInstance().deleteUser(successful -> {
-//                        if (!successful) {
-//                            Toast.makeText(getApplicationContext(), "Failed to delete account. Try again later.", Toast.LENGTH_SHORT).show();
-//                            if (m_ProgressDialog != null) {
-//                                m_ProgressDialog.dismiss();
-//                                m_ProgressDialog = null;
-//                            }
-//                        }
-//                    });
-//                })
-//                .setNegativeButton("Cancel", null)
-//                .create();
-//        setupDialog(m_ConfirmDeleteAccountDialog);
-//
-//        m_DeleteAccountButton = findViewById(R.id.button_delete_account);
-//        m_DeleteAccountButton.setOnClickListener(v -> {
-//            m_ConfirmDeleteAccountDialog.show();
-//        });
-//
-//        m_BackButton = findViewById(R.id.button_back_settings);
-//        m_BackButton.setOnClickListener(v -> finish());
-//
-//        FirebaseAuth.getInstance().addAuthStateListener(firebaseAuth -> {
-//            if (firebaseAuth.getCurrentUser() == null)
-//            {
-//                onInvalidCurrentUser();
-//            }
-//        });
+
+        m_ConfirmSignOutDialog = new AlertDialog.Builder(this)
+                .setTitle("Sign Out")
+                .setMessage("Do you really want to sign out?")
+                .setPositiveButton("Yes", (dialog, which) -> {
+                    createProgressDialog("Signing out...");
+                    FirebaseUser loggedInUser = FirebaseAuth.getInstance().getCurrentUser();
+                    if (loggedInUser != null)
+                    {
+                        FirebaseAuth.getInstance().signOut();
+                    }
+                })
+                .setNegativeButton("Cancel", null)
+                .create();
+        setupDialog(m_ConfirmSignOutDialog);
+
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+
+        if (user != null) {
+            TextView usernameTextview= findViewById(R.id.account_settings_username);
+            usernameTextview.setText(user.getDisplayName());
+
+            TextView emailTextview= findViewById(R.id.account_settings_email);
+            emailTextview.setText(user.getEmail());
+        }
+
+        Button signOutButton = findViewById(R.id.account_settings_sign_out_button);
+        signOutButton.setOnClickListener(v -> {
+            m_ConfirmSignOutDialog.show();
+        });
+
+        m_ConfirmDeleteAccountDialog = new AlertDialog.Builder(this)
+                .setTitle("Delete Account")
+                .setMessage("Do you really want to delete your account?")
+                .setPositiveButton("Yes", (dialog, which) -> {
+                    createProgressDialog("Deleting account...");
+                    UserManager.getInstance().deleteUser(successful -> {
+                        if (!successful) {
+                            Toast.makeText(getApplicationContext(), "Failed to delete account. Try again later.", Toast.LENGTH_SHORT).show();
+                            if (m_ProgressDialog != null) {
+                                m_ProgressDialog.dismiss();
+                                m_ProgressDialog = null;
+                            }
+                        }
+                    });
+                })
+                .setNegativeButton("Cancel", null)
+                .create();
+        setupDialog(m_ConfirmDeleteAccountDialog);
+
+        Button deleteAccountButton = findViewById(R.id.account_settings_delete_account_button);
+        deleteAccountButton.setOnClickListener(v -> {
+            m_ConfirmDeleteAccountDialog.show();
+        });
+
+        Button backButton = findViewById(R.id.button_back_settings);
+        backButton.setOnClickListener(v -> finish());
+
+        Button privacyPolityButton = findViewById(R.id.account_settings_privacy_policy_button);
+        privacyPolityButton.setOnClickListener(v -> {
+            Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.persep.app/privacy-policy"));
+            startActivity(browserIntent);
+        });
+
+        Button termsOfServiceButton = findViewById(R.id.account_settings_terms_of_service_button);
+        termsOfServiceButton.setOnClickListener(v -> {
+            Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.persep.app/privacy-policy/terms-of-service"));
+            startActivity(browserIntent);
+        });
+
+        FirebaseAuth.getInstance().addAuthStateListener(firebaseAuth -> {
+            if (firebaseAuth.getCurrentUser() == null)
+            {
+                onInvalidCurrentUser();
+            }
+        });
     }
 
     private void setupDialog(AlertDialog alertDialog)

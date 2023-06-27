@@ -57,6 +57,8 @@
                 android:id="@+id/account_settings_username"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:paddingTop="4dp"
+                android:paddingBottom="4dp"
                 android:text="TempUsername"
                 android:textSize="20sp"
                 android:textColor="@color/text_color_on_background"
@@ -73,6 +75,8 @@
                 android:id="@+id/account_settings_email"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:paddingTop="4dp"
+                android:paddingBottom="4dp"
                 android:text="temp@gmail.com"
                 android:textSize="20sp"
                 android:textColor="@color/text_color_on_background"
@@ -204,88 +208,6 @@
                 android:layout_marginBottom="20dp"
                 android:background="@color/quantum_grey600"/>
         </LinearLayout>
-
-<!--        <androidx.constraintlayout.widget.ConstraintLayout-->
-<!--            android:layout_width="match_parent"-->
-<!--            android:layout_height="wrap_content">-->
-
-<!--            <TextView-->
-<!--                android:id="@+id/setting_activity_title"-->
-<!--                android:layout_width="wrap_content"-->
-<!--                android:layout_height="wrap_content"-->
-<!--                android:layout_gravity="center|left"-->
-<!--                android:fontFamily="@font/playfair_display_bold"-->
-<!--                android:gravity="center"-->
-<!--                android:text="@string/profile_activity_title_string"-->
-<!--                android:textSize="35sp"-->
-<!--                android:textColor="@color/text_color_on_background"-->
-<!--                app:layout_constraintEnd_toEndOf="parent"-->
-<!--                app:layout_constraintStart_toStartOf="parent"-->
-<!--                app:layout_constraintTop_toTopOf="parent"-->
-<!--                tools:ignore="RtlHardcoded" />-->
-
-<!--            <View-->
-<!--                android:id="@+id/divider2"-->
-<!--                android:layout_width="match_parent"-->
-<!--                android:layout_height="2dp"-->
-<!--                android:layout_marginStart="30dp"-->
-<!--                android:layout_marginEnd="30dp"-->
-<!--                android:layout_marginTop="5dp"-->
-<!--                app:layout_constraintTop_toBottomOf="@id/setting_activity_title"-->
-<!--                android:background="@color/quantum_grey600"/>-->
-
-<!--            <TextView-->
-<!--                android:id="@+id/settings_username_email_title"-->
-<!--                android:layout_width="match_parent"-->
-<!--                android:layout_height="wrap_content"-->
-<!--                app:layout_constraintTop_toBottomOf="@id/divider2"-->
-<!--                android:text="Username / Email"-->
-<!--                android:textSize="20sp"-->
-<!--                android:layout_marginTop="10dp"-->
-<!--                android:layout_marginStart="20dp"-->
-<!--                android:layout_marginEnd="20dp"-->
-<!--                android:textColor="@color/text_color_on_background"-->
-<!--                android:fontFamily="@font/playfair_display_bold"/>-->
-
-<!--            <TextView-->
-<!--                android:id="@+id/settings_username_email_title"-->
-<!--                android:layout_width="match_parent"-->
-<!--                android:layout_height="wrap_content"-->
-<!--                app:layout_constraintTop_toBottomOf="@id/divider2"-->
-<!--                android:text="Username / Email"-->
-<!--                android:textSize="20sp"-->
-<!--                android:layout_marginTop="10dp"-->
-<!--                android:layout_marginStart="20dp"-->
-<!--                android:layout_marginEnd="20dp"-->
-<!--                android:textColor="@color/text_color_on_background"-->
-<!--                android:fontFamily="@font/playfair_display_bold"/>-->
-
-<!--&lt;!&ndash;            <com.google.android.material.button.MaterialButton&ndash;&gt;-->
-<!--&lt;!&ndash;                android:id="@+id/button_sign_out"&ndash;&gt;-->
-<!--&lt;!&ndash;                style="@style/Theme.Persep.Button"&ndash;&gt;-->
-<!--&lt;!&ndash;                android:layout_width="match_parent"&ndash;&gt;-->
-<!--&lt;!&ndash;                android:layout_height="wrap_content"&ndash;&gt;-->
-<!--&lt;!&ndash;                android:layout_marginLeft="25dp"&ndash;&gt;-->
-<!--&lt;!&ndash;                android:layout_marginRight="25dp"&ndash;&gt;-->
-<!--&lt;!&ndash;                android:layout_marginTop="25dp"&ndash;&gt;-->
-<!--&lt;!&ndash;                android:padding="15dp"&ndash;&gt;-->
-<!--&lt;!&ndash;                app:layout_constraintTop_toBottomOf="@id/settings_username_email_title"&ndash;&gt;-->
-<!--&lt;!&ndash;                android:text="@string/sign_out_string"&ndash;&gt;-->
-<!--&lt;!&ndash;                android:textSize="17sp" />&ndash;&gt;-->
-
-<!--&lt;!&ndash;            <com.google.android.material.button.MaterialButton&ndash;&gt;-->
-<!--&lt;!&ndash;                android:id="@+id/button_delete_account"&ndash;&gt;-->
-<!--&lt;!&ndash;                style="@style/Theme.Persep.DeleteAccountButton"&ndash;&gt;-->
-<!--&lt;!&ndash;                android:layout_width="match_parent"&ndash;&gt;-->
-<!--&lt;!&ndash;                android:layout_height="wrap_content"&ndash;&gt;-->
-<!--&lt;!&ndash;                android:layout_marginLeft="25dp"&ndash;&gt;-->
-<!--&lt;!&ndash;                android:layout_marginRight="25dp"&ndash;&gt;-->
-<!--&lt;!&ndash;                android:layout_marginTop="25dp"&ndash;&gt;-->
-<!--&lt;!&ndash;                android:padding="15dp"&ndash;&gt;-->
-<!--&lt;!&ndash;                app:layout_constraintTop_toBottomOf="@id/button_sign_out"&ndash;&gt;-->
-<!--&lt;!&ndash;                android:text="@string/delete_account_string"&ndash;&gt;-->
-<!--&lt;!&ndash;                android:textSize="17sp" />&ndash;&gt;-->
-<!--        </androidx.constraintlayout.widget.ConstraintLayout>-->
 
     </ScrollView>
 </androidx.constraintlayout.widget.ConstraintLayout>
