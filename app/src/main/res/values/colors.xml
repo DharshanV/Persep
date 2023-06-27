@@ -11,6 +11,7 @@
     <color name="persep_color">#7DD4AE</color>
     <color name="button_ripple_color">#A4C5C5C5</color>
     <color name="text_color_on_background">@color/black</color>
+    <color name="divider_background_color">@color/persep_color</color>
 
     <color name="ucrop_color_toolbar" tools:override="true">@color/persep_color</color>
     <color name="ucrop_color_active_controls_color">@color/black</color>
