@@ -55,7 +55,7 @@
     </style>
 
     <style name="Theme.Persep.Starting" parent="Theme.SplashScreen">
-        <item name="windowSplashScreenBackground">@color/persep_color</item>
+        <item name="windowSplashScreenBackground">@color/white</item>
         <item name="windowSplashScreenAnimatedIcon">@drawable/splash_screen_persep_logo_animated</item>
         <item name="windowSplashScreenAnimationDuration">2000</item>
         <item name="postSplashScreenTheme">@style/Theme.Persep</item>

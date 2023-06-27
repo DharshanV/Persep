@@ -113,29 +113,29 @@ public class VR_Fragment extends Fragment implements BearingSensor.BearingSensor
             return;
         }
 
-        m_IsVRInitialized = true;
-        m_IsVREnabled = true;
-        m_PrevIsVREnabled = false;
-        m_ToggleVRButton.setEnabled(true);
-        m_ToggleVRButton.setImageResource(R.drawable.ic_ar_enabled_button);
-
-        m_DataGathererManager = new DataGathererManager(getActivity());
-        m_VRRenderView = new RenderView(getActivity());
-
-        m_VRLayout.addView(m_VRRenderView, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
-        m_VRRenderView.setOpaque(false);
-
-        m_DataGathererManager.SetGyroscopeListener(m_VRRenderView);
-        m_DataGathererManager.AddGPSListener(m_VRRenderView);
-        m_DataGathererManager.AddGPSListener(AlbumManager.getInstance());
-        m_DataGathererManager.AddBearingListener(this);
-//        m_DataGathererManager.SetAlbumListener(m_VRRenderView);
-
-        if (forceStart)
-        {
-            if (m_VRRenderView != null) m_VRRenderView.onStart();
-            if (m_DataGathererManager != null) m_DataGathererManager.onStart();
-        }
+//        m_IsVRInitialized = true;
+//        m_IsVREnabled = true;
+//        m_PrevIsVREnabled = false;
+//        m_ToggleVRButton.setEnabled(true);
+//        m_ToggleVRButton.setImageResource(R.drawable.ic_ar_enabled_button);
+//
+//        m_DataGathererManager = new DataGathererManager(getActivity());
+//        m_VRRenderView = new RenderView(getActivity());
+//
+//        m_VRLayout.addView(m_VRRenderView, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+//        m_VRRenderView.setOpaque(false);
+//
+//        m_DataGathererManager.SetGyroscopeListener(m_VRRenderView);
+//        m_DataGathererManager.AddGPSListener(m_VRRenderView);
+//        m_DataGathererManager.AddGPSListener(AlbumManager.getInstance());
+//        m_DataGathererManager.AddBearingListener(this);
+////        m_DataGathererManager.SetAlbumListener(m_VRRenderView);
+//
+//        if (forceStart)
+//        {
+//            if (m_VRRenderView != null) m_VRRenderView.onStart();
+//            if (m_DataGathererManager != null) m_DataGathererManager.onStart();
+//        }
     }
 
     @Override
