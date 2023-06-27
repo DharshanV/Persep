@@ -9,6 +9,7 @@
     <color name="white">#FFFFFFFF</color>
 
     <color name="persep_color">#7DD4AE</color>
+    <color name="button_ripple_color">#2CFFFFFF</color>
     <color name="text_color_on_background">@color/black</color>
 
     <color name="ucrop_color_toolbar" tools:override="true">@color/persep_color</color>

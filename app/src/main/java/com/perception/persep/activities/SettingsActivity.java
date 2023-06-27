@@ -18,6 +18,7 @@ import androidx.core.content.res.ResourcesCompat;
 import com.example.persep.R;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
@@ -38,7 +39,7 @@ public class SettingsActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings);
 
-        m_ConfirmSignOutDialog = new AlertDialog.Builder(this)
+        m_ConfirmSignOutDialog = new MaterialAlertDialogBuilder(this)
                 .setTitle("Sign Out")
                 .setMessage("Do you really want to sign out?")
                 .setPositiveButton("Yes", (dialog, which) -> {
@@ -49,9 +50,7 @@ public class SettingsActivity extends AppCompatActivity
                         FirebaseAuth.getInstance().signOut();
                     }
                 })
-                .setNegativeButton("Cancel", null)
-                .create();
-        setupDialog(m_ConfirmSignOutDialog);
+                .setNegativeButton("Cancel", null).create();
 
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
 
@@ -68,7 +67,7 @@ public class SettingsActivity extends AppCompatActivity
             m_ConfirmSignOutDialog.show();
         });
 
-        m_ConfirmDeleteAccountDialog = new AlertDialog.Builder(this)
+        m_ConfirmDeleteAccountDialog = new MaterialAlertDialogBuilder(this)
                 .setTitle("Delete Account")
                 .setMessage("Do you really want to delete your account?")
                 .setPositiveButton("Yes", (dialog, which) -> {
@@ -83,9 +82,7 @@ public class SettingsActivity extends AppCompatActivity
                         }
                     });
                 })
-                .setNegativeButton("Cancel", null)
-                .create();
-        setupDialog(m_ConfirmDeleteAccountDialog);
+                .setNegativeButton("Cancel", null).create();
 
         Button deleteAccountButton = findViewById(R.id.account_settings_delete_account_button);
         deleteAccountButton.setOnClickListener(v -> {
@@ -112,21 +109,6 @@ public class SettingsActivity extends AppCompatActivity
             {
                 onInvalidCurrentUser();
             }
-        });
-    }
-
-    private void setupDialog(AlertDialog alertDialog)
-    {
-        alertDialog.setOnShowListener(dialog -> {
-            TextView messageTextview = alertDialog.findViewById(android.R.id.message);
-            if (messageTextview != null)
-            {
-                messageTextview.setTypeface(ResourcesCompat.getFont(this, R.font.playfair_display_regular));
-            }
-
-            float size = getResources().getDimension(R.dimen.delete_post_button_text_size);
-            alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextSize(TypedValue.COMPLEX_UNIT_PX, size);
-            alertDialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextSize(TypedValue.COMPLEX_UNIT_PX, size);
         });
     }
 
