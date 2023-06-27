@@ -31,6 +31,14 @@
         <item name="rippleColor">@color/button_ripple_color</item>
     </style>
 
+    <style name="Theme.Persep.BottomNavigationView" parent="Widget.MaterialComponents.BottomNavigationView">
+        <item name="android:background">@color/white</item>
+        <item name="labelVisibilityMode">unlabeled</item>
+        <item name="itemIconTint">@color/bottom_navigation_icon_color</item>
+        <item name="itemRippleColor">@color/button_ripple_color</item>
+        <item name="itemIconSize">30dp</item>
+    </style>
+
     <style name="Theme.Persep.AccountSettingButton" parent="Widget.MaterialComponents.Button.TextButton">
         <item name="iconGravity">end</item>
         <item name="android:gravity">center|left</item>

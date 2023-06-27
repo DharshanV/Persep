@@ -16,11 +16,8 @@
 
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/buttom_navigation"
+        style="@style/Theme.Persep.BottomNavigationView"
         android:layout_width="match_parent"
         android:layout_height="55dp"
-        app:itemIconTint="@color/bottom_navigation_icon_color"
-        android:background="@color/bottom_navigation_color"
-        app:itemIconSize="30dp"
-        app:menu="@menu/bottom_navigation_menu"
-        app:labelVisibilityMode="unlabeled"/>
+        app:menu="@menu/bottom_navigation_menu" />
 </LinearLayout>
