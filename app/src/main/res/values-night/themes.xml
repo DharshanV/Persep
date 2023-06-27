@@ -19,9 +19,14 @@
         <item name="android:textColor">@color/black</item>
     </style>
 
-    <style name="Theme.Persep.DeleteAccountButton" parent="Theme.Persep.Button">
-        <item name="backgroundTint">#FF0000</item>
-        <item name="android:textColor">@color/black</item>
+    <style name="Theme.Persep.AccountSettingButton" parent="Widget.MaterialComponents.Button.TextButton">
+        <item name="iconGravity">end</item>
+        <item name="android:gravity">center|left</item>
+        <item name="android:paddingStart">0dp</item>
+        <item name="android:letterSpacing">0</item>
+        <item name="textAllCaps">false</item>
+        <item name="iconTint">@color/persep_color</item>
+        <item name="rippleColor">#2CFFFFFF</item>
     </style>
 
     <style name="Theme.Persep.IconButton" parent="Widget.MaterialComponents.Button.TextButton">
@@ -34,7 +39,7 @@
         <item name="android:insetBottom">0dp</item>
         <item name="iconGravity">textStart</item>
         <item name="iconPadding">0dp</item>
-        <item name="rippleColor">#60FFFFFF</item>
+        <item name="rippleColor">#2CFFFFFF</item>
     </style>
 
     <style name="Theme.Persep.Starting" parent="Theme.SplashScreen">

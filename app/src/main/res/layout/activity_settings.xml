@@ -15,44 +15,277 @@
         android:layout_marginTop="15dp"
         android:layout_marginStart="15dp" />
 
-    <TextView
-        android:id="@+id/setting_activity_title"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center|left"
-        android:fontFamily="@font/playfair_display_bold"
-        android:gravity="center"
-        android:text="@string/profile_activity_title_string"
-        android:textSize="35sp"
-        android:textColor="@color/text_color_on_background"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/button_back_settings"
-        tools:ignore="RtlHardcoded" />
-
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/button_sign_out"
-        style="@style/Theme.Persep.Button"
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="25dp"
-        android:layout_marginRight="25dp"
-        android:layout_marginTop="25dp"
-        android:padding="15dp"
-        app:layout_constraintTop_toBottomOf="@id/setting_activity_title"
-        android:text="@string/sign_out_string"
-        android:textSize="17sp" />
+        android:layout_height="0dp"
+        app:layout_constraintTop_toBottomOf="@id/button_back_settings"
+        app:layout_constraintBottom_toBottomOf="parent">
 
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/button_delete_account"
-        style="@style/Theme.Persep.DeleteAccountButton"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="25dp"
-        android:layout_marginRight="25dp"
-        android:layout_marginTop="25dp"
-        android:padding="15dp"
-        app:layout_constraintTop_toBottomOf="@id/button_sign_out"
-        android:text="@string/delete_account_string"
-        android:textSize="17sp" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginStart="30dp"
+            android:layout_marginEnd="30dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:fontFamily="@font/playfair_display_bold"
+                android:text="@string/profile_activity_title_string"
+                android:textSize="35sp"
+                android:textColor="@color/text_color_on_background" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="25dp"
+                android:text="@string/activity_settings_username_email_string"
+                android:textSize="15sp"
+                android:textColor="#AFAFAF"
+                android:fontFamily="@font/playfair_display_bold"/>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="2dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="7dp"
+                android:background="@color/quantum_grey600"/>
+
+            <TextView
+                android:id="@+id/account_settings_username"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="TempUsername"
+                android:textSize="20sp"
+                android:textColor="@color/text_color_on_background"
+                android:fontFamily="@font/playfair_display_regular"/>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="2dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="7dp"
+                android:background="@color/quantum_grey600"/>
+
+            <TextView
+                android:id="@+id/account_settings_email"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="temp@gmail.com"
+                android:textSize="20sp"
+                android:textColor="@color/text_color_on_background"
+                android:fontFamily="@font/playfair_display_regular"/>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="2dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="7dp"
+                android:background="@color/quantum_grey600"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="50dp"
+                android:text="@string/activity_settings_legal_string"
+                android:textSize="15sp"
+                android:textColor="#AFAFAF"
+                android:fontFamily="@font/playfair_display_bold"/>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="2dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="7dp"
+                android:background="@color/quantum_grey600"/>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/account_settings_privacy_policy_button"
+                style="@style/Theme.Persep.AccountSettingButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:icon="@drawable/ic_baseline_chevron_right_24"
+                android:text="@string/account_settings_privacy_policy_button_string"
+                android:fontFamily="@font/playfair_display_regular"
+                android:textColor="@color/text_color_on_background"
+                android:textSize="19sp"
+                tools:ignore="RtlHardcoded,RtlSymmetry" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="2dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="7dp"
+                android:background="@color/quantum_grey600"/>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/account_settings_terms_of_service_button"
+                style="@style/Theme.Persep.AccountSettingButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:icon="@drawable/ic_baseline_chevron_right_24"
+                android:text="@string/account_settings_terms_of_service_button_string"
+                android:fontFamily="@font/playfair_display_regular"
+                android:textColor="@color/text_color_on_background"
+                android:textSize="19sp"
+                tools:ignore="RtlHardcoded,RtlSymmetry" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="2dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="7dp"
+                android:background="@color/quantum_grey600"/>
+
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="50dp"
+                android:text="Account"
+                android:textSize="16dp"
+                android:textColor="#AFAFAF"
+                android:fontFamily="@font/playfair_display_bold"/>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="2dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="7dp"
+                android:background="@color/quantum_grey600"/>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/account_settings_sign_out_button"
+                style="@style/Widget.MaterialComponents.Button.TextButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:icon="@drawable/ic_baseline_logout_24"
+                app:iconTint="@color/persep_color"
+                app:rippleColor="#2CFFFFFF"
+                app:iconGravity="textStart"
+                android:text="@string/account_settings_sign_out_button_string"
+                android:fontFamily="@font/playfair_display_regular"
+                android:textColor="@color/text_color_on_background"
+                android:textSize="19sp"
+                android:letterSpacing="0"
+                android:textAllCaps="false"
+                tools:ignore="RtlSymmetry" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="2dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="7dp"
+                android:background="@color/quantum_grey600"/>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/account_settings_delete_account_button"
+                style="@style/Widget.MaterialComponents.Button.TextButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:icon="@drawable/ic_baseline_delete_24"
+                app:iconTint="@color/persep_color"
+                app:rippleColor="#2CFFFFFF"
+                app:iconGravity="textStart"
+                android:text="@string/account_settings_delete_account_button_string"
+                android:fontFamily="@font/playfair_display_regular"
+                android:textColor="@color/text_color_on_background"
+                android:textSize="19sp"
+                android:letterSpacing="0"
+                android:textAllCaps="false"
+                tools:ignore="RtlSymmetry" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="2dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="20dp"
+                android:background="@color/quantum_grey600"/>
+        </LinearLayout>
+
+<!--        <androidx.constraintlayout.widget.ConstraintLayout-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="wrap_content">-->
+
+<!--            <TextView-->
+<!--                android:id="@+id/setting_activity_title"-->
+<!--                android:layout_width="wrap_content"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:layout_gravity="center|left"-->
+<!--                android:fontFamily="@font/playfair_display_bold"-->
+<!--                android:gravity="center"-->
+<!--                android:text="@string/profile_activity_title_string"-->
+<!--                android:textSize="35sp"-->
+<!--                android:textColor="@color/text_color_on_background"-->
+<!--                app:layout_constraintEnd_toEndOf="parent"-->
+<!--                app:layout_constraintStart_toStartOf="parent"-->
+<!--                app:layout_constraintTop_toTopOf="parent"-->
+<!--                tools:ignore="RtlHardcoded" />-->
+
+<!--            <View-->
+<!--                android:id="@+id/divider2"-->
+<!--                android:layout_width="match_parent"-->
+<!--                android:layout_height="2dp"-->
+<!--                android:layout_marginStart="30dp"-->
+<!--                android:layout_marginEnd="30dp"-->
+<!--                android:layout_marginTop="5dp"-->
+<!--                app:layout_constraintTop_toBottomOf="@id/setting_activity_title"-->
+<!--                android:background="@color/quantum_grey600"/>-->
+
+<!--            <TextView-->
+<!--                android:id="@+id/settings_username_email_title"-->
+<!--                android:layout_width="match_parent"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                app:layout_constraintTop_toBottomOf="@id/divider2"-->
+<!--                android:text="Username / Email"-->
+<!--                android:textSize="20sp"-->
+<!--                android:layout_marginTop="10dp"-->
+<!--                android:layout_marginStart="20dp"-->
+<!--                android:layout_marginEnd="20dp"-->
+<!--                android:textColor="@color/text_color_on_background"-->
+<!--                android:fontFamily="@font/playfair_display_bold"/>-->
+
+<!--            <TextView-->
+<!--                android:id="@+id/settings_username_email_title"-->
+<!--                android:layout_width="match_parent"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                app:layout_constraintTop_toBottomOf="@id/divider2"-->
+<!--                android:text="Username / Email"-->
+<!--                android:textSize="20sp"-->
+<!--                android:layout_marginTop="10dp"-->
+<!--                android:layout_marginStart="20dp"-->
+<!--                android:layout_marginEnd="20dp"-->
+<!--                android:textColor="@color/text_color_on_background"-->
+<!--                android:fontFamily="@font/playfair_display_bold"/>-->
+
+<!--&lt;!&ndash;            <com.google.android.material.button.MaterialButton&ndash;&gt;-->
+<!--&lt;!&ndash;                android:id="@+id/button_sign_out"&ndash;&gt;-->
+<!--&lt;!&ndash;                style="@style/Theme.Persep.Button"&ndash;&gt;-->
+<!--&lt;!&ndash;                android:layout_width="match_parent"&ndash;&gt;-->
+<!--&lt;!&ndash;                android:layout_height="wrap_content"&ndash;&gt;-->
+<!--&lt;!&ndash;                android:layout_marginLeft="25dp"&ndash;&gt;-->
+<!--&lt;!&ndash;                android:layout_marginRight="25dp"&ndash;&gt;-->
+<!--&lt;!&ndash;                android:layout_marginTop="25dp"&ndash;&gt;-->
+<!--&lt;!&ndash;                android:padding="15dp"&ndash;&gt;-->
+<!--&lt;!&ndash;                app:layout_constraintTop_toBottomOf="@id/settings_username_email_title"&ndash;&gt;-->
+<!--&lt;!&ndash;                android:text="@string/sign_out_string"&ndash;&gt;-->
+<!--&lt;!&ndash;                android:textSize="17sp" />&ndash;&gt;-->
+
+<!--&lt;!&ndash;            <com.google.android.material.button.MaterialButton&ndash;&gt;-->
+<!--&lt;!&ndash;                android:id="@+id/button_delete_account"&ndash;&gt;-->
+<!--&lt;!&ndash;                style="@style/Theme.Persep.DeleteAccountButton"&ndash;&gt;-->
+<!--&lt;!&ndash;                android:layout_width="match_parent"&ndash;&gt;-->
+<!--&lt;!&ndash;                android:layout_height="wrap_content"&ndash;&gt;-->
+<!--&lt;!&ndash;                android:layout_marginLeft="25dp"&ndash;&gt;-->
+<!--&lt;!&ndash;                android:layout_marginRight="25dp"&ndash;&gt;-->
+<!--&lt;!&ndash;                android:layout_marginTop="25dp"&ndash;&gt;-->
+<!--&lt;!&ndash;                android:padding="15dp"&ndash;&gt;-->
+<!--&lt;!&ndash;                app:layout_constraintTop_toBottomOf="@id/button_sign_out"&ndash;&gt;-->
+<!--&lt;!&ndash;                android:text="@string/delete_account_string"&ndash;&gt;-->
+<!--&lt;!&ndash;                android:textSize="17sp" />&ndash;&gt;-->
+<!--        </androidx.constraintlayout.widget.ConstraintLayout>-->
+
+    </ScrollView>
 </androidx.constraintlayout.widget.ConstraintLayout>

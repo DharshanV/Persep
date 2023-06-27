@@ -20,4 +20,10 @@
     <string name="register_activity_title_string">Register</string>
     <string name="sign_in_help_activity_title_string">Sign-in Help</string>
     <string name="popup_message_edit_text_hint_string">Comment</string>
+    <string name="activity_settings_username_email_string">Username / Email</string>
+    <string name="activity_settings_legal_string">Legal</string>
+    <string name="account_settings_privacy_policy_button_string">Privacy Policy</string>
+    <string name="account_settings_terms_of_service_button_string">Terms of Service</string>
+    <string name="account_settings_sign_out_button_string">Sign Out</string>
+    <string name="account_settings_delete_account_button_string">Delete Account</string>
 </resources>

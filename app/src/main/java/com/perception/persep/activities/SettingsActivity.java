@@ -42,61 +42,61 @@ public class SettingsActivity extends AppCompatActivity
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings);
-
-        m_ConfirmSignOutDialog = new AlertDialog.Builder(this)
-                .setTitle("Sign Out")
-                .setMessage("Do you really want to sign out?")
-                .setPositiveButton("Yes", (dialog, which) -> {
-                    createProgressDialog("Signing out...");
-                    FirebaseUser loggedInUser = FirebaseAuth.getInstance().getCurrentUser();
-                    if (loggedInUser != null)
-                    {
-                        FirebaseAuth.getInstance().signOut();
-                    }
-                })
-                .setNegativeButton("Cancel", null)
-                .create();
-        setupDialog(m_ConfirmSignOutDialog);
-
-
-        m_SignOutButton = findViewById(R.id.button_sign_out);
-        m_SignOutButton.setOnClickListener(v -> {
-            m_ConfirmSignOutDialog.show();
-        });
-
-        m_ConfirmDeleteAccountDialog = new AlertDialog.Builder(this)
-                .setTitle("Delete Account")
-                .setMessage("Do you really want to delete your account?")
-                .setPositiveButton("Yes", (dialog, which) -> {
-                    createProgressDialog("Deleting account...");
-                    UserManager.getInstance().deleteUser(successful -> {
-                        if (!successful) {
-                            Toast.makeText(getApplicationContext(), "Failed to delete account. Try again later.", Toast.LENGTH_SHORT).show();
-                            if (m_ProgressDialog != null) {
-                                m_ProgressDialog.dismiss();
-                                m_ProgressDialog = null;
-                            }
-                        }
-                    });
-                })
-                .setNegativeButton("Cancel", null)
-                .create();
-        setupDialog(m_ConfirmDeleteAccountDialog);
-
-        m_DeleteAccountButton = findViewById(R.id.button_delete_account);
-        m_DeleteAccountButton.setOnClickListener(v -> {
-            m_ConfirmDeleteAccountDialog.show();
-        });
-
-        m_BackButton = findViewById(R.id.button_back_settings);
-        m_BackButton.setOnClickListener(v -> finish());
-
-        FirebaseAuth.getInstance().addAuthStateListener(firebaseAuth -> {
-            if (firebaseAuth.getCurrentUser() == null)
-            {
-                onInvalidCurrentUser();
-            }
-        });
+//
+//        m_ConfirmSignOutDialog = new AlertDialog.Builder(this)
+//                .setTitle("Sign Out")
+//                .setMessage("Do you really want to sign out?")
+//                .setPositiveButton("Yes", (dialog, which) -> {
+//                    createProgressDialog("Signing out...");
+//                    FirebaseUser loggedInUser = FirebaseAuth.getInstance().getCurrentUser();
+//                    if (loggedInUser != null)
+//                    {
+//                        FirebaseAuth.getInstance().signOut();
+//                    }
+//                })
+//                .setNegativeButton("Cancel", null)
+//                .create();
+//        setupDialog(m_ConfirmSignOutDialog);
+//
+//
+//        m_SignOutButton = findViewById(R.id.button_sign_out);
+//        m_SignOutButton.setOnClickListener(v -> {
+//            m_ConfirmSignOutDialog.show();
+//        });
+//
+//        m_ConfirmDeleteAccountDialog = new AlertDialog.Builder(this)
+//                .setTitle("Delete Account")
+//                .setMessage("Do you really want to delete your account?")
+//                .setPositiveButton("Yes", (dialog, which) -> {
+//                    createProgressDialog("Deleting account...");
+//                    UserManager.getInstance().deleteUser(successful -> {
+//                        if (!successful) {
+//                            Toast.makeText(getApplicationContext(), "Failed to delete account. Try again later.", Toast.LENGTH_SHORT).show();
+//                            if (m_ProgressDialog != null) {
+//                                m_ProgressDialog.dismiss();
+//                                m_ProgressDialog = null;
+//                            }
+//                        }
+//                    });
+//                })
+//                .setNegativeButton("Cancel", null)
+//                .create();
+//        setupDialog(m_ConfirmDeleteAccountDialog);
+//
+//        m_DeleteAccountButton = findViewById(R.id.button_delete_account);
+//        m_DeleteAccountButton.setOnClickListener(v -> {
+//            m_ConfirmDeleteAccountDialog.show();
+//        });
+//
+//        m_BackButton = findViewById(R.id.button_back_settings);
+//        m_BackButton.setOnClickListener(v -> finish());
+//
+//        FirebaseAuth.getInstance().addAuthStateListener(firebaseAuth -> {
+//            if (firebaseAuth.getCurrentUser() == null)
+//            {
+//                onInvalidCurrentUser();
+//            }
+//        });
     }
 
     private void setupDialog(AlertDialog alertDialog)
