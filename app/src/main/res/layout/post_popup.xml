@@ -21,6 +21,7 @@
         android:layout_height="wrap_content"
         android:textSize="30sp"
         android:text="Username"
+        android:textColor="@color/text_color_on_background"
         android:layout_marginStart="10dp"
         android:layout_gravity="center|left"
         android:fontFamily="@font/playfair_display_bold"
@@ -33,7 +34,9 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="10dp"
-        android:text="04/10/1999"
+        android:text="Yesterday, 8:30 pm"
+        android:textSize="17sp"
+        android:textColor="@color/text_color_on_background"
         android:fontFamily="sans-serif-light"
         android:textStyle="italic"
         app:layout_constraintTop_toBottomOf="@+id/popup_drag_view"
@@ -105,7 +108,8 @@
             android:layout_weight="0.85"
             android:layout_height="wrap_content"
             android:hint="@string/popup_message_edit_text_hint_string"
-            android:inputType="textShortMessage"/>
+            android:inputType="textShortMessage"
+            android:textColor="@color/text_color_on_background"/>
 
         <ImageButton
             android:id="@+id/popup_send_comment_button"
