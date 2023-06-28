@@ -22,7 +22,7 @@ public class TutorialActivity extends AppIntro2
         addSlide(AppIntroCustomLayoutFragment.newInstance(R.layout.tutorial_slide_comment_in_a_post));
         addSlide(AppIntroCustomLayoutFragment.newInstance(R.layout.tutorial_slide_other_posts_in_album));
 
-        setIndicatorColor(getColor(R.color.persep_color), getColor(R.color.white));
+        setIndicatorColor(getColor(R.color.tutorial_selected_indicator_color), getColor(R.color.tutorial_unselected_indicator_color));
 
         setVibrate(true);
         setVibrateDuration(50);
