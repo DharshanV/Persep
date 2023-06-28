@@ -103,6 +103,7 @@
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/popup_send_comment_edit_text"
+            android:backgroundTint="@color/persep_color"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1.0"
