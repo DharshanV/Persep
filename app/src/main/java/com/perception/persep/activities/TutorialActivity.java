@@ -24,8 +24,6 @@ public class TutorialActivity extends AppIntro2
 
         setIndicatorColor(getColor(R.color.tutorial_selected_indicator_color), getColor(R.color.tutorial_unselected_indicator_color));
 
-        setVibrate(true);
-        setVibrateDuration(50);
         setTransformer(AppIntroPageTransformerType.Depth.INSTANCE);
         showStatusBar(true);
         setScrollDurationFactor(2);
