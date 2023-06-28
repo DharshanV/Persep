@@ -209,12 +209,10 @@ public class UserFeedAdapter extends RecyclerView.Adapter<UserFeedAdapter.UserFe
         private final UserFeedAdapter m_UserFeed;
         public String m_PostID;
         public ImageView m_PostImage;
-        public TextView m_PostLikeCount;
-        public TextView m_PostCommentCount;
         public TextView m_PostGeoLocation;
         public Button m_PostOptionButton;
-        public ImageButton m_PostLikesButton;
-        public ImageButton m_PostCommentsButton;
+        public Button m_PostLikesButton;
+        public Button m_PostCommentsButton;
         int m_PopupWidth;
         int m_PopupHeight;
         ArrayAdapter<String> m_ItemsAdapter;
@@ -227,11 +225,9 @@ public class UserFeedAdapter extends RecyclerView.Adapter<UserFeedAdapter.UserFe
             super(itemView);
             m_UserFeed = userFeedAdapter;
             m_PostImage = itemView.findViewById(R.id.user_feed_post_image);
-            m_PostLikeCount = itemView.findViewById(R.id.user_post_like_count);
-            m_PostCommentCount = itemView.findViewById(R.id.user_post_comment_count);
             m_PostGeoLocation = itemView.findViewById(R.id.user_post_geo_location);
             m_PostOptionButton = itemView.findViewById(R.id.post_options_button);
-            m_PostLikesButton = itemView.findViewById(R.id.user_post_heart_image);
+            m_PostLikesButton = itemView.findViewById(R.id.user_post_like_button);
             m_PostCommentsButton = itemView.findViewById(R.id.user_post_comment_image);
             m_Context = itemView.getContext();
 
@@ -312,13 +308,13 @@ public class UserFeedAdapter extends RecyclerView.Adapter<UserFeedAdapter.UserFe
         public void setLike(long likes)
         {
             String textViewString = m_Context.getString(R.string.user_post_likes, likes);
-            m_PostLikeCount.setText(textViewString);
+            m_PostLikesButton.setText(textViewString);
         }
 
         public void setCommentCount(long commentCount)
         {
             String textViewString = m_Context.getString(R.string.user_post_comments_count, commentCount);
-            m_PostCommentCount.setText(textViewString);
+            m_PostCommentsButton.setText(textViewString);
         }
 
         private int measureContentWidth(ArrayAdapter<String> items)
