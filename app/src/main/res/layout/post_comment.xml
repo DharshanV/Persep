@@ -24,7 +24,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:fontFamily="@font/roboto_bold"
-            android:text="TempUserName"
             android:textColor="@color/text_color_on_background"
             android:textSize="20sp"
             android:textStyle="bold" />
@@ -35,9 +34,8 @@
             android:layout_height="wrap_content"
             android:layout_below="@id/post_comment_username_text_view"
             android:fontFamily="@font/roboto_regular"
-            android:text="Temp message"
-            android:textSize="17sp"
-            android:textColor="@color/text_color_on_background" />
+            android:textColor="@color/text_color_on_background"
+            android:textSize="17sp" />
 
     </RelativeLayout>
 </LinearLayout>
