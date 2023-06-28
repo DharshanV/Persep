@@ -2,6 +2,8 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <color name="text_color_on_background">@color/white</color>
     <color name="button_ripple_color">#2CFFFFFF</color>
+    <color name="tutorial_selected_indicator_color">@color/persep_color</color>
+    <color name="tutorial_unselected_indicator_color">@color/white</color>
 
     <color name="ucrop_color_toolbar">@color/black</color>
     <color name="ucrop_color_statusbar">@color/black</color>

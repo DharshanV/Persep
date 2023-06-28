@@ -13,6 +13,8 @@
     <color name="button_ripple_color">#A4C5C5C5</color>
     <color name="text_color_on_background">@color/black</color>
     <color name="divider_background_color">@color/persep_color</color>
+    <color name="tutorial_selected_indicator_color">@color/persep_color</color>
+    <color name="tutorial_unselected_indicator_color">@color/black</color>
 
     <color name="ucrop_color_toolbar" tools:override="true">@color/white</color>
     <color name="ucrop_color_statusbar" tools:override="true">@color/white</color>
