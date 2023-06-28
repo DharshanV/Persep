@@ -14,13 +14,13 @@
     <color name="text_color_on_background">@color/black</color>
     <color name="divider_background_color">@color/persep_color</color>
 
-    <color name="ucrop_color_toolbar" tools:override="true">@color/persep_color</color>
-    <color name="ucrop_color_active_controls_color">@color/black</color>
-    <color name="ucrop_color_widget_background" tools:override="true">@color/persep_color</color>
-    <color name="ucrop_color_inactive_controls_color">@color/white</color>
-    <color name="ucrop_color_widget_text">@color/black</color>
-    <color name="ucrop_color_statusbar" tools:override="true">@color/persep_color</color>
+    <color name="ucrop_color_toolbar" tools:override="true">@color/white</color>
+    <color name="ucrop_color_statusbar" tools:override="true">@color/white</color>
     <color name="ucrop_color_toolbar_widget" tools:override="true">@color/black</color>
+    <color name="ucrop_color_active_controls_color">@color/persep_color</color>
+    <color name="ucrop_color_widget_background" tools:override="true">@color/white</color>
+    <color name="ucrop_color_inactive_controls_color">@color/black</color>
+    <color name="ucrop_color_widget_text">@color/persep_color</color>
     <color name="ucrop_color_widget_active">@color/black</color>
-    <color name="ucrop_color_widget_rotate_mid_line" tools:override="true">#000000</color>
+    <color name="ucrop_color_widget_rotate_mid_line" tools:override="true">@color/persep_color</color>
 </resources>
