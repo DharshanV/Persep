@@ -1,7 +1,9 @@
 package com.perception.persep.activities;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.text.Editable;
@@ -65,7 +67,9 @@ public class LoginActivity extends AppCompatActivity
                 FirebaseUserAuthentication.getInstance().LoginUser(email, password, (successful, user, message) -> {
                     if (successful)
                     {
-                        StartHomeActivity();
+                        SharedPreferences sharedPreferences = getPreferences(Context.MODE_PRIVATE);
+                        boolean showTutorial = sharedPreferences.getBoolean("show_tutorial", true);
+                        startActivity(showTutorial ? TutorialActivity.class : HomeActivity.class);
                     } else
                     {
                         m_LoginButton.setEnabled(true);
@@ -153,10 +157,10 @@ public class LoginActivity extends AppCompatActivity
         return isEmailValid && isPasswordValid;
     }
 
-    private void StartHomeActivity()
+    private void startActivity(Class<?> activity)
     {
         new Handler().postDelayed(() -> {
-            startActivity(new Intent(LoginActivity.this, HomeActivity.class));
+            startActivity(new Intent(LoginActivity.this, activity));
             finish();
         }, HOME_ACTIVITY_DELAY_MS);
     }

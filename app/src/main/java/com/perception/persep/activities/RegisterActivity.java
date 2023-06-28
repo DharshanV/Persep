@@ -1,7 +1,9 @@
 package com.perception.persep.activities;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.text.Editable;
@@ -73,7 +75,9 @@ public class RegisterActivity extends AppCompatActivity
                 FirebaseUserAuthentication.getInstance().RegisterNewUser(username, email, password, (successful, message) -> {
                     if (successful)
                     {
-                        StartHomeActivity();
+                        SharedPreferences sharedPreferences = getPreferences(Context.MODE_PRIVATE);
+                        boolean showTutorial = sharedPreferences.getBoolean("show_tutorial", true);
+                        startActivity(showTutorial ? TutorialActivity.class : HomeActivity.class);
                     } else
                     {
                         m_RegisterButton.setEnabled(true);
@@ -224,10 +228,10 @@ public class RegisterActivity extends AppCompatActivity
         return isUsernameValid && isEmailValid;
     }
 
-    private void StartHomeActivity()
+    private void startActivity(Class<?> activity)
     {
         new Handler().postDelayed(() -> {
-            Intent intent = new Intent(RegisterActivity.this, HomeActivity.class);
+            Intent intent = new Intent(RegisterActivity.this, activity);
             intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
             startActivity(intent);
             finish();

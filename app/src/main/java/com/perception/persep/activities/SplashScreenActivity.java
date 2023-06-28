@@ -1,7 +1,9 @@
 package com.perception.persep.activities;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.SystemClock;
@@ -51,7 +53,9 @@ public class SplashScreenActivity extends Activity
             long currTime = SystemClock.elapsedRealtime();
             FirebaseFirestore.getInstance().collection(UserConstants.COLLECTION_NAME).document(user.getUid()).get().addOnSuccessListener(documentSnapshot -> {
                 long delayTime = Math.max(SPLASH_SCREEN_ANIMATION_TIME - (SystemClock.elapsedRealtime() - currTime), 0);
-                startActivity(HomeActivity.class, delayTime);
+                SharedPreferences sharedPreferences = getPreferences(Context.MODE_PRIVATE);
+                boolean showTutorial = sharedPreferences.getBoolean("show_tutorial", true);
+                startActivity(showTutorial ? TutorialActivity.class : HomeActivity.class, delayTime);
             }).addOnFailureListener(e -> {
                 long delayTime = Math.max(SPLASH_SCREEN_ANIMATION_TIME - (SystemClock.elapsedRealtime() - currTime), 0);
                 startActivity(LoginActivity.class, delayTime);
