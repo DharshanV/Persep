@@ -9,6 +9,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -211,7 +212,7 @@ public class UserFeedAdapter extends RecyclerView.Adapter<UserFeedAdapter.UserFe
         public TextView m_PostLikeCount;
         public TextView m_PostCommentCount;
         public TextView m_PostGeoLocation;
-        public ImageButton m_PostOptionButton;
+        public Button m_PostOptionButton;
         public ImageButton m_PostLikesButton;
         public ImageButton m_PostCommentsButton;
         int m_PopupWidth;

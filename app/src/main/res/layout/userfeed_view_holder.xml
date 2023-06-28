@@ -14,15 +14,16 @@
         android:paddingBottom="10dp"
         android:background="@drawable/post_rounded_background">
 
-        <ImageButton
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/post_options_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            style="@style/Theme.Persep.IconButton"
+            app:icon="@drawable/ic_baseline_menu_24"
+            app:iconTint="@color/white"
             android:layout_marginTop="5dp"
-            android:layout_marginEnd="7dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:src="@drawable/ic_baseline_menu_24"
-            android:padding="5dp"
+            android:layout_marginEnd="5dp"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            app:iconSize="27dp"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintRight_toRightOf="parent"/>
 
