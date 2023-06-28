@@ -20,7 +20,7 @@
             android:layout_above="@id/image_1"
             android:fontFamily="@font/playfair_display_bold"
             android:gravity="center"
-            android:text="See Other Posts in Album"
+            android:text="View Posts in Album"
             android:textColor="@color/text_color_on_background"
             android:textSize="35sp" />
 
@@ -39,7 +39,7 @@
             android:layout_below="@id/image_1"
             android:fontFamily="@font/roboto_regular"
             android:gravity="center"
-            android:text="When an album is visible, swipe left and right on it to see other posts."
+            android:text="When an album is visible, swipe left and right on it to view other posts."
             android:textColor="@color/text_color_on_background"
             android:textSize="18sp" />
 
