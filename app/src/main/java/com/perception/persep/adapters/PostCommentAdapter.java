@@ -1,6 +1,7 @@
 package com.perception.persep.adapters;
 
 import android.content.Context;
+import android.text.format.DateUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,6 +13,7 @@ import com.perception.persep.album_data.Comment;
 import com.perception.persep.album_data.Post;
 import com.perception.persep.data_gatherer.UserManager;
 
+import java.util.Date;
 import java.util.List;
 
 public class PostCommentAdapter extends BaseAdapter
@@ -58,6 +60,11 @@ public class PostCommentAdapter extends BaseAdapter
 
         TextView commentUsernameTextView = view.findViewById(R.id.post_comment_username_text_view);
         UserManager.getInstance().getUserData(comment.m_UserRef, user -> commentUsernameTextView.setText(user.m_Username));
+
+        TextView commentTimeCreatedTextView = view.findViewById(R.id.post_comment_time_created_text_view);
+        Date postDate = comment.m_TimeCreated.toDate();
+        String relativeTime = DateUtils.getRelativeDateTimeString(m_Context, postDate.getTime(), DateUtils.DAY_IN_MILLIS, DateUtils.WEEK_IN_MILLIS, 0).toString();
+        commentTimeCreatedTextView.setText(relativeTime.substring(0, relativeTime.indexOf(',')));
 
         TextView commentTextView = view.findViewById(R.id.post_comment_text_view);
         commentTextView.setText(comment.m_CommentStr);

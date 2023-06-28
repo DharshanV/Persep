@@ -37,6 +37,8 @@ public class Comment
         m_CommentID = commentDoc.getId();
         m_CommentStr = (String) commentDoc.get(CommentConstants.COMMENT);
         m_UserRef = (DocumentReference) commentDoc.get(CommentConstants.USER);
+        m_TimeCreated = (Timestamp) commentDoc.get(CommentConstants.TIME_CREATED);
+        m_TimeModified = (Timestamp) commentDoc.get(CommentConstants.TIME_MODIFIED);
         m_DocRef = commentDoc.getReference();
     }
 
