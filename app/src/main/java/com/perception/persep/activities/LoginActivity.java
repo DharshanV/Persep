@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
+import android.preference.PreferenceManager;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.inputmethod.InputMethodManager;
@@ -67,7 +68,7 @@ public class LoginActivity extends AppCompatActivity
                 FirebaseUserAuthentication.getInstance().LoginUser(email, password, (successful, user, message) -> {
                     if (successful)
                     {
-                        SharedPreferences sharedPreferences = getPreferences(Context.MODE_PRIVATE);
+                        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
                         boolean showTutorial = sharedPreferences.getBoolean("show_tutorial", true);
                         startActivity(showTutorial ? TutorialActivity.class : HomeActivity.class);
                     } else

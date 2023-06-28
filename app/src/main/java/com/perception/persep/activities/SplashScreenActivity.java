@@ -7,6 +7,7 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.SystemClock;
+import android.preference.PreferenceManager;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -53,7 +54,7 @@ public class SplashScreenActivity extends Activity
             long currTime = SystemClock.elapsedRealtime();
             FirebaseFirestore.getInstance().collection(UserConstants.COLLECTION_NAME).document(user.getUid()).get().addOnSuccessListener(documentSnapshot -> {
                 long delayTime = Math.max(SPLASH_SCREEN_ANIMATION_TIME - (SystemClock.elapsedRealtime() - currTime), 0);
-                SharedPreferences sharedPreferences = getPreferences(Context.MODE_PRIVATE);
+                SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
                 boolean showTutorial = sharedPreferences.getBoolean("show_tutorial", true);
                 startActivity(showTutorial ? TutorialActivity.class : HomeActivity.class, delayTime);
             }).addOnFailureListener(e -> {

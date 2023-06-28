@@ -1,7 +1,10 @@
 package com.perception.persep.activities;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 
 import androidx.fragment.app.Fragment;
 
@@ -9,6 +12,8 @@ import com.example.persep.R;
 import com.github.appintro.AppIntro2;
 import com.github.appintro.AppIntroCustomLayoutFragment;
 import com.github.appintro.AppIntroPageTransformerType;
+
+import timber.log.Timber;
 
 public class TutorialActivity extends AppIntro2
 {
@@ -44,6 +49,12 @@ public class TutorialActivity extends AppIntro2
     @Override
     protected void onDonePressed(Fragment currentFragment) {
         super.onDonePressed(currentFragment);
+
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putBoolean("show_tutorial", false);
+        editor.apply();
+
         Intent intent = new Intent(TutorialActivity.this, HomeActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
         startActivity(intent);
