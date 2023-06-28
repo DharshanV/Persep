@@ -2,6 +2,7 @@ package com.perception.persep.activities;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.TypedValue;
 import android.widget.Button;
@@ -17,6 +18,7 @@ import androidx.core.content.res.ResourcesCompat;
 import com.example.persep.R;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
@@ -28,14 +30,8 @@ import timber.log.Timber;
 
 public class SettingsActivity extends AppCompatActivity
 {
-    private Button m_SignOutButton;
     private AlertDialog m_ConfirmSignOutDialog;
-
-    private Button m_DeleteAccountButton;
     private AlertDialog m_ConfirmDeleteAccountDialog;
-
-    private ImageButton m_BackButton;
-
     private ProgressDialog m_ProgressDialog;
 
     protected void onCreate(Bundle savedInstanceState)
@@ -43,7 +39,7 @@ public class SettingsActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings);
 
-        m_ConfirmSignOutDialog = new AlertDialog.Builder(this)
+        m_ConfirmSignOutDialog = new MaterialAlertDialogBuilder(this)
                 .setTitle("Sign Out")
                 .setMessage("Do you really want to sign out?")
                 .setPositiveButton("Yes", (dialog, which) -> {
@@ -54,17 +50,24 @@ public class SettingsActivity extends AppCompatActivity
                         FirebaseAuth.getInstance().signOut();
                     }
                 })
-                .setNegativeButton("Cancel", null)
-                .create();
-        setupDialog(m_ConfirmSignOutDialog);
+                .setNegativeButton("Cancel", null).create();
 
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
 
-        m_SignOutButton = findViewById(R.id.button_sign_out);
-        m_SignOutButton.setOnClickListener(v -> {
+        if (user != null) {
+            TextView usernameTextview= findViewById(R.id.account_settings_username);
+            usernameTextview.setText(user.getDisplayName());
+
+            TextView emailTextview= findViewById(R.id.account_settings_email);
+            emailTextview.setText(user.getEmail());
+        }
+
+        Button signOutButton = findViewById(R.id.account_settings_sign_out_button);
+        signOutButton.setOnClickListener(v -> {
             m_ConfirmSignOutDialog.show();
         });
 
-        m_ConfirmDeleteAccountDialog = new AlertDialog.Builder(this)
+        m_ConfirmDeleteAccountDialog = new MaterialAlertDialogBuilder(this)
                 .setTitle("Delete Account")
                 .setMessage("Do you really want to delete your account?")
                 .setPositiveButton("Yes", (dialog, which) -> {
@@ -79,38 +82,33 @@ public class SettingsActivity extends AppCompatActivity
                         }
                     });
                 })
-                .setNegativeButton("Cancel", null)
-                .create();
-        setupDialog(m_ConfirmDeleteAccountDialog);
+                .setNegativeButton("Cancel", null).create();
 
-        m_DeleteAccountButton = findViewById(R.id.button_delete_account);
-        m_DeleteAccountButton.setOnClickListener(v -> {
+        Button deleteAccountButton = findViewById(R.id.account_settings_delete_account_button);
+        deleteAccountButton.setOnClickListener(v -> {
             m_ConfirmDeleteAccountDialog.show();
         });
 
-        m_BackButton = findViewById(R.id.button_back_settings);
-        m_BackButton.setOnClickListener(v -> finish());
+        Button backButton = findViewById(R.id.button_back_settings);
+        backButton.setOnClickListener(v -> finish());
+
+        Button privacyPolityButton = findViewById(R.id.account_settings_privacy_policy_button);
+        privacyPolityButton.setOnClickListener(v -> {
+            Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.persep.app/privacy-policy"));
+            startActivity(browserIntent);
+        });
+
+        Button termsOfServiceButton = findViewById(R.id.account_settings_terms_of_service_button);
+        termsOfServiceButton.setOnClickListener(v -> {
+            Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.persep.app/privacy-policy/terms-of-service"));
+            startActivity(browserIntent);
+        });
 
         FirebaseAuth.getInstance().addAuthStateListener(firebaseAuth -> {
             if (firebaseAuth.getCurrentUser() == null)
             {
                 onInvalidCurrentUser();
             }
-        });
-    }
-
-    private void setupDialog(AlertDialog alertDialog)
-    {
-        alertDialog.setOnShowListener(dialog -> {
-            TextView messageTextview = alertDialog.findViewById(android.R.id.message);
-            if (messageTextview != null)
-            {
-                messageTextview.setTypeface(ResourcesCompat.getFont(this, R.font.playfair_display_regular));
-            }
-
-            float size = getResources().getDimension(R.dimen.delete_post_button_text_size);
-            alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextSize(TypedValue.COMPLEX_UNIT_PX, size);
-            alertDialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextSize(TypedValue.COMPLEX_UNIT_PX, size);
         });
     }
 

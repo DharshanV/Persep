@@ -12,13 +12,8 @@
     app:umanoInitialState="hidden"
     app:umanoShadowHeight="5dp">
 
-    <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:tools="http://schemas.android.com/tools"
-        android:layout_width="match_parent"
+    <androidx.constraintlayout.widget.ConstraintLayout android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:fitsSystemWindows="true"
-        android:theme="@style/Theme.Persep"
-        xmlns:app="http://schemas.android.com/apk/res-auto"
         tools:context="com.perception.persep.fragments.UserFeed_Fragment">
 
         <FrameLayout
@@ -36,16 +31,18 @@
                 android:layout_marginStart="10dp"
                 android:layout_gravity="center|left"
                 android:fontFamily="@font/playfair_display_bold"
+                android:text="TempUserName"
+                android:textColor="@color/text_color_on_background"
                 tools:ignore="RtlHardcoded" />
-            <ImageButton
+
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/button_user_settings"
+                style="@style/Theme.Persep.IconButton"
                 android:layout_width="48dp"
                 android:layout_height="48dp"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:src="@drawable/ic_baseline_settings"
                 android:layout_marginEnd="10dp"
-                android:padding="5dp"
-                app:tint="@color/navigation_button_color"
+                app:icon="@drawable/ic_baseline_settings"
+                app:iconTint="@color/text_color_on_background"
                 android:layout_gravity="center|right"
                 tools:ignore="RtlHardcoded" />
         </FrameLayout>

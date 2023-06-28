@@ -6,6 +6,7 @@ import android.os.Handler;
 import android.text.format.DateUtils;
 import android.view.View;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -36,7 +37,7 @@ public class PopupPost
 
     private Post m_Post = null;
     private EditText m_PostCommentEditText;
-    private ImageButton m_SendCommentButton;
+    private Button m_SendCommentButton;
 
     private ListView m_CommentsListView;
     private TextView m_EmptyListTextView;

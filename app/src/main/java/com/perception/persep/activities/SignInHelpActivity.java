@@ -38,7 +38,7 @@ public class SignInHelpActivity extends AppCompatActivity
         m_Email = findViewById(R.id.sign_in_help_input_email);
         m_SendResetEmailButton = findViewById(R.id.button_send_reset_email);
 
-        ImageButton backButton = findViewById(R.id.button_back_sign_in_help);
+        Button backButton = findViewById(R.id.button_back_sign_in_help);
         backButton.setOnClickListener(v -> finish());
 
         m_SendResetEmailButton.setOnClickListener(v -> {

@@ -21,6 +21,7 @@
         android:layout_height="wrap_content"
         android:textSize="30sp"
         android:text="Username"
+        android:textColor="@color/text_color_on_background"
         android:layout_marginStart="10dp"
         android:layout_gravity="center|left"
         android:fontFamily="@font/playfair_display_bold"
@@ -33,8 +34,10 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="10dp"
-        android:text="04/10/1999"
-        android:fontFamily="sans-serif-light"
+        android:text="Yesterday, 8:30 pm"
+        android:textSize="17sp"
+        android:textColor="@color/text_color_on_background"
+        android:fontFamily="@font/roboto_regular"
         android:textStyle="italic"
         app:layout_constraintTop_toBottomOf="@+id/popup_drag_view"
         app:layout_constraintRight_toRightOf="parent"
@@ -50,9 +53,6 @@
     <ImageView
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginTop="5dp"
-        android:layout_marginStart="15dp"
-        android:layout_marginEnd="15dp"
         app:layout_constraintDimensionRatio="H,16:9"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -64,7 +64,6 @@
         android:id="@+id/divier2"
         android:layout_width="match_parent"
         android:layout_height="4dp"
-        android:layout_marginTop="5dp"
         android:background="@color/divider_background_color"
         app:layout_constraintTop_toBottomOf="@id/popup_user_post_image"/>
 
@@ -81,6 +80,9 @@
 
     <TextView
         android:id="@+id/popup_empty_view"
+        android:textColor="@color/text_color_on_background"
+        android:textSize="20sp"
+        android:fontFamily="@font/roboto_regular"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:gravity="center"
@@ -99,21 +101,22 @@
         app:layout_constraintBottom_toBottomOf="parent"
         android:id="@+id/popup_message_send_layout">
 
-        <EditText
+        <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/popup_send_comment_edit_text"
+            android:backgroundTint="@color/persep_color"
             android:layout_width="0dp"
-            android:layout_weight="0.85"
             android:layout_height="wrap_content"
-            android:hint="@string/popup_message_edit_text_hint_string"
-            android:inputType="textShortMessage"/>
+            android:layout_weight="1.0"
+            android:hint="Comment"/>
 
-        <ImageButton
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/popup_send_comment_button"
-            android:layout_width="0dp"
-            android:layout_weight="0.15"
-            android:layout_height="match_parent"
-            android:src="@drawable/ic_baseline_send_24"
-            android:background="?attr/selectableItemBackgroundBorderless"/>
+            style="@style/Theme.Persep.IconButton"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            app:icon="@drawable/ic_baseline_send_24"
+            app:iconSize="30dp"
+            app:iconTint="@color/persep_color" />
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

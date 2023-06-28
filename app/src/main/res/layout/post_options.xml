@@ -12,7 +12,9 @@
         android:paddingStart="15dp"
         android:paddingBottom="20dp"
         android:paddingEnd="40dp"
-        android:textSize="18sp"
+        android:textSize="16sp"
+        android:fontFamily="@font/roboto_regular"
+        android:textColor="@color/text_color_on_background"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"/>
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -9,6 +9,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -22,6 +23,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.ablanco.zoomy.Zoomy;
 import com.example.persep.R;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -207,12 +209,10 @@ public class UserFeedAdapter extends RecyclerView.Adapter<UserFeedAdapter.UserFe
         private final UserFeedAdapter m_UserFeed;
         public String m_PostID;
         public ImageView m_PostImage;
-        public TextView m_PostLikeCount;
-        public TextView m_PostCommentCount;
         public TextView m_PostGeoLocation;
-        public ImageButton m_PostOptionButton;
-        public ImageButton m_PostLikesButton;
-        public ImageButton m_PostCommentsButton;
+        public Button m_PostOptionButton;
+        public Button m_PostLikesButton;
+        public Button m_PostCommentsButton;
         int m_PopupWidth;
         int m_PopupHeight;
         ArrayAdapter<String> m_ItemsAdapter;
@@ -225,11 +225,9 @@ public class UserFeedAdapter extends RecyclerView.Adapter<UserFeedAdapter.UserFe
             super(itemView);
             m_UserFeed = userFeedAdapter;
             m_PostImage = itemView.findViewById(R.id.user_feed_post_image);
-            m_PostLikeCount = itemView.findViewById(R.id.user_post_like_count);
-            m_PostCommentCount = itemView.findViewById(R.id.user_post_comment_count);
             m_PostGeoLocation = itemView.findViewById(R.id.user_post_geo_location);
             m_PostOptionButton = itemView.findViewById(R.id.post_options_button);
-            m_PostLikesButton = itemView.findViewById(R.id.user_post_heart_image);
+            m_PostLikesButton = itemView.findViewById(R.id.user_post_like_button);
             m_PostCommentsButton = itemView.findViewById(R.id.user_post_comment_image);
             m_Context = itemView.getContext();
 
@@ -248,7 +246,7 @@ public class UserFeedAdapter extends RecyclerView.Adapter<UserFeedAdapter.UserFe
             m_PopupWindow.setModal(true);
             m_PopupWindow.setDropDownGravity(Gravity.END);
 
-            m_ConfirmDeleteDialog = new AlertDialog.Builder(m_Context)
+            m_ConfirmDeleteDialog = new MaterialAlertDialogBuilder(m_Context)
                     .setTitle("Delete Post")
                     .setMessage("Do you really want to delete this post?")
                     .setPositiveButton("Yes", (dialog, which) -> {
@@ -310,13 +308,13 @@ public class UserFeedAdapter extends RecyclerView.Adapter<UserFeedAdapter.UserFe
         public void setLike(long likes)
         {
             String textViewString = m_Context.getString(R.string.user_post_likes, likes);
-            m_PostLikeCount.setText(textViewString);
+            m_PostLikesButton.setText(textViewString);
         }
 
         public void setCommentCount(long commentCount)
         {
             String textViewString = m_Context.getString(R.string.user_post_comments_count, commentCount);
-            m_PostCommentCount.setText(textViewString);
+            m_PostCommentsButton.setText(textViewString);
         }
 
         private int measureContentWidth(ArrayAdapter<String> items)

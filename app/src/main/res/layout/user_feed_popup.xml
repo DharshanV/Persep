@@ -20,9 +20,10 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textSize="25sp"
+        android:textColor="@color/text_color_on_background"
         android:gravity="center"
-        android:fontFamily="sans-serif-light"
-        android:textStyle="italic"
+        android:fontFamily="@font/roboto_italic"
+        android:text="Popup title"
         app:layout_constraintTop_toBottomOf="@id/feed_popup_popup_drag_view"
         />
 
@@ -48,6 +49,9 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:gravity="center"
+        android:textColor="@color/text_color_on_background"
+        android:textSize="20sp"
+        android:fontFamily="@font/roboto_regular"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@id/feed_popup_list_view"

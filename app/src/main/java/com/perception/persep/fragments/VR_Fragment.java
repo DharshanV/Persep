@@ -462,7 +462,7 @@ public class VR_Fragment extends Fragment implements BearingSensor.BearingSensor
                             long timeSpentDown = ev.getEventTime() - m_TouchDownSpent;
                             if (timeSpentDown > 500) {
                                 Post post = PostManager.getInstance().getPost(album.getCurrentPostID());
-                                if (post != null) {
+                                if (post != null && post.m_IsImageLoaded) {
                                     m_PopupPost.launch(post);
                                 }
                             }
