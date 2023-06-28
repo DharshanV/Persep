@@ -25,6 +25,7 @@ public class PostCommentAdapter extends BaseAdapter
     {
         m_Context = context;
         m_PostComments = postComments;
+        sortComments();
     }
 
     @Override
@@ -70,5 +71,10 @@ public class PostCommentAdapter extends BaseAdapter
         commentTextView.setText(comment.m_CommentStr);
 
         return view;
+    }
+
+    private void sortComments()
+    {
+        m_PostComments.sort((o1, o2) -> o2.m_TimeCreated.compareTo(o1.m_TimeCreated));
     }
 }
