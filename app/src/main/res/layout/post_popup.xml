@@ -102,22 +102,21 @@
         app:layout_constraintBottom_toBottomOf="parent"
         android:id="@+id/popup_message_send_layout">
 
-        <EditText
+        <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/popup_send_comment_edit_text"
             android:layout_width="0dp"
-            android:layout_weight="0.85"
             android:layout_height="wrap_content"
-            android:hint="@string/popup_message_edit_text_hint_string"
-            android:inputType="textShortMessage"
-            android:textColor="@color/text_color_on_background"/>
+            android:layout_weight="1.0"
+            android:hint="Comment"/>
 
-        <ImageButton
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/popup_send_comment_button"
-            android:layout_width="0dp"
-            android:layout_weight="0.15"
-            android:layout_height="match_parent"
-            android:src="@drawable/ic_baseline_send_24"
-            android:background="?attr/selectableItemBackgroundBorderless"/>
+            style="@style/Theme.Persep.IconButton"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            app:icon="@drawable/ic_baseline_send_24"
+            app:iconSize="30dp"
+            app:iconTint="@color/persep_color" />
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
