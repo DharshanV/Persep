@@ -17,7 +17,10 @@ public class TutorialActivity extends AppIntro2
         super.onCreate(savedInstanceState);
 
         addSlide(AppIntroCustomLayoutFragment.newInstance(R.layout.tutorial_slide_welcome));
+        addSlide(AppIntroCustomLayoutFragment.newInstance(R.layout.tutorial_slide_creating_a_post));
         addSlide(AppIntroCustomLayoutFragment.newInstance(R.layout.tutorial_slide_liking_a_post));
+        addSlide(AppIntroCustomLayoutFragment.newInstance(R.layout.tutorial_slide_comment_in_a_post));
+        addSlide(AppIntroCustomLayoutFragment.newInstance(R.layout.tutorial_slide_other_posts_in_album));
 
         setIndicatorColor(getColor(R.color.persep_color), getColor(R.color.white));
 
