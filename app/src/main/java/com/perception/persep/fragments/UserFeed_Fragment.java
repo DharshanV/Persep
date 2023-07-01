@@ -77,14 +77,14 @@ public class UserFeed_Fragment extends Fragment implements SlidingUpPanelLayout.
             public void onItemRangeInserted(int positionStart, int itemCount)
             {
                 super.onItemRangeInserted(positionStart, itemCount);
-                m_EmptyPostsTextView.setVisibility(itemCount == 0 ? View.VISIBLE : View.GONE);
+                m_EmptyPostsTextView.setVisibility(m_UserFeedAdapter.getItemCount() == 0 ? View.VISIBLE : View.GONE);
             }
 
             @Override
             public void onItemRangeRemoved(int positionStart, int itemCount)
             {
                 super.onItemRangeRemoved(positionStart, itemCount);
-                m_EmptyPostsTextView.setVisibility(itemCount == 0 ? View.VISIBLE : View.GONE);
+                m_EmptyPostsTextView.setVisibility(m_UserFeedAdapter.getItemCount() == 0 ? View.VISIBLE : View.GONE);
             }
         });
         m_UserFeedRecycleView.setAdapter(m_UserFeedAdapter);
