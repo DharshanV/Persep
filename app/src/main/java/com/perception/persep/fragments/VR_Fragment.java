@@ -32,6 +32,7 @@ import com.otaliastudios.cameraview.CameraOptions;
 import com.otaliastudios.cameraview.CameraView;
 import com.otaliastudios.cameraview.PictureResult;
 import com.otaliastudios.cameraview.controls.Facing;
+import com.perception.persep.activities.VRTutorialActivity;
 import com.perception.persep.album_data.Album;
 import com.perception.persep.album_data.Post;
 import com.perception.persep.data_gatherer.AlbumManager;
@@ -63,6 +64,7 @@ public class VR_Fragment extends Fragment implements BearingSensor.BearingSensor
     private ImageButton m_TakePhotoButton = null;
     private ImageButton m_ToggleVRButton = null;
     private ImageButton m_ToggleCameraButton = null;
+    private ImageButton m_VRTutorialButton = null;
     private boolean m_IsInteractingWithPost = false;
     private String m_InteractingWithAlbum = null;
     private int m_ViewWidth = 0;
@@ -253,6 +255,9 @@ public class VR_Fragment extends Fragment implements BearingSensor.BearingSensor
         m_ToggleCameraButton = view.findViewById(R.id.toggle_camera_button);
         m_ToggleCameraButton.setEnabled(false);
         m_ToggleCameraButton.setOnClickListener(v -> ToggleCamera());
+
+        m_VRTutorialButton = view.findViewById(R.id.vr_help_button);
+        m_VRTutorialButton.setOnClickListener(v -> startActivity(new Intent(getActivity(), VRTutorialActivity.class)));
 
         m_UCropActivityResultLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
                 result -> {
