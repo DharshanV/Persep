@@ -60,6 +60,41 @@
         android:src="@mipmap/icon_launcher_persep"
         android:id="@+id/popup_user_post_image"/>
 
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/popup_post_like_count"
+        style="@style/Widget.MaterialComponents.Button.TextButton"
+        android:layout_width="60dp"
+        android:layout_height="48dp"
+        android:layout_marginStart="15dp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/divier2"
+        android:text="0"
+        android:textColor="@color/white"
+        android:textSize="18sp"
+        app:icon="@drawable/ic_heart_24"
+        app:iconSize="27dp"
+        app:iconTint="@color/red_heart"
+        app:rippleColor="@color/button_ripple_color"
+        android:enabled="false"/>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/popup_post_comment_count"
+        style="@style/Widget.MaterialComponents.Button.TextButton"
+        app:icon="@drawable/ic_baseline_mode_comment_24"
+        app:iconTint="@color/white"
+        app:iconSize="27dp"
+        app:iconGravity="textEnd"
+        android:text="0"
+        android:textSize="18sp"
+        android:textColor="@color/white"
+        app:rippleColor="@color/button_ripple_color"
+        android:enabled="false"
+        android:layout_width="60dp"
+        android:layout_height="48dp"
+        android:layout_marginEnd="15dp"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/divier2"/>
+
     <View
         android:id="@+id/divier2"
         android:layout_width="match_parent"

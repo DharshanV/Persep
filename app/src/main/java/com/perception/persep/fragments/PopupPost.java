@@ -34,6 +34,8 @@ public class PopupPost
     private TextView m_PostUsername;
     private TextView m_PostCreated;
     private ImageView m_PostImage;
+    private Button m_PostLikeCount;
+    private Button m_PostCommentCount;
 
     private Post m_Post = null;
     private EditText m_PostCommentEditText;
@@ -55,6 +57,8 @@ public class PopupPost
         m_PostUsername = popupParentView.findViewById(R.id.popup_username_text_view);
         m_PostCreated = popupParentView.findViewById(R.id.popup_post_data_text_view);
         m_PostImage = popupParentView.findViewById(R.id.popup_user_post_image);
+        m_PostLikeCount = popupParentView.findViewById(R.id.popup_post_like_count);
+        m_PostCommentCount = popupParentView.findViewById(R.id.popup_post_comment_count);
 
         m_CommentsListView = popupParentView.findViewById(R.id.popup_post_comments_list);
         m_EmptyListTextView = popupParentView.findViewById(R.id.popup_empty_view);
@@ -93,6 +97,8 @@ public class PopupPost
             String relativeTime = DateUtils.getRelativeDateTimeString(m_Activity, postDate.getTime(), DateUtils.DAY_IN_MILLIS, DateUtils.WEEK_IN_MILLIS, 0).toString();
             m_PostCreated.setText(relativeTime.substring(0, relativeTime.indexOf(',')));
             m_PostImage.setImageBitmap(post.m_Image);
+            String likes = m_Activity.getApplicationContext().getString(R.string.user_post_likes, post.m_Likes);
+            m_PostLikeCount.setText(likes);
             m_PostCommentEditText.setText("");
 
             CommentManager.getInstance().queryPostComments(m_Post.m_PostID, (success, message, commentIDs) -> {
@@ -124,6 +130,8 @@ public class PopupPost
             m_CommentsListView.setAdapter(null);
         }
         m_CommentsListView.setEmptyView(m_EmptyListTextView);
+        String commentCount = m_Activity.getApplicationContext().getString(R.string.user_post_comments_count, postComments.size());
+        m_PostCommentCount.setText(commentCount);
     }
 
     public SlidingUpPanelLayout.PanelState getPanelState()
