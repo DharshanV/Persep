@@ -259,7 +259,7 @@ public class UserFeedAdapter extends RecyclerView.Adapter<UserFeedAdapter.UserFe
                 TextView messageTextview = m_ConfirmDeleteDialog.findViewById(android.R.id.message);
                 if (messageTextview != null)
                 {
-                    messageTextview.setTypeface(ResourcesCompat.getFont(m_Context, R.font.playfair_display_regular));
+                    messageTextview.setTypeface(ResourcesCompat.getFont(m_Context, R.font.lora_regular));
                 }
 
                 float size = m_Context.getResources().getDimension(R.dimen.delete_post_button_text_size);

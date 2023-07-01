@@ -30,7 +30,7 @@
                 android:textSize="35sp"
                 android:layout_marginStart="10dp"
                 android:layout_gravity="center|left"
-                android:fontFamily="@font/playfair_display_bold"
+                android:fontFamily="@font/lora_bold"
                 android:text="TempUserName"
                 android:textColor="@color/text_color_on_background"
                 tools:ignore="RtlHardcoded" />

@@ -19,10 +19,9 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:fontFamily="@font/playfair_display_regular"
+        android:fontFamily="@font/lora_bold"
         android:text="TempUserName"
         android:textColor="@color/text_color_on_background"
-        android:textSize="20sp"
-        android:textStyle="bold" />
+        android:textSize="20sp" />
 
 </LinearLayout>

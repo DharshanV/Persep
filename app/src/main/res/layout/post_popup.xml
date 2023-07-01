@@ -24,7 +24,7 @@
         android:textColor="@color/text_color_on_background"
         android:layout_marginStart="10dp"
         android:layout_gravity="center|left"
-        android:fontFamily="@font/playfair_display_bold"
+        android:fontFamily="@font/lora_bold"
         tools:ignore="RtlHardcoded"
         app:layout_constraintTop_toBottomOf="@+id/popup_drag_view"
         app:layout_constraintLeft_toLeftOf="parent"/>

@@ -32,7 +32,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:fontFamily="@font/playfair_display_bold"
+                android:fontFamily="@font/lora_bold"
                 android:text="@string/profile_activity_title_string"
                 android:textSize="35sp"
                 android:textColor="@color/text_color_on_background" />
@@ -44,7 +44,7 @@
                 android:text="@string/activity_settings_username_email_string"
                 android:textSize="15sp"
                 android:textColor="#AFAFAF"
-                android:fontFamily="@font/playfair_display_bold"/>
+                android:fontFamily="@font/lora_bold"/>
 
             <View
                 android:layout_width="match_parent"
@@ -62,7 +62,7 @@
                 android:text="TempUsername"
                 android:textSize="20sp"
                 android:textColor="@color/text_color_on_background"
-                android:fontFamily="@font/playfair_display_regular"/>
+                android:fontFamily="@font/lora_regular"/>
 
             <View
                 android:layout_width="match_parent"
@@ -80,7 +80,7 @@
                 android:text="temp@gmail.com"
                 android:textSize="20sp"
                 android:textColor="@color/text_color_on_background"
-                android:fontFamily="@font/playfair_display_regular"/>
+                android:fontFamily="@font/lora_regular"/>
 
             <View
                 android:layout_width="match_parent"
@@ -96,7 +96,7 @@
                 android:text="@string/activity_settings_legal_string"
                 android:textSize="15sp"
                 android:textColor="#AFAFAF"
-                android:fontFamily="@font/playfair_display_bold"/>
+                android:fontFamily="@font/lora_bold"/>
 
             <View
                 android:layout_width="match_parent"
@@ -112,7 +112,7 @@
                 android:layout_height="wrap_content"
                 app:icon="@drawable/ic_baseline_chevron_right_24"
                 android:text="@string/account_settings_privacy_policy_button_string"
-                android:fontFamily="@font/playfair_display_regular"
+                android:fontFamily="@font/lora_regular"
                 android:textColor="@color/text_color_on_background"
                 android:textSize="19sp"
                 tools:ignore="RtlHardcoded,RtlSymmetry" />
@@ -131,7 +131,7 @@
                 android:layout_height="wrap_content"
                 app:icon="@drawable/ic_baseline_chevron_right_24"
                 android:text="@string/account_settings_terms_of_service_button_string"
-                android:fontFamily="@font/playfair_display_regular"
+                android:fontFamily="@font/lora_regular"
                 android:textColor="@color/text_color_on_background"
                 android:textSize="19sp"
                 tools:ignore="RtlHardcoded,RtlSymmetry" />
@@ -149,9 +149,9 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="50dp"
                 android:text="Account"
-                android:textSize="16dp"
+                android:textSize="15dp"
                 android:textColor="#AFAFAF"
-                android:fontFamily="@font/playfair_display_bold"/>
+                android:fontFamily="@font/lora_bold"/>
 
             <View
                 android:layout_width="match_parent"
@@ -170,7 +170,7 @@
                 app:rippleColor="@color/button_ripple_color"
                 app:iconGravity="textStart"
                 android:text="@string/account_settings_sign_out_button_string"
-                android:fontFamily="@font/playfair_display_regular"
+                android:fontFamily="@font/lora_regular"
                 android:textColor="@color/text_color_on_background"
                 android:textSize="19sp"
                 android:letterSpacing="0"
@@ -194,7 +194,7 @@
                 app:rippleColor="@color/button_ripple_color"
                 app:iconGravity="textStart"
                 android:text="@string/account_settings_delete_account_button_string"
-                android:fontFamily="@font/playfair_display_regular"
+                android:fontFamily="@font/lora_regular"
                 android:textColor="@color/text_color_on_background"
                 android:textSize="19sp"
                 android:letterSpacing="0"
