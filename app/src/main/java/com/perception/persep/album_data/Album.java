@@ -4,11 +4,14 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.Path;
 import android.graphics.PorterDuff;
+import android.graphics.PorterDuffColorFilter;
+import android.graphics.drawable.Drawable;
 
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 
+import com.example.persep.R;
 import com.firebase.geofire.GeoFireUtils;
 import com.firebase.geofire.GeoLocation;
 import com.google.firebase.Timestamp;
@@ -18,6 +21,7 @@ import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.GeoPoint;
 import com.google.firebase.firestore.WriteBatch;
+import com.perception.persep.activities.HomeActivity;
 import com.perception.persep.constants.AlbumConstants;
 import com.perception.persep.data_gatherer.AlbumManager;
 import com.perception.persep.data_gatherer.PostManager;
@@ -59,7 +63,7 @@ public class Album
     private Canvas m_UICanvas;
     private int m_CanvasWidth;
     private int m_CanvasHeight;
-    private Path m_HeartPath;
+    private Bitmap m_HeartIcon;
 
     public Album(double lat, double lon)
     {
@@ -137,7 +141,18 @@ public class Album
         float ratio = ((float) m_CanvasWidth / (float) m_CanvasHeight) - 1.0f;
         m_UICanvas.scale(1.0f, ratio);
 
-        m_HeartPath = createHeartPath();
+        Drawable heartDrawable = ContextCompat.getDrawable(HomeActivity.getHomeActivityContext(), R.drawable.ic_heart_24);
+        m_HeartIcon = drawableToBitmap(heartDrawable);
+    }
+
+    public static Bitmap drawableToBitmap(Drawable drawable)
+    {
+        Bitmap bitmap = Bitmap.createBitmap(drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(bitmap);
+        drawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
+        drawable.setColorFilter(new PorterDuffColorFilter(Color.RED, PorterDuff.Mode.SRC_ATOP));
+        drawable.draw(canvas);
+        return bitmap;
     }
 
     private void createAlbumServer()
@@ -379,67 +394,9 @@ public class Album
         m_Paint.setARGB(255, 200, 0,0);
         m_Paint.setStyle(Paint.Style.FILL);
         m_UICanvas.save();
-        m_UICanvas.translate(35, 25);
-        m_UICanvas.drawPath(m_HeartPath, m_Paint);
+        m_UICanvas.scale(1.5f, 1.5f);
+        m_UICanvas.drawBitmap(m_HeartIcon, 35, 25, m_Paint);
         m_UICanvas.restore();
-    }
-
-    private Path createHeartPath() {
-        Path path = new Path();
-
-        float width = 100.0f;
-        float height = 100.0f;
-
-        float pX = width/2f;
-        float pY = (height/100f)*33.33f;
-
-        float x1 = (width/100f)*50;
-        float y1 = (height/100f)*5;
-        float x2 = (width/100f)*90;
-        float y2 = (height/100f)*10;
-        float x3 = (width/100f)*90;
-        float y3 = (height/100f)*33.33f;
-
-        path.moveTo(pX,pY);
-        path.cubicTo(x1, y1, x2, y2, x3, y3);
-        path.moveTo(x3,pY);
-
-        x1 = (width/100f)*90;
-        y1 = (height/100f)*55f;
-        x2 = (width/100f)*65;
-        y2 = (height/100f)*60f;
-        x3 = (width/100f)*50;
-        y3 = (height/100f)*90f;
-
-        path.cubicTo(x1, y1, x2, y2, x3, y3);
-        path.lineTo(pX,pY);
-
-
-        x1 = (width/100f)*50;
-        y1 = (height/100f)*5;
-        x2 = (width/100f)*10;
-        y2 = (height/100f)*10;
-        x3 = (width/100f)*10;
-        y3 = (height/100f)*33.33f;
-
-        path.moveTo(pX,pY);
-        path.cubicTo(x1, y1, x2, y2, x3, y3);
-        path.moveTo(x3,pY);
-
-        x1 = (width/100f)*10;
-        y1 = (height/100f)*55f;
-        x2 = (width/100f)*35f;
-        y2 = (height/100f)*60f;
-        x3 = (width/100f)*50f;
-        y3 = (height/100f)*90f;
-
-        path.cubicTo(x1, y1, x2, y2, x3, y3);
-        path.lineTo(pX,pY);
-
-        path.moveTo(x3,y3);
-        path.close();
-
-        return path;
     }
 
     public Bitmap getUIBitmap()
