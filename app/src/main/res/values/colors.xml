@@ -10,6 +10,8 @@
     <color name="red_heart">#DC3535</color>
 
     <color name="persep_color">#7DD4AE</color>
+    <color name="persep_black">#121212</color>
+    <color name="persep_white">#E3E3E3</color>
     <color name="button_ripple_color">#A4C5C5C5</color>
     <color name="text_color_on_background">@color/black</color>
     <color name="divider_background_color">@color/persep_color</color>
