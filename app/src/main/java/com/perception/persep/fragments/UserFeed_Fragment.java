@@ -39,6 +39,7 @@ public class UserFeed_Fragment extends Fragment implements SlidingUpPanelLayout.
     private RecyclerView m_UserFeedRecycleView;
     private ViewPager2 m_ViewPager;
     private PopupUserFeed m_PopupUserFeed;
+    private TextView m_EmptyPostsTextView;
 
     public UserFeed_Fragment(ViewPager2 viewPager)
     {
@@ -58,9 +59,34 @@ public class UserFeed_Fragment extends Fragment implements SlidingUpPanelLayout.
     {
         super.onViewCreated(view, savedInstanceState);
 
+        m_EmptyPostsTextView = view.findViewById(R.id.user_feed_empty_recycle_view);
+
         m_UserFeedRecycleView = view.findViewById(R.id.user_feed_recycle_view);
         m_UserFeedRecycleView.setLayoutManager(new LinearLayoutManager(view.getContext()));
         m_UserFeedAdapter = new UserFeedAdapter(this);
+        m_UserFeedAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver()
+        {
+            @Override
+            public void onChanged()
+            {
+                super.onChanged();
+                m_EmptyPostsTextView.setVisibility(m_UserFeedAdapter.getItemCount() == 0 ? View.VISIBLE : View.GONE);
+            }
+
+            @Override
+            public void onItemRangeInserted(int positionStart, int itemCount)
+            {
+                super.onItemRangeInserted(positionStart, itemCount);
+                m_EmptyPostsTextView.setVisibility(itemCount == 0 ? View.VISIBLE : View.GONE);
+            }
+
+            @Override
+            public void onItemRangeRemoved(int positionStart, int itemCount)
+            {
+                super.onItemRangeRemoved(positionStart, itemCount);
+                m_EmptyPostsTextView.setVisibility(itemCount == 0 ? View.VISIBLE : View.GONE);
+            }
+        });
         m_UserFeedRecycleView.setAdapter(m_UserFeedAdapter);
 
         m_SwipeRefreshLayout = view.findViewById(R.id.user_feed_swipe_refresh_layout);

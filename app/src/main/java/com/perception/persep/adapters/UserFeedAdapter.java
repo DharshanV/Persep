@@ -49,7 +49,7 @@ public class UserFeedAdapter extends RecyclerView.Adapter<UserFeedAdapter.UserFe
         if (loggedInUser != null)
         {
             PostManager.getInstance().queryUserPosts(loggedInUser.getUid(), postIDs -> {
-                if (postIDs == null || postIDs.isEmpty()) return;
+                if (postIDs == null) return;
 
                 m_UserPostIDs.addAll(postIDs);
                 sortUserPosts(m_UserPostIDs);
