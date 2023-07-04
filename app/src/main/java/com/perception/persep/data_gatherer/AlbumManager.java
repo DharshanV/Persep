@@ -117,7 +117,7 @@ public class AlbumManager implements Runnable, GPSSensor.Listener
             GeoLocation queryLocation = new GeoLocation(m_DeviceLat, m_DeviceLon);
             List<Task<QuerySnapshot>> queryTasks = FirebaseQueries.GetAlbumQueryTasks(queryLocation, QueryConstants.MAX_QUERY_RADIUS);
             Tasks.whenAllSuccess(queryTasks).addOnSuccessListener(albumsResult -> {
-                DocumentSnapshot closestServerAlbum = FirebaseQueries.OnAlbumQueryTasksClosestAlbum(albumsResult, queryLocation, QueryConstants.MAX_QUERY_RADIUS);
+                DocumentSnapshot closestServerAlbum = FirebaseQueries.OnAlbumQueryTasksClosestAlbum(albumsResult, queryLocation, QueryConstants.MAX_ADD_POST_RADIUS);
 
                 Album newClosestLocalAlbum;
                 if (closestServerAlbum == null)
