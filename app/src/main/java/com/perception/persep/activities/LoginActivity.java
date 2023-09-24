@@ -69,7 +69,8 @@ public class LoginActivity extends AppCompatActivity
                     if (successful)
                     {
                         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-                        boolean showTutorial = sharedPreferences.getBoolean("show_tutorial", true);
+//                        boolean showTutorial = sharedPreferences.getBoolean("show_tutorial", true);
+                        boolean showTutorial = false;
                         startActivity(showTutorial ? TutorialActivity.class : HomeActivity.class);
                     } else
                     {

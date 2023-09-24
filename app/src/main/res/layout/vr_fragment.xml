@@ -39,34 +39,34 @@
 
         </RelativeLayout>
 
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/vr_help_layout"
-            android:layout_width="50dp"
-            android:layout_height="wrap_content"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
-            android:layout_marginTop="10dp"
-            android:layout_marginEnd="15dp"
-            android:paddingVertical="10dp"
-            android:paddingHorizontal="5dp"
-            android:background="@drawable/ar_icon_background"
-            android:translationZ="30dp">
-            <ImageButton
-                android:id="@+id/vr_help_button"
-                android:layout_width="@dimen/vr_enable_disable_vector_size"
-                android:layout_height="@dimen/vr_enable_disable_vector_size"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintLeft_toLeftOf="parent"
-                app:layout_constraintRight_toRightOf="parent"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:src="@drawable/ic_baseline_help_24"
-                android:translationZ="30dp" />
-        </androidx.constraintlayout.widget.ConstraintLayout>
+<!--        <androidx.constraintlayout.widget.ConstraintLayout-->
+<!--            android:id="@+id/vr_help_layout"-->
+<!--            android:layout_width="50dp"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            app:layout_constraintTop_toTopOf="parent"-->
+<!--            app:layout_constraintRight_toRightOf="parent"-->
+<!--            android:layout_marginTop="10dp"-->
+<!--            android:layout_marginEnd="15dp"-->
+<!--            android:paddingVertical="10dp"-->
+<!--            android:paddingHorizontal="5dp"-->
+<!--            android:background="@drawable/ar_icon_background"-->
+<!--            android:translationZ="30dp">-->
+<!--            <ImageButton-->
+<!--                android:id="@+id/vr_help_button"-->
+<!--                android:layout_width="@dimen/vr_enable_disable_vector_size"-->
+<!--                android:layout_height="@dimen/vr_enable_disable_vector_size"-->
+<!--                app:layout_constraintTop_toTopOf="parent"-->
+<!--                app:layout_constraintLeft_toLeftOf="parent"-->
+<!--                app:layout_constraintRight_toRightOf="parent"-->
+<!--                android:background="?attr/selectableItemBackgroundBorderless"-->
+<!--                android:src="@drawable/ic_baseline_help_24"-->
+<!--                android:translationZ="30dp" />-->
+<!--        </androidx.constraintlayout.widget.ConstraintLayout>-->
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="50dp"
             android:layout_height="wrap_content"
-            app:layout_constraintTop_toBottomOf="@id/vr_help_layout"
+            app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintRight_toRightOf="parent"
             android:layout_marginTop="10dp"
             android:layout_marginEnd="15dp"

@@ -55,7 +55,8 @@ public class SplashScreenActivity extends Activity
             FirebaseFirestore.getInstance().collection(UserConstants.COLLECTION_NAME).document(user.getUid()).get().addOnSuccessListener(documentSnapshot -> {
                 long delayTime = Math.max(SPLASH_SCREEN_ANIMATION_TIME - (SystemClock.elapsedRealtime() - currTime), 0);
                 SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-                boolean showTutorial = sharedPreferences.getBoolean("show_tutorial", true);
+//                boolean showTutorial = sharedPreferences.getBoolean("show_tutorial", true);
+                boolean showTutorial = false;
                 startActivity(showTutorial ? TutorialActivity.class : HomeActivity.class, delayTime);
             }).addOnFailureListener(e -> {
                 long delayTime = Math.max(SPLASH_SCREEN_ANIMATION_TIME - (SystemClock.elapsedRealtime() - currTime), 0);

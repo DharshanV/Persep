@@ -256,8 +256,8 @@ public class VR_Fragment extends Fragment implements BearingSensor.BearingSensor
         m_ToggleCameraButton.setEnabled(false);
         m_ToggleCameraButton.setOnClickListener(v -> ToggleCamera());
 
-        m_VRTutorialButton = view.findViewById(R.id.vr_help_button);
-        m_VRTutorialButton.setOnClickListener(v -> startActivity(new Intent(getActivity(), VRTutorialActivity.class)));
+//        m_VRTutorialButton = view.findViewById(R.id.vr_help_button);
+//        m_VRTutorialButton.setOnClickListener(v -> startActivity(new Intent(getActivity(), VRTutorialActivity.class)));
 
         m_UCropActivityResultLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
                 result -> {
